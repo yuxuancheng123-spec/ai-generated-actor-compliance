@@ -340,6 +340,22 @@ h1 {
   background: var(--green);
 }
 
+.risk-pill.reject {
+  background: var(--red);
+}
+
+.risk-pill.escalate {
+  background: #c2410c;
+}
+
+.risk-pill.conditional {
+  background: var(--amber);
+}
+
+.risk-pill.approve {
+  background: var(--green);
+}
+
 .artifact-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -400,6 +416,10 @@ h1 {
   align-items: start;
 }
 
+.memo-grid {
+  grid-template-columns: minmax(0, 0.88fr) minmax(430px, 1fr);
+}
+
 .risk-form,
 .result-panel {
   padding: 24px;
@@ -430,6 +450,17 @@ label {
   font-weight: 700;
 }
 
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
 select {
   width: 100%;
   min-height: 48px;
@@ -446,6 +477,10 @@ select {
 
 .switch-grid legend {
   grid-column: 1 / -1;
+}
+
+.compact-grid {
+  margin-top: 4px;
 }
 
 .switch {
@@ -489,9 +524,30 @@ select {
   top: 92px;
 }
 
+.memo-panel {
+  max-height: calc(100dvh - 112px);
+  overflow: auto;
+}
+
 .result-header {
   justify-content: space-between;
   gap: 16px;
+}
+
+.memo-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin: 26px 0 12px;
+}
+
+.memo-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 780;
 }
 
 .score-orbit {
@@ -512,6 +568,16 @@ select {
   font-weight: 780;
 }
 
+.compact-orbit {
+  width: 106px;
+  height: 106px;
+  margin: 0;
+}
+
+.compact-orbit span {
+  font-size: 34px;
+}
+
 .result-panel h3 {
   margin-bottom: 10px;
   font-size: 28px;
@@ -525,11 +591,56 @@ select {
   line-height: 1.55;
 }
 
+.memo-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  margin: 22px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--line);
+}
+
+.memo-meta div {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.memo-meta dt {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.memo-meta dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 780;
+}
+
+.memo-section {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
+.memo-section h4 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.memo-section ul,
 #reason-list {
   display: grid;
   gap: 9px;
   margin: 20px 0 24px;
   padding-left: 20px;
+}
+
+.memo-section ul {
+  margin: 0;
 }
 
 .next-actions {
@@ -662,6 +773,10 @@ select {
   .result-panel {
     position: static;
   }
+
+  .memo-panel {
+    max-height: none;
+  }
 }
 
 @media (max-width: 620px) {
@@ -690,6 +805,7 @@ select {
 
   .artifact-strip,
   .control-layers,
+  .field-grid,
   .switch-grid {
     grid-template-columns: 1fr;
   }
@@ -707,5 +823,15 @@ select {
   .site-footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .memo-hero,
+  .memo-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .compact-orbit {
+    width: 92px;
+    height: 92px;
   }
 }

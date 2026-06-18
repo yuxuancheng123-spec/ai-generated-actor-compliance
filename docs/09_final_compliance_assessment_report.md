@@ -22,7 +22,23 @@ The assessment uses a practical product compliance method:
 2. Risk register: identify realistic misuse and governance risks across upload, generation, labeling, commercialization, download, reposting, and incident response.
 3. Framework mapping: connect platform controls to EU AI Act Article 50, China AI labeling rules, SAG-AFTRA AI principles, and NIST AI RMF.
 4. Control design: translate legal and governance expectations into platform gates, reviewer checklists, audit artifacts, labeling rules, and response workflows.
-5. Executable demo: create a simple rule-based scoring script to show how platform risk logic can be made repeatable.
+5. Executable demo: create a rule-based review workflow to show how platform risk logic can be made repeatable and explainable.
+
+## Case Review Workflow
+
+The interactive demo in this repository models a lightweight version of a platform compliance review queue. Instead of asking only for a generic risk score, it collects facts that a product compliance analyst would need before allowing AI actor content to be generated or distributed:
+
+- Requester type: individual creator, brand, production company, or performer licensing their own replica.
+- Person depicted: fully synthetic character, uploader themselves, ordinary third party, contracted performer, public figure, politician, or minor.
+- Source media used: face or likeness, voice sample, body motion, or prior performance clip.
+- Use and monetization: short drama, advertisement, virtual influencer, fan content, parody, political message, public post, paid ad, internal draft, or resale.
+- Consent evidence: no evidence, self-attestation, uploaded contract, verified performer portal, or performer AI replica agreement.
+- License scope: commercial use, training use, territory, duration, secondary use, revocation, and compensation.
+- Release regions and controls: EU, China, US, global release, visible labels, machine-readable metadata, watermarking, and training-data use.
+
+The output is a compliance review memo rather than a bare score. The memo includes a decision, risk level, reviewer path, key risk drivers, required controls, labeling requirements, consent gaps, human review triggers, framework mapping, and evidence checklist. This format better reflects how a real platform would document why a synthetic media request was approved, escalated, conditionally approved, or rejected.
+
+The demo uses deterministic rules for portfolio purposes. It is not a legal determination and is not an automated substitute for legal review. Its purpose is to show how policy expectations can be translated into a transparent product workflow.
 
 ## 1. Platform Scenario
 
@@ -79,6 +95,27 @@ Label removal and reposting are downstream risks. A label shown inside the platf
 5. Maintain a rights-holder incident response workflow with evidence preservation.
    The platform should support complaint intake, rapid containment, authorization review, takedown or label correction, affected-person notification, account enforcement, vendor escalation, and post-incident control improvement.
 
+## 5A. Decision Logic for Platform Review
+
+The platform should distinguish four decision outcomes.
+
+Reject before generation: The request should be blocked when it uses a real person's face, voice, motion, or prior performance without verified authorization; when a real person is placed in sexual or defamatory synthetic content; or when a minor is involved in a sensitive synthetic media context. The platform should preserve source media, prompts, account records, and attempted outputs for evidence review.
+
+Escalate to human review: The request may be permissible but requires reviewer sign-off when it involves public figures, politicians, minors, parody or fan-content claims, political messaging, sensitive contexts, or high-impact commercial endorsements. Reviewers should assess confusion, consent quality, label prominence, distribution scope, and likely harm.
+
+Approve with conditions: The request may proceed only after identified control gaps are closed. Examples include adding visible labels, adding machine-readable metadata for China-facing releases, adding watermarking or content credentials for exportable media, narrowing distribution territory, removing training-data use, or obtaining contract terms for commercial use, duration, compensation, or secondary use.
+
+Approve standard workflow: The request may proceed through ordinary synthetic-media moderation when it is fully synthetic or self-authorized, non-sensitive, non-commercial or low-impact, properly labeled, and supported by audit logs.
+
+## 5B. Sample Case Outcomes
+
+| Scenario | Likely Decision | Main Reason | Required Controls |
+|---|---|---|---|
+| Brand uploads a celebrity face and voice to generate a paid ad without authorization | Reject | Unauthorized real-person likeness and voice in commercial endorsement | Block generation, preserve evidence, require verified authorization, route repeat abuse to enforcement |
+| Production company uses a contracted performer's digital replica for a short drama with complete performer agreement | Approve standard workflow | Authorization, scope, labels, and provenance controls are present | Maintain scope enforcement, labels, metadata, watermarking, export logs, and audit records |
+| Creator posts fan parody using a public figure's likeness with visible AI label | Escalate | Parody is not automatic authorization and may still mislead viewers | Human review, no endorsement implication, prominent label, no paid ad placement, region-specific policy check |
+| Fully synthetic non-commercial character for an internal draft | Approve standard workflow | No real-person likeness or commercial release | Standard AI label, audit log, and routine moderation |
+
 ## 6. Consent and Licensing Controls
 
 The platform should require specific consent before generating or commercializing an AI actor based on a real person. Consent should identify the person, the authorized rights holder, the covered attributes, permitted use, duration, territory, distribution channels, commercial rights, compensation, revocation pathway, secondary use, and whether model training is allowed.
@@ -132,4 +169,3 @@ If these controls are implemented, the platform can support lawful and transpare
 - SAG-AFTRA 2023 TV/Theatrical Contracts resources. https://www.sagaftra.org/contracts-industry-resources/contracts/2023-tvtheatrical-contracts
 - NIST AI Risk Management Framework. https://www.nist.gov/itl/ai-risk-management-framework
 - C2PA technical specification and content provenance resources. https://c2pa.org/specifications/
-

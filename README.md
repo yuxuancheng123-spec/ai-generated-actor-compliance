@@ -32,7 +32,7 @@ This is a fictional educational project and is not legal advice.
 | [Provenance and Watermarking Review](docs/07_deepfake_provenance_watermarking_review.md) | Compares visible watermarks, metadata, C2PA/content credentials, model-side watermarks, and hash registries |
 | [Framework Mappings](frameworks/) | Maps controls to EU AI Act Article 50, China AI labeling rules, SAG-AFTRA AI principles, and NIST AI RMF |
 | [Risk Scoring Demo](scripts/risk_scoring_demo.py) | Shows how compliance rules can become a simple executable content review aid |
-| [Interactive Web Demo](web/index.html) | Lets reviewers score scenarios in a browser and jump to the final report |
+| [Interactive Web Demo](web/index.html) | Lets reviewers generate a compliance review memo from a realistic synthetic media intake form |
 | [Final Assessment Report](docs/09_final_compliance_assessment_report.md) | Summarizes the assessment, findings, recommended controls, and governance model |
 
 ## How to Review This Repo
@@ -112,6 +112,17 @@ Then visit:
 ```text
 http://localhost:8000/web/
 ```
+
+The browser demo is a rule-based case review workflow, not an ML model. It asks for requester type, depicted person, source media, use case, monetization, release regions, consent evidence, license scope, labeling controls, and training-data use. It outputs a structured compliance review memo with:
+
+- Decision: reject, escalate, approve with conditions, or approve;
+- Risk drivers and reviewer path;
+- Required pre-release controls;
+- Labeling and disclosure requirements;
+- Consent and licensing gaps;
+- Human review triggers;
+- Framework mapping;
+- Evidence checklist.
 
 The full report is linked from the web demo header, hero, and result panel.
 

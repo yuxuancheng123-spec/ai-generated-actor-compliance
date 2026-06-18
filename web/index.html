@@ -17,7 +17,7 @@
         <span>AI Actor Compliance</span>
       </a>
       <nav class="nav-links" aria-label="Project links">
-        <a href="#demo">Risk Demo</a>
+        <a href="#demo">Review Memo</a>
         <a href="#controls">Controls</a>
         <a href="../docs/09_final_compliance_assessment_report.md">Report</a>
         <a href="https://github.com/yuxuancheng123-spec/ai-generated-actor-compliance">GitHub</a>
@@ -91,48 +91,86 @@
 
       <section class="section-intro" aria-labelledby="demo-title">
         <p class="section-kicker">Interactive review</p>
-        <h2 id="demo-title">Score a synthetic media scenario.</h2>
+        <h2 id="demo-title">Generate a compliance review memo.</h2>
         <p>
-          The browser demo mirrors the repo's rule-based Python script. It converts consent, public figure,
-          commercial use, sensitive context, training use, and labeling choices into a review outcome.
+          The browser demo turns a realistic synthetic media intake form into a product compliance memo:
+          decision, risk drivers, required controls, labeling duties, consent gaps, and framework mapping.
         </p>
       </section>
 
-      <section id="demo" class="demo-grid" aria-label="Risk scoring demo">
+      <section id="demo" class="demo-grid memo-grid" aria-label="Compliance review memo demo">
         <form class="risk-form" id="risk-form">
           <fieldset>
-            <legend>Scenario</legend>
-            <label for="content-type">Content type</label>
-            <select id="content-type" name="contentType">
-              <option value="video">Video</option>
-              <option value="audio">Audio</option>
-              <option value="image">Image</option>
-              <option value="ad">Advertisement</option>
-            </select>
+            <legend>1. Request context</legend>
+            <div class="field-grid">
+              <div class="field">
+                <label for="requester-type">Requester type</label>
+                <select id="requester-type" name="requesterType">
+                  <option value="creator">Individual creator</option>
+                  <option value="brand">Brand or advertiser</option>
+                  <option value="production">Production company</option>
+                  <option value="performer">Performer licensing own replica</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="subject-type">Person depicted</label>
+                <select id="subject-type" name="subjectType">
+                  <option value="publicFigure">Celebrity or public figure</option>
+                  <option value="ordinaryPerson">Ordinary third party</option>
+                  <option value="self">Uploader themselves</option>
+                  <option value="performer">Contracted performer</option>
+                  <option value="politician">Political figure</option>
+                  <option value="minor">Child or minor</option>
+                  <option value="synthetic">Fully synthetic character</option>
+                </select>
+              </div>
+            </div>
           </fieldset>
 
           <fieldset class="switch-grid">
-            <legend>Identity and authorization</legend>
+            <legend>2. Source media used</legend>
             <label class="switch">
-              <input type="checkbox" name="realPerson" checked />
-              <span>Real person likeness or voice</span>
+              <input type="checkbox" name="mediaFace" checked />
+              <span>Face or likeness</span>
             </label>
             <label class="switch">
-              <input type="checkbox" name="authorized" />
-              <span>Verified authorization</span>
+              <input type="checkbox" name="mediaVoice" checked />
+              <span>Voice sample</span>
             </label>
             <label class="switch">
-              <input type="checkbox" name="publicFigure" checked />
-              <span>Public figure or celebrity</span>
+              <input type="checkbox" name="mediaMotion" />
+              <span>Body motion</span>
             </label>
             <label class="switch">
-              <input type="checkbox" name="minor" />
-              <span>Child or minor involved</span>
+              <input type="checkbox" name="mediaPerformance" />
+              <span>Prior performance clip</span>
             </label>
           </fieldset>
 
           <fieldset>
-            <legend>Use context</legend>
+            <legend>3. Use and distribution</legend>
+            <div class="field-grid">
+              <div class="field">
+                <label for="use-case">Use case</label>
+                <select id="use-case" name="useCase">
+                  <option value="shortDrama">Short drama scene</option>
+                  <option value="advertisement">Advertisement</option>
+                  <option value="virtualInfluencer">Virtual influencer post</option>
+                  <option value="fanContent">Fan content</option>
+                  <option value="parody">Parody or satire</option>
+                  <option value="politicalMessage">Political message</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="monetization">Commercialization</label>
+                <select id="monetization" name="monetization">
+                  <option value="paidAd">Paid ad or endorsement</option>
+                  <option value="publicPost">Public post</option>
+                  <option value="draft">Internal draft only</option>
+                  <option value="resale">License or resale</option>
+                </select>
+              </div>
+            </div>
             <label for="sensitive-context">Sensitive context</label>
             <select id="sensitive-context" name="sensitiveContext">
               <option value="none">None</option>
@@ -142,40 +180,155 @@
               <option value="financial">Financial</option>
               <option value="defamatory">Defamatory</option>
             </select>
+          </fieldset>
+
+          <fieldset class="switch-grid">
+            <legend>4. Distribution regions</legend>
             <label class="switch">
-              <input type="checkbox" name="commercial" checked />
-              <span>Commercial or endorsement use</span>
+              <input type="checkbox" name="regionEu" checked />
+              <span>European Union</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="regionChina" checked />
+              <span>China</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="regionUs" />
+              <span>United States</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="regionGlobal" />
+              <span>Global release</span>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>5. Consent evidence</legend>
+            <label for="consent-evidence">Authorization evidence</label>
+            <select id="consent-evidence" name="consentEvidence">
+              <option value="none">No authorization evidence</option>
+              <option value="selfAttestation">Uploader self-attestation</option>
+              <option value="uploadedContract">Uploaded contract</option>
+              <option value="verifiedPortal">Verified performer portal</option>
+              <option value="performerAgreement">Performer AI replica agreement</option>
+            </select>
+            <div class="switch-grid compact-grid">
+              <label class="switch">
+                <input type="checkbox" name="scopeCommercial" />
+                <span>Commercial use covered</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" name="scopeTraining" />
+                <span>Training use covered</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" name="scopeTerritory" />
+                <span>Territory covered</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" name="scopeDuration" />
+                <span>Duration covered</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" name="scopeSecondaryUse" />
+                <span>Secondary use covered</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" name="scopeRevocation" />
+                <span>Revocation path exists</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" name="scopeCompensation" />
+                <span>Compensation terms exist</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>6. Platform controls</legend>
+            <label class="switch">
+              <input type="checkbox" name="visibleLabel" />
+              <span>Visible AI label planned</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="machineLabel" />
+              <span>Machine-readable metadata planned</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="watermark" />
+              <span>Persistent watermark or provenance planned</span>
             </label>
             <label class="switch">
               <input type="checkbox" name="trainingUse" />
-              <span>Training or model improvement use</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="aiLabeled" />
-              <span>AI label is present</span>
+              <span>Use source media for training or model improvement</span>
             </label>
           </fieldset>
 
           <div class="preset-row" aria-label="Scenario presets">
-            <button class="preset" type="button" data-preset="prohibited">Prohibited</button>
-            <button class="preset" type="button" data-preset="medium">Medium</button>
-            <button class="preset" type="button" data-preset="low">Low</button>
+            <button class="preset" type="button" data-preset="unauthorizedCelebrityAd">Stolen celebrity ad</button>
+            <button class="preset" type="button" data-preset="licensedPerformer">Licensed performer</button>
+            <button class="preset" type="button" data-preset="fanParody">Fan parody</button>
+            <button class="preset" type="button" data-preset="syntheticLow">Synthetic low risk</button>
           </div>
         </form>
 
-        <aside class="result-panel" aria-live="polite" aria-label="Risk result">
+        <aside class="result-panel memo-panel" aria-live="polite" aria-label="Compliance review memo">
           <div class="result-header">
-            <span class="micro-label">Review outcome</span>
-            <span class="risk-pill" id="risk-level">Prohibited</span>
+            <span class="micro-label">Compliance review memo</span>
+            <span class="risk-pill" id="decision-pill">Reject</span>
           </div>
-          <div class="score-orbit" aria-hidden="true">
-            <span id="score-value">8</span>
+          <div class="memo-hero">
+            <div>
+              <span class="memo-label">Decision</span>
+              <h3 id="result-title">Reject before generation</h3>
+            </div>
+            <div class="score-orbit compact-orbit" aria-label="Risk score">
+              <span id="score-value">12</span>
+            </div>
           </div>
-          <h3 id="result-title">Generation should be blocked.</h3>
           <p id="result-copy">
-            A real-person commercial request without verified authorization should not proceed.
+            The request lacks verified authorization for a real-person commercial AI actor workflow.
           </p>
-          <ul id="reason-list"></ul>
+
+          <dl class="memo-meta">
+            <div>
+              <dt>Risk level</dt>
+              <dd id="risk-level-text">Prohibited</dd>
+            </div>
+            <div>
+              <dt>Reviewer path</dt>
+              <dd id="reviewer-path">Block and preserve evidence</dd>
+            </div>
+          </dl>
+
+          <div class="memo-section">
+            <h4>Key risk drivers</h4>
+            <ul id="risk-driver-list"></ul>
+          </div>
+          <div class="memo-section">
+            <h4>Required controls before release</h4>
+            <ul id="control-list"></ul>
+          </div>
+          <div class="memo-section">
+            <h4>Labeling and disclosure</h4>
+            <ul id="label-list"></ul>
+          </div>
+          <div class="memo-section">
+            <h4>Consent and licensing gaps</h4>
+            <ul id="gap-list"></ul>
+          </div>
+          <div class="memo-section">
+            <h4>Human review triggers</h4>
+            <ul id="review-list"></ul>
+          </div>
+          <div class="memo-section">
+            <h4>Framework mapping</h4>
+            <ul id="framework-list"></ul>
+          </div>
+          <div class="memo-section">
+            <h4>Evidence checklist</h4>
+            <ul id="evidence-list"></ul>
+          </div>
           <div class="next-actions">
             <a href="../docs/09_final_compliance_assessment_report.md">Read final report</a>
             <a href="../scripts/risk_scoring_demo.py">View Python rules</a>
