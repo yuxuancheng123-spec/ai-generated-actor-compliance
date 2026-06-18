@@ -32,6 +32,7 @@ This is a fictional educational project and is not legal advice.
 | [Provenance and Watermarking Review](docs/07_deepfake_provenance_watermarking_review.md) | Compares visible watermarks, metadata, C2PA/content credentials, model-side watermarks, and hash registries |
 | [Framework Mappings](frameworks/) | Maps controls to EU AI Act Article 50, China AI labeling rules, SAG-AFTRA AI principles, and NIST AI RMF |
 | [Risk Scoring Demo](scripts/risk_scoring_demo.py) | Shows how compliance rules can become a simple executable content review aid |
+| [Interactive Web Demo](web/index.html) | Lets reviewers score scenarios in a browser and jump to the final report |
 | [Final Assessment Report](docs/09_final_compliance_assessment_report.md) | Summarizes the assessment, findings, recommended controls, and governance model |
 
 ## How to Review This Repo
@@ -98,6 +99,24 @@ The proposed compliance control architecture uses five layers:
 
 The risk scoring demo is intentionally simple and rule-based. It is not an ML model. It shows how compliance requirements can be translated into repeatable content review logic.
 
+### Browser demo
+
+Open [web/index.html](web/index.html) directly in a browser, or run a local server from the project root:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then visit:
+
+```text
+http://localhost:8000/web/
+```
+
+The full report is linked from the web demo header, hero, and result panel.
+
+### Python demo
+
 From the project root:
 
 ```bash
@@ -157,4 +176,3 @@ ai-generated-actor-compliance/
 - Incident response planning;
 - Framework mapping across EU, China, SAG-AFTRA, and NIST AI RMF;
 - Translating compliance rules into executable risk scoring logic.
-

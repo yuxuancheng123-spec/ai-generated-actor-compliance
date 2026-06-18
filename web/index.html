@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Actor Compliance Assessment</title>
+    <meta
+      name="description"
+      content="Interactive portfolio case study for AI-generated actor and deepfake content compliance."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="AI Actor Compliance home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>AI Actor Compliance</span>
+      </a>
+      <nav class="nav-links" aria-label="Project links">
+        <a href="#demo">Risk Demo</a>
+        <a href="#controls">Controls</a>
+        <a href="../docs/09_final_compliance_assessment_report.md">Report</a>
+        <a href="https://github.com/yuxuancheng123-spec/ai-generated-actor-compliance">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Synthetic media compliance case</p>
+          <h1 id="hero-title">Consent-first AI actor compliance.</h1>
+          <p class="hero-lede">
+            Assess authorization, labeling, and incident controls before synthetic media ships.
+          </p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button primary" href="#demo">Try demo</a>
+            <a class="button secondary" href="../docs/09_final_compliance_assessment_report.md">Open report</a>
+          </div>
+        </div>
+
+        <aside class="hero-device" aria-label="Compliance review preview">
+          <div class="device-topbar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="review-frame">
+            <div class="scan-stage">
+              <div class="face-grid" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <div class="scan-line" aria-hidden="true"></div>
+            </div>
+            <div class="review-stack">
+              <div>
+                <span class="micro-label">Content request</span>
+                <strong>Celebrity face in commercial short drama</strong>
+              </div>
+              <div class="signal-row">
+                <span>Authorization</span>
+                <strong class="signal-danger">Missing</strong>
+              </div>
+              <div class="signal-row">
+                <span>AI label</span>
+                <strong class="signal-danger">Missing</strong>
+              </div>
+              <div class="risk-pill prohibited">Prohibited</div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="artifact-strip" aria-label="Portfolio artifacts">
+        <a href="../docs/03_risk_register.md">
+          <span>01</span>
+          Risk register
+        </a>
+        <a href="../docs/04_consent_checklist.md">
+          <span>02</span>
+          Consent checklist
+        </a>
+        <a href="../docs/05_labeling_policy.md">
+          <span>03</span>
+          Labeling policy
+        </a>
+        <a href="../docs/06_incident_response.md">
+          <span>04</span>
+          Incident playbook
+        </a>
+      </section>
+
+      <section class="section-intro" aria-labelledby="demo-title">
+        <p class="section-kicker">Interactive review</p>
+        <h2 id="demo-title">Score a synthetic media scenario.</h2>
+        <p>
+          The browser demo mirrors the repo's rule-based Python script. It converts consent, public figure,
+          commercial use, sensitive context, training use, and labeling choices into a review outcome.
+        </p>
+      </section>
+
+      <section id="demo" class="demo-grid" aria-label="Risk scoring demo">
+        <form class="risk-form" id="risk-form">
+          <fieldset>
+            <legend>Scenario</legend>
+            <label for="content-type">Content type</label>
+            <select id="content-type" name="contentType">
+              <option value="video">Video</option>
+              <option value="audio">Audio</option>
+              <option value="image">Image</option>
+              <option value="ad">Advertisement</option>
+            </select>
+          </fieldset>
+
+          <fieldset class="switch-grid">
+            <legend>Identity and authorization</legend>
+            <label class="switch">
+              <input type="checkbox" name="realPerson" checked />
+              <span>Real person likeness or voice</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="authorized" />
+              <span>Verified authorization</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="publicFigure" checked />
+              <span>Public figure or celebrity</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="minor" />
+              <span>Child or minor involved</span>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Use context</legend>
+            <label for="sensitive-context">Sensitive context</label>
+            <select id="sensitive-context" name="sensitiveContext">
+              <option value="none">None</option>
+              <option value="sexual">Sexual</option>
+              <option value="political">Political</option>
+              <option value="medical">Medical</option>
+              <option value="financial">Financial</option>
+              <option value="defamatory">Defamatory</option>
+            </select>
+            <label class="switch">
+              <input type="checkbox" name="commercial" checked />
+              <span>Commercial or endorsement use</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="trainingUse" />
+              <span>Training or model improvement use</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="aiLabeled" />
+              <span>AI label is present</span>
+            </label>
+          </fieldset>
+
+          <div class="preset-row" aria-label="Scenario presets">
+            <button class="preset" type="button" data-preset="prohibited">Prohibited</button>
+            <button class="preset" type="button" data-preset="medium">Medium</button>
+            <button class="preset" type="button" data-preset="low">Low</button>
+          </div>
+        </form>
+
+        <aside class="result-panel" aria-live="polite" aria-label="Risk result">
+          <div class="result-header">
+            <span class="micro-label">Review outcome</span>
+            <span class="risk-pill" id="risk-level">Prohibited</span>
+          </div>
+          <div class="score-orbit" aria-hidden="true">
+            <span id="score-value">8</span>
+          </div>
+          <h3 id="result-title">Generation should be blocked.</h3>
+          <p id="result-copy">
+            A real-person commercial request without verified authorization should not proceed.
+          </p>
+          <ul id="reason-list"></ul>
+          <div class="next-actions">
+            <a href="../docs/09_final_compliance_assessment_report.md">Read final report</a>
+            <a href="../scripts/risk_scoring_demo.py">View Python rules</a>
+          </div>
+        </aside>
+      </section>
+
+      <section id="controls" class="control-section" aria-labelledby="controls-title">
+        <div class="section-intro compact">
+          <h2 id="controls-title">Control architecture</h2>
+          <p>
+            The case study treats real-person face and voice data as high-risk inputs and places controls
+            before generation, before publication, and after complaints.
+          </p>
+        </div>
+        <div class="control-layers">
+          <article>
+            <span>Gate</span>
+            <h3>Pre-generation review</h3>
+            <p>Identity verification, consent records, license scope, and prohibited-use screening.</p>
+          </article>
+          <article>
+            <span>License</span>
+            <h3>Granular authorization</h3>
+            <p>Separate permissions for face, voice, motion, commercial use, duration, territory, and training.</p>
+          </article>
+          <article>
+            <span>Label</span>
+            <h3>Disclosure and provenance</h3>
+            <p>Visible labels, metadata labels, watermarks, content credentials, export logs, and hashes.</p>
+          </article>
+          <article>
+            <span>Respond</span>
+            <h3>Rights-holder playbook</h3>
+            <p>Complaint intake, rapid containment, evidence preservation, takedown, and control improvement.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>This fictional educational project is not legal advice.</p>
+      <a href="../README.md">Back to repository README</a>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
