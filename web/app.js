@@ -169,6 +169,7 @@ const resultTitle = document.querySelector("#result-title");
 const resultCopy = document.querySelector("#result-copy");
 const riskLevelText = document.querySelector("#risk-level-text");
 const reviewerPath = document.querySelector("#reviewer-path");
+const resultPanel = document.querySelector(".result-panel");
 
 const sections = {
   riskDrivers: document.querySelector("#risk-driver-list"),
@@ -560,6 +561,7 @@ function render() {
   decisionPill.textContent =
     memo.decision === "conditional" ? "Approve with conditions" : memo.decision === "intake" ? "Intake incomplete" : memo.decision;
   decisionPill.className = `risk-pill ${memo.decision}`;
+  resultPanel.dataset.decision = memo.decision;
   scoreValue.textContent = memo.score;
   resultTitle.textContent = memo.title;
   resultCopy.textContent = memo.summary;

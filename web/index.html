@@ -89,6 +89,65 @@
         </a>
       </section>
 
+      <section class="case-gallery" aria-labelledby="case-gallery-title">
+        <div class="gallery-heading">
+          <h2 id="case-gallery-title">Review the moments where synthetic media risk appears.</h2>
+          <div class="gallery-links">
+            <a href="#demo">Start review</a>
+            <a href="../docs/09_final_compliance_assessment_report.md">Open report</a>
+          </div>
+        </div>
+        <div class="case-rail" aria-label="Synthetic media compliance scenarios">
+          <article class="case-tile actor-tile">
+            <div class="case-visual" aria-hidden="true">
+              <span class="face-orb"></span>
+              <span class="mesh-line one"></span>
+              <span class="mesh-line two"></span>
+              <span class="scan-beam"></span>
+            </div>
+            <h3>AI actor</h3>
+            <p>Face, likeness, and motion data before generation.</p>
+          </article>
+          <article class="case-tile voice-tile">
+            <div class="case-visual" aria-hidden="true">
+              <span class="wave one"></span>
+              <span class="wave two"></span>
+              <span class="wave three"></span>
+            </div>
+            <h3>Voice clone</h3>
+            <p>Consent and scope checks for synthetic dialogue.</p>
+          </article>
+          <article class="case-tile drama-tile">
+            <div class="case-visual" aria-hidden="true">
+              <span class="film-frame primary"></span>
+              <span class="film-frame secondary"></span>
+              <span class="play-mark"></span>
+            </div>
+            <h3>Short drama</h3>
+            <p>Release review before publication and monetization.</p>
+          </article>
+          <article class="case-tile label-tile">
+            <div class="case-visual" aria-hidden="true">
+              <span class="label-card"></span>
+              <span class="label-chip"></span>
+              <span class="metadata-line one"></span>
+              <span class="metadata-line two"></span>
+            </div>
+            <h3>Disclosure</h3>
+            <p>Visible labels, metadata, and provenance signals.</p>
+          </article>
+          <article class="case-tile incident-tile">
+            <div class="case-visual" aria-hidden="true">
+              <span class="alert-ring"></span>
+              <span class="evidence-card"></span>
+              <span class="route-line"></span>
+            </div>
+            <h3>Incident response</h3>
+            <p>Takedown, evidence preservation, and remediation.</p>
+          </article>
+        </div>
+      </section>
+
       <section class="section-intro" aria-labelledby="demo-title">
         <p class="section-kicker">Interactive review</p>
         <h2 id="demo-title">Generate a compliance review memo.</h2>
@@ -100,6 +159,14 @@
 
       <section id="demo" class="demo-grid memo-grid" aria-label="Compliance review memo demo">
         <form class="risk-form" id="risk-form">
+          <div class="form-heading">
+            <div>
+              <span class="micro-label">Intake console</span>
+              <h3>Scenario inputs</h3>
+            </div>
+            <span class="live-dot">Live memo</span>
+          </div>
+
           <fieldset>
             <legend>1. Request context</legend>
             <div class="field-grid">
@@ -279,6 +346,10 @@
         </form>
 
         <aside class="result-panel memo-panel" aria-live="polite" aria-label="Compliance review memo">
+          <div class="memo-toolbar">
+            <span>Generated assessment</span>
+            <span>Case ID SYN-0428</span>
+          </div>
           <div class="result-header">
             <span class="micro-label">Compliance review memo</span>
             <span class="risk-pill" id="decision-pill">Reject</span>
