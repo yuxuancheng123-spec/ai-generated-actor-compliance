@@ -1,0 +1,1105 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI生成演员与深度伪造内容合规评估</title>
+    <meta
+      name="description"
+      content="AI生成演员与深度伪造内容合规评估的中文模块化网页报告。"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #101418;
+        --muted: #606a78;
+        --soft: #f5f7fb;
+        --paper: rgba(255, 255, 255, 0.86);
+        --line: rgba(16, 20, 24, 0.1);
+        --hairline: rgba(16, 20, 24, 0.065);
+        --blue: #006fed;
+        --blue-ink: #003a82;
+        --red: #b42318;
+        --amber: #9a6100;
+        --green: #0b7a50;
+        --shadow: 0 26px 76px rgba(30, 44, 62, 0.12);
+        --radius: 14px;
+        --max: 1180px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background:
+          radial-gradient(circle at 18% 6%, rgba(0, 111, 237, 0.1), transparent 32rem),
+          radial-gradient(circle at 78% 18%, rgba(11, 122, 80, 0.07), transparent 28rem),
+          linear-gradient(180deg, #fff 0%, #f4f7fb 46%, #fff 100%);
+        color: var(--ink);
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+          "Microsoft YaHei", "Segoe UI", sans-serif;
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .shell {
+        width: min(calc(100% - 32px), var(--max));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 12px;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        height: 68px;
+        margin-top: 12px;
+        padding: 0 16px 0 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 12px 42px rgba(30, 44, 62, 0.08);
+      }
+
+      .brand,
+      .nav,
+      .hero-actions,
+      .status-row,
+      .module-title,
+      .footer {
+        display: flex;
+        align-items: center;
+      }
+
+      .brand {
+        gap: 10px;
+        font-weight: 760;
+      }
+
+      .brand-mark {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: conic-gradient(from 130deg, #101418, #9bb2d0, var(--blue), #101418);
+        box-shadow: inset 0 0 0 4px #fff;
+      }
+
+      .nav {
+        gap: 6px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .nav a {
+        padding: 10px 12px;
+        border-radius: 10px;
+        transition: background 180ms ease, color 180ms ease;
+      }
+
+      .nav a:hover {
+        background: rgba(16, 20, 24, 0.06);
+        color: var(--ink);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+        gap: 48px;
+        min-height: calc(100dvh - 92px);
+        padding: 82px 0 52px;
+        align-items: center;
+      }
+
+      .eyebrow,
+      .kicker,
+      .micro {
+        margin: 0;
+        color: var(--blue-ink);
+        font-size: 12px;
+        font-weight: 820;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-bottom: 22px;
+        font-size: clamp(44px, 6vw, 76px);
+        line-height: 1.02;
+        font-weight: 820;
+      }
+
+      .hero-copy > p:not(.eyebrow) {
+        max-width: 640px;
+        margin-bottom: 30px;
+        color: var(--muted);
+        font-size: 21px;
+        line-height: 1.65;
+      }
+
+      .hero-actions {
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        font-weight: 760;
+        transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      }
+
+      .button.primary {
+        background: var(--blue);
+        color: #fff;
+        box-shadow: 0 16px 34px rgba(0, 111, 237, 0.22);
+      }
+
+      .button.secondary {
+        border-color: var(--line);
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+      }
+
+      .report-object {
+        position: relative;
+        min-height: 480px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 249, 253, 0.86));
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .object-top {
+        display: flex;
+        gap: 7px;
+        height: 44px;
+        padding: 16px;
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .object-top span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #cad4df;
+      }
+
+      .object-body {
+        display: grid;
+        gap: 18px;
+        padding: 24px;
+      }
+
+      .status-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 180px;
+        padding: 22px;
+        border: 1px solid var(--hairline);
+        border-radius: var(--radius);
+        background:
+          radial-gradient(circle at 72% 28%, rgba(0, 111, 237, 0.12), transparent 13rem),
+          #fff;
+      }
+
+      .status-card h2,
+      .status-card p:not(.micro) {
+        position: relative;
+        z-index: 1;
+        max-width: calc(100% - 142px);
+      }
+
+      .status-row {
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: rgba(180, 35, 24, 0.1);
+        color: var(--red);
+        font-size: 13px;
+        font-weight: 820;
+      }
+
+      .face-mesh {
+        position: absolute;
+        right: 34px;
+        bottom: 18px;
+        width: 128px;
+        height: 128px;
+        border: 1px solid rgba(0, 111, 237, 0.24);
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 39% 38%, rgba(16, 20, 24, 0.28) 0 4px, transparent 5px),
+          radial-gradient(circle at 61% 38%, rgba(16, 20, 24, 0.28) 0 4px, transparent 5px),
+          radial-gradient(circle at 50% 66%, rgba(0, 111, 237, 0.18) 0 26px, transparent 27px),
+          rgba(245, 249, 255, 0.76);
+        opacity: 0.64;
+        box-shadow: 0 30px 60px rgba(30, 44, 62, 0.15);
+        animation: float 5.2s ease-in-out infinite;
+      }
+
+      .scan-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 54%;
+        height: 2px;
+        background: var(--blue);
+        box-shadow: 0 0 20px rgba(0, 111, 237, 0.56);
+        animation: scan 3.6s ease-in-out infinite;
+      }
+
+      .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .mini-card {
+        padding: 16px;
+        border: 1px solid var(--hairline);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.76);
+      }
+
+      .mini-card strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 24px;
+      }
+
+      .mini-card span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .snapshot {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1px;
+        overflow: hidden;
+        margin-bottom: 80px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--line);
+      }
+
+      .snapshot article {
+        min-height: 156px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .snapshot span {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 760;
+      }
+
+      .snapshot strong {
+        display: block;
+        margin: 30px 0 8px;
+        font-size: 24px;
+        line-height: 1.12;
+      }
+
+      .snapshot p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 26px;
+        align-items: start;
+        margin-bottom: 96px;
+      }
+
+      .toc {
+        position: sticky;
+        top: 96px;
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.76);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 16px 44px rgba(30, 44, 62, 0.08);
+      }
+
+      .toc a {
+        padding: 10px 11px;
+        border-radius: 10px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.35;
+      }
+
+      .toc a:hover {
+        background: rgba(0, 111, 237, 0.08);
+        color: var(--blue-ink);
+      }
+
+      .modules {
+        display: grid;
+        gap: 18px;
+      }
+
+      .module {
+        padding: 28px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--paper);
+        box-shadow: 0 18px 60px rgba(30, 44, 62, 0.075);
+        scroll-margin-top: 104px;
+      }
+
+      .module-title {
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .module h2 {
+        margin: 0;
+        font-size: clamp(26px, 3vw, 38px);
+        line-height: 1.12;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: rgba(0, 111, 237, 0.09);
+        color: var(--blue-ink);
+        font-size: 13px;
+        font-weight: 780;
+        white-space: nowrap;
+      }
+
+      .module > p {
+        max-width: 76ch;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.78;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card,
+      .matrix,
+      .roadmap {
+        border: 1px solid var(--hairline);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .card p,
+      .card li {
+        color: var(--muted);
+        line-height: 1.62;
+      }
+
+      .card ul {
+        display: grid;
+        gap: 8px;
+        margin: 10px 0 0;
+        padding-left: 20px;
+      }
+
+      .matrix {
+        overflow: hidden;
+      }
+
+      .matrix-row {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr) minmax(0, 0.82fr);
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .matrix-row:last-child {
+        border-bottom: 0;
+      }
+
+      .matrix-row > div {
+        padding: 14px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .matrix-row > div:first-child {
+        color: var(--ink);
+        font-weight: 780;
+      }
+
+      .matrix-head {
+        background: rgba(0, 111, 237, 0.065);
+      }
+
+      .matrix-head > div {
+        color: var(--blue-ink);
+        font-size: 13px;
+        font-weight: 820;
+      }
+
+      .decision-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .decision {
+        min-height: 190px;
+        padding: 18px;
+        border: 1px solid var(--hairline);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .decision strong {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 17px;
+      }
+
+      .decision p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.58;
+      }
+
+      .reject strong {
+        color: var(--red);
+      }
+
+      .escalate strong {
+        color: #c2410c;
+      }
+
+      .conditional strong {
+        color: var(--amber);
+      }
+
+      .approve strong {
+        color: var(--green);
+      }
+
+      .roadmap {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        overflow: hidden;
+      }
+
+      .roadmap article {
+        padding: 20px;
+        border-right: 1px solid var(--hairline);
+      }
+
+      .roadmap article:last-child {
+        border-right: 0;
+      }
+
+      .roadmap strong {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 24px;
+      }
+
+      .roadmap ul {
+        display: grid;
+        gap: 9px;
+        margin: 0;
+        padding-left: 20px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .footer {
+        justify-content: space-between;
+        gap: 20px;
+        padding: 32px 0 54px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .footer a {
+        color: var(--blue-ink);
+        font-weight: 760;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-9px);
+        }
+      }
+
+      @keyframes scan {
+        0%,
+        100% {
+          transform: translateY(-44px);
+          opacity: 0.24;
+        }
+        50% {
+          transform: translateY(42px);
+          opacity: 0.92;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 940px) {
+        .topbar {
+          align-items: flex-start;
+          height: auto;
+          flex-direction: column;
+          padding: 14px;
+        }
+
+        .nav {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .hero,
+        .layout,
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+          padding-top: 54px;
+        }
+
+        .toc {
+          position: static;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .snapshot,
+        .decision-grid,
+        .roadmap {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .roadmap article:nth-child(2) {
+          border-right: 0;
+        }
+
+        .roadmap article:nth-child(3) {
+          grid-column: 1 / -1;
+          border-top: 1px solid var(--hairline);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          width: min(calc(100% - 20px), var(--max));
+        }
+
+        h1 {
+          font-size: clamp(38px, 12vw, 56px);
+        }
+
+        .nav,
+        .hero-actions,
+        .module-title,
+        .footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .snapshot,
+        .decision-grid,
+        .roadmap,
+        .mini-grid,
+        .toc {
+          grid-template-columns: 1fr;
+        }
+
+        .matrix-row {
+          grid-template-columns: 1fr;
+        }
+
+        .matrix-head {
+          display: none;
+        }
+
+        .module {
+          padding: 20px;
+        }
+
+        .report-object {
+          min-height: 430px;
+        }
+
+        .face-mesh {
+          right: 22px;
+          width: 100px;
+          height: 100px;
+        }
+
+        .status-card h2,
+        .status-card p:not(.micro) {
+          max-width: 100%;
+        }
+
+        .face-mesh {
+          opacity: 0.22;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar shell">
+      <a class="brand" href="#top" aria-label="返回顶部">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>AI演员合规评估</span>
+      </a>
+      <nav class="nav" aria-label="页面导航">
+        <a href="#scope">范围</a>
+        <a href="#controls">控制</a>
+        <a href="#regions">地区</a>
+        <a href="#roadmap">路线图</a>
+        <a href="./index.html">英文Demo</a>
+      </nav>
+    </header>
+
+    <main id="top" class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">中文模块化网页报告</p>
+          <h1>AI生成演员与深度伪造内容合规评估</h1>
+          <p>
+            面向合成媒体平台的授权、标识、来源证明与治理控制，用产品化方式呈现合规判断。
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#snapshot">查看结论</a>
+            <a class="button secondary" href="#modules">进入模块</a>
+          </div>
+        </div>
+
+        <aside class="report-object" aria-label="合规报告预览">
+          <div class="object-top">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="object-body">
+            <div class="status-card">
+              <div class="status-row">
+                <p class="micro">合成媒体审核</p>
+                <span class="status-pill">高风险输入</span>
+              </div>
+              <h2>真人脸与声音不应直接进入生成流程。</h2>
+              <p>先确认授权，再生成；先完成标识，再发布；先保全证据，再处理投诉。</p>
+              <span class="face-mesh" aria-hidden="true"></span>
+              <span class="scan-line" aria-hidden="true"></span>
+            </div>
+            <div class="mini-grid">
+              <div class="mini-card">
+                <strong>4</strong>
+                <span>适用框架：EU AI Act、中国标识规则、SAG-AFTRA、NIST AI RMF</span>
+              </div>
+              <div class="mini-card">
+                <strong>9</strong>
+                <span>模块化报告单元，覆盖授权、标识、地区、证据和事件响应</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="snapshot" class="snapshot" aria-label="执行结论快照">
+        <article>
+          <span>上线判断</span>
+          <strong>有条件可上线</strong>
+          <p>前提是生成前授权、发布前标识、发布后投诉处理全部嵌入产品流程。</p>
+        </article>
+        <article>
+          <span>最高风险</span>
+          <strong>盗脸与声音克隆</strong>
+          <p>尤其是商业广告、公众人物、儿童、性或诽谤场景。</p>
+        </article>
+        <article>
+          <span>核心控制</span>
+          <strong>Pre-generation gate</strong>
+          <p>真人脸、声音、动作或既有表演数据必须先过授权审核。</p>
+        </article>
+        <article>
+          <span>报告定位</span>
+          <strong>作品集交付件</strong>
+          <p>这是产品合规案例研究，不构成法律意见。</p>
+        </article>
+      </section>
+
+      <section id="modules" class="layout" aria-label="模块化合规报告">
+        <aside class="toc" aria-label="模块目录">
+          <a href="#scope">01 产品与系统范围</a>
+          <a href="#risk">02 风险分类</a>
+          <a href="#controls">03 控制架构</a>
+          <a href="#consent">04 授权许可</a>
+          <a href="#labeling">05 标识来源</a>
+          <a href="#regions">06 地区要求</a>
+          <a href="#decisions">07 审核决策</a>
+          <a href="#evidence">08 证据审计</a>
+          <a href="#roadmap">09 路线图</a>
+        </aside>
+
+        <div class="modules">
+          <section id="scope" class="module">
+            <div class="module-title">
+              <h2>01 产品与系统范围</h2>
+              <span class="tag">Product Scope</span>
+            </div>
+            <p>
+              本项目假设一个 AI 短剧 / AI 演员生成平台。用户可以上传真人照片、声音样本、视频片段、
+              动作数据、剧本和授权文件，用于生成短剧、广告、虚拟代言或社交媒体内容。
+            </p>
+            <div class="two-col">
+              <div class="card">
+                <h3>主要用户</h3>
+                <ul>
+                  <li>短剧制作公司与品牌营销团队</li>
+                  <li>个人内容创作者与粉丝内容创作者</li>
+                  <li>授权自己数字分身的演员或表演者</li>
+                  <li>平台审核、合规、法务与信任安全团队</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>高风险输入</h3>
+                <ul>
+                  <li>真人脸、声音、动作和既有表演片段</li>
+                  <li>公众人物、儿童或普通第三人的身份特征</li>
+                  <li>授权合同、训练数据许可和发布地域信息</li>
+                  <li>生成内容、导出记录、标签和投诉记录</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="risk" class="module">
+            <div class="module-title">
+              <h2>02 合成媒体风险分类</h2>
+              <span class="tag">Risk Taxonomy</span>
+            </div>
+            <p>
+              平台风险不只是“内容由 AI 生成”，而是“真人身份是否被复制、替换、误导性展示、商业化或训练复用”。
+            </p>
+            <div class="two-col">
+              <div class="card">
+                <h3>身份与授权风险</h3>
+                <ul>
+                  <li>未经授权使用真人肖像或声音</li>
+                  <li>演员只授权一次生成，却被用于广告、续集或模型训练</li>
+                  <li>公众人物、政治人物或儿童被模拟</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>披露与传播风险</h3>
+                <ul>
+                  <li>观众误以为真人实际出演或代言</li>
+                  <li>AI 标签在下载、压缩、搬运后消失</li>
+                  <li>被侵权人无法快速投诉、取证或下架</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="controls" class="module">
+            <div class="module-title">
+              <h2>03 分层控制架构</h2>
+              <span class="tag">Control Architecture</span>
+            </div>
+            <p>
+              合成媒体平台不能依赖单一勾选框。更可靠的方式是把控制嵌入生成前、生成中、发布前、发布后和事件响应。
+            </p>
+            <div class="matrix">
+              <div class="matrix-row matrix-head">
+                <div>阶段</div>
+                <div>关键控制</div>
+                <div>主要证据</div>
+              </div>
+              <div class="matrix-row">
+                <div>生成前</div>
+                <div>身份识别、真人检测、授权文件审核、用途和地域范围检查。</div>
+                <div>上传记录、授权文件、审核记录。</div>
+              </div>
+              <div class="matrix-row">
+                <div>发布前</div>
+                <div>可见标签、机器可读元数据、水印、人工审核和地区合规检查。</div>
+                <div>标签截图、元数据记录、水印状态。</div>
+              </div>
+              <div class="matrix-row">
+                <div>发布后</div>
+                <div>投诉入口、下架流程、导出追踪、账号处罚和控制改进。</div>
+                <div>投诉记录、下架时间线、复盘报告。</div>
+              </div>
+            </div>
+          </section>
+
+          <section id="consent" class="module">
+            <div class="module-title">
+              <h2>04 授权与许可要求</h2>
+              <span class="tag">Consent & Licensing</span>
+            </div>
+            <p>
+              真人 AI 演员生成前，平台应要求具体、可验证、可追踪的授权。模糊的“同意 AI 使用”不能覆盖数字分身复用。
+            </p>
+            <div class="two-col">
+              <div class="card">
+                <h3>授权范围</h3>
+                <ul>
+                  <li>脸部、声音、身体动作、既有表演片段</li>
+                  <li>商业使用、地域、期限、渠道和二次使用</li>
+                  <li>训练数据使用、撤回权和补偿条款</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>强化审核</h3>
+                <ul>
+                  <li>公众人物、政治人物和儿童</li>
+                  <li>广告代言、付费推广和授权转售</li>
+                  <li>性、诽谤、政治、医疗、金融等敏感语境</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="labeling" class="module">
+            <div class="module-title">
+              <h2>05 标识与来源控制</h2>
+              <span class="tag">Labeling & Provenance</span>
+            </div>
+            <p>
+              合规标识应同时面向观众和机器系统。可见标签帮助观众理解内容，机器可读标签帮助平台和下游系统识别内容。
+            </p>
+            <div class="two-col">
+              <div class="card">
+                <h3>可见标识</h3>
+                <ul>
+                  <li>视频播放器、标题、描述或字幕中的 AI 披露</li>
+                  <li>广告素材、虚拟网红主页和下载页提示</li>
+                  <li>高风险内容使用更醒目的数字分身提示</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>机器可读来源</h3>
+                <ul>
+                  <li>元数据、内容 ID、生成时间和平台来源</li>
+                  <li>水印、内容凭证、内部哈希记录</li>
+                  <li>下载和转发后的标签持久性检查</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="regions" class="module">
+            <div class="module-title">
+              <h2>06 地区合规要求</h2>
+              <span class="tag">Regional Addendum</span>
+            </div>
+            <p>
+              发布地区应作为审核触发条件。同一条内容在内部草稿中可能低风险，但一旦面向特定地区发布，就需要增加相应控制。
+            </p>
+            <div class="matrix">
+              <div class="matrix-row matrix-head">
+                <div>地区</div>
+                <div>审核要求</div>
+                <div>证据材料</div>
+              </div>
+              <div class="matrix-row">
+                <div>欧盟</div>
+                <div>对 AI 生成或操纵的图像、音频、视频进行透明披露；在可行情况下保留技术可检测性。</div>
+                <div>标签截图、来源记录、审核批准。</div>
+              </div>
+              <div class="matrix-row">
+                <div>中国</div>
+                <div>同时使用显式标识和隐式机器可读标识；保留内容、账号、标签状态和发布记录。</div>
+                <div>显式标签截图、隐式标签记录、导出持久性检查。</div>
+              </div>
+              <div class="matrix-row">
+                <div>美国</div>
+                <div>重点审查肖像权、隐私、公开权、虚假代言、平台政策和州法差异。</div>
+                <div>授权材料、背书风险评估、敏感场景审核记录。</div>
+              </div>
+              <div class="matrix-row">
+                <div>全球发布</div>
+                <div>默认采用最严格地区控制，要求导出抗删除来源记录和投诉处理路径。</div>
+                <div>全球发布清单、导出日志、下架路由记录。</div>
+              </div>
+            </div>
+          </section>
+
+          <section id="decisions" class="module">
+            <div class="module-title">
+              <h2>07 审核决策规则</h2>
+              <span class="tag">Decision Logic</span>
+            </div>
+            <p>
+              平台审核不应只输出一个分数，而应给出可解释的处理路径，让产品、审核和法务团队知道下一步该做什么。
+            </p>
+            <div class="decision-grid">
+              <article class="decision reject">
+                <strong>Reject before generation</strong>
+                <p>未授权使用真人脸或声音；真人被放入性、诽谤或严重误导内容；儿童涉及敏感场景。</p>
+              </article>
+              <article class="decision escalate">
+                <strong>Escalate to human review</strong>
+                <p>涉及公众人物、政治人物、儿童、商业代言、parody / fan content 或敏感语境。</p>
+              </article>
+              <article class="decision conditional">
+                <strong>Approve with conditions</strong>
+                <p>可继续，但必须补充标签、元数据、水印、授权范围、地域限制或训练许可。</p>
+              </article>
+              <article class="decision approve">
+                <strong>Approve standard workflow</strong>
+                <p>完全合成或自授权、低风险用途、标识完整，并有审计记录。</p>
+              </article>
+            </div>
+          </section>
+
+          <section id="evidence" class="module">
+            <div class="module-title">
+              <h2>08 证据与审计记录</h2>
+              <span class="tag">Evidence Trail</span>
+            </div>
+            <p>
+              每一次 AI 演员请求都应留下可审计链路。这样平台才能处理权利人投诉、内部审计和潜在监管问询。
+            </p>
+            <div class="two-col">
+              <div class="card">
+                <h3>内容证据</h3>
+                <ul>
+                  <li>原始图片、声音、视频和动作数据</li>
+                  <li>提示词、剧本、模型或工具日志</li>
+                  <li>生成内容 ID、标签、水印和导出记录</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>审核证据</h3>
+                <ul>
+                  <li>授权文件、许可范围和权利人身份</li>
+                  <li>审核员决策、时间戳和理由</li>
+                  <li>投诉、下架、账号处罚和复盘记录</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="roadmap" class="module">
+            <div class="module-title">
+              <h2>09 30 / 60 / 90 天实施路线图</h2>
+              <span class="tag">Implementation Roadmap</span>
+            </div>
+            <p>
+              最优先的不是把标签做漂亮，而是把授权 gate 放到生成前。因为一旦未授权内容被下载和转发，补救成本会迅速上升。
+            </p>
+            <div class="roadmap">
+              <article>
+                <strong>30 天</strong>
+                <ul>
+                  <li>建立真人脸和声音上传前授权检查</li>
+                  <li>加入基础 AI 内容标识</li>
+                  <li>设置权利人投诉入口</li>
+                </ul>
+              </article>
+              <article>
+                <strong>60 天</strong>
+                <ul>
+                  <li>增加地区合规规则</li>
+                  <li>启用机器可读元数据和水印</li>
+                  <li>建立人工审核队列</li>
+                </ul>
+              </article>
+              <article>
+                <strong>90 天</strong>
+                <ul>
+                  <li>完善审计日志和导出追踪</li>
+                  <li>引入内容凭证或来源证明机制</li>
+                  <li>建立事件复盘和指标看板</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer shell">
+      <span>本中文网页为作品集展示版本，不构成法律意见。</span>
+      <a href="./index.html">查看英文交互 Demo</a>
+    </footer>
+  </body>
+</html>
