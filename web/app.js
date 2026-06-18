@@ -42,6 +42,7 @@ const labels = {
     resale: "License or resale",
   },
   consentEvidence: {
+    "": "Not selected",
     none: "No authorization evidence",
     selfAttestation: "Uploader self-attestation",
     uploadedContract: "Uploaded contract",
@@ -173,6 +174,7 @@ const sections = {
   riskDrivers: document.querySelector("#risk-driver-list"),
   controls: document.querySelector("#control-list"),
   labels: document.querySelector("#label-list"),
+  jurisdictions: document.querySelector("#jurisdiction-list"),
   gaps: document.querySelector("#gap-list"),
   reviews: document.querySelector("#review-list"),
   frameworks: document.querySelector("#framework-list"),
@@ -254,6 +256,50 @@ function effectiveRegions(risk) {
   return regions;
 }
 
+function isBlankScenario(risk) {
+  return !Object.values(risk).some((value) => Boolean(value));
+}
+
+function hasCoreScenario(risk) {
+  return Boolean(risk.requesterType && risk.subjectType && risk.useCase && risk.monetization && risk.sensitiveContext);
+}
+
+function addJurisdictionRequirements(risk, jurisdictionRequirements, controls, frameworks, evidence) {
+  const regions = effectiveRegions(risk);
+
+  if (!regions.length) {
+    jurisdictionRequirements.push("No release region selected. Select at least one region before publication review.");
+    return;
+  }
+
+  if (regions.includes("EU")) {
+    jurisdictionRequirements.push("EU: disclose AI-generated or manipulated image, audio, or video content to viewers.");
+    jurisdictionRequirements.push("EU: preserve technical provenance where feasible so synthetic or manipulated content remains detectable after export.");
+    frameworks.push("EU AI Act Article 50: transparency disclosure for AI-generated or manipulated audio/video/image content.");
+    evidence.push("EU release review: label placement screenshot, metadata/provenance record, and reviewer approval.");
+  }
+
+  if (regions.includes("China")) {
+    jurisdictionRequirements.push("China: apply explicit visible labels for AI-generated synthetic content where users can perceive the label.");
+    jurisdictionRequirements.push("China: add implicit machine-readable labeling such as metadata, watermarking, or platform-side provenance signals.");
+    jurisdictionRequirements.push("China: keep service-provider records linking generated content, label state, account, and publication/export event.");
+    frameworks.push("China AI synthetic content labeling rules: explicit visible labels plus implicit machine-readable signals.");
+    evidence.push("China release review: explicit label screenshot, implicit label record, and export/repost persistence check.");
+  }
+
+  if (regions.includes("US")) {
+    jurisdictionRequirements.push("US: assess right of publicity, privacy, deceptive endorsement, and platform policy risk for real-person likeness or voice.");
+    jurisdictionRequirements.push("US: treat political, sexual, defamatory, or commercial impersonation as enhanced-review contexts because state and sector rules may vary.");
+    evidence.push("US release review: publicity/endorsement assessment, consent artifact, and sensitive-context reviewer note.");
+  }
+
+  if (regions.includes("Global release")) {
+    jurisdictionRequirements.push("Global: apply the strictest selected-region labeling and consent controls by default.");
+    jurisdictionRequirements.push("Global: require export-resistant provenance, takedown routing, and region-specific policy notes before release.");
+    controls.push("Use highest-common-denominator controls for global distribution: verified consent, visible label, machine-readable label, watermark/provenance, and takedown SLA.");
+  }
+}
+
 function addLabelRequirements(risk, labelsOut, controls, frameworks) {
   const realPerson = usesRealPerson(risk);
   const regions = effectiveRegions(risk);
@@ -263,12 +309,10 @@ function addLabelRequirements(risk, labelsOut, controls, frameworks) {
   }
 
   if (regions.includes("EU") || regions.includes("Global release")) {
-    frameworks.push("EU AI Act Article 50: transparency disclosure for AI-generated or manipulated audio/video/image content.");
     if (!risk.visibleLabel) labelsOut.push("EU release path requires a viewer-facing AI disclosure before publication.");
   }
 
   if (regions.includes("China") || regions.includes("Global release")) {
-    frameworks.push("China AI synthetic content labeling rules: explicit visible labels plus implicit machine-readable signals.");
     if (!risk.machineLabel) labelsOut.push("China release path requires implicit or machine-readable labeling support.");
   }
 
@@ -282,11 +326,31 @@ function addLabelRequirements(risk, labelsOut, controls, frameworks) {
 }
 
 function assessScenario(risk) {
+  if (isBlankScenario(risk)) {
+    return {
+      decision: "intake",
+      score: "-",
+      riskLevel: "Not assessed",
+      title: "Awaiting scenario details",
+      reviewer: "Complete intake fields",
+      summary: "Select requester type, person depicted, use case, distribution region, and authorization evidence to generate a review memo.",
+      riskDrivers: ["No scenario facts entered yet."],
+      controls: ["Complete intake before generation, publication, or commercialization review."],
+      labels: ["Labeling requirements will appear after media type and release region are selected."],
+      jurisdictions: ["No jurisdiction selected."],
+      gaps: ["Consent and licensing gaps will appear after authorization evidence is selected."],
+      reviews: ["Human review triggers will appear after subject type, use case, and sensitive context are selected."],
+      frameworks: ["Framework mapping will populate from selected regions and risk triggers."],
+      evidence: ["Evidence checklist will populate after the scenario is defined."],
+    };
+  }
+
   let score = 0;
   let decision = "approve";
   const riskDrivers = [];
   const controls = [];
   const labelsOut = [];
+  const jurisdictionRequirements = [];
   const gaps = [];
   const reviews = [];
   const frameworks = ["NIST AI RMF: Govern, Map, Measure, Manage controls across intake, generation, publication, and incident response."];
@@ -310,11 +374,16 @@ function assessScenario(risk) {
     risk.sensitiveContext === "none" &&
     risk.subjectType !== "minor";
 
-  riskDrivers.push(`Requester: ${labels.requesterType[risk.requesterType]}.`);
-  riskDrivers.push(`Subject: ${labels.subjectType[risk.subjectType]}.`);
-  riskDrivers.push(`Use case: ${labels.useCase[risk.useCase]} / ${labels.monetization[risk.monetization]}.`);
+  if (risk.requesterType) riskDrivers.push(`Requester: ${labels.requesterType[risk.requesterType]}.`);
+  if (risk.subjectType) riskDrivers.push(`Subject: ${labels.subjectType[risk.subjectType]}.`);
+  if (risk.useCase || risk.monetization) {
+    riskDrivers.push(`Use case: ${labels.useCase[risk.useCase] || "Not selected"} / ${labels.monetization[risk.monetization] || "Not selected"}.`);
+  }
   if (media.length) riskDrivers.push(`Source media includes ${media.join(", ")}.`);
   if (regions.length) riskDrivers.push(`Distribution region: ${regions.join(", ")}.`);
+  if (!hasCoreScenario(risk)) {
+    gaps.push("Core intake is incomplete: select requester type, person depicted, use case, commercialization, and sensitive context.");
+  }
 
   if (realPerson) {
     score += 3;
@@ -353,7 +422,7 @@ function assessScenario(risk) {
     gaps.push("Confirm guardian authorization, child-safety review, and distribution limitations.");
   }
 
-  if (risk.sensitiveContext !== "none") {
+  if (risk.sensitiveContext && risk.sensitiveContext !== "none") {
     score += 4;
     riskDrivers.push(`Sensitive context selected: ${risk.sensitiveContext}.`);
     reviews.push("Sensitive context requires human review before generation or publication.");
@@ -364,7 +433,7 @@ function assessScenario(risk) {
     controls.push("Reject real-person sexual or defamatory synthetic portrayal and route to incident/safety queue if uploaded content exists.");
   }
 
-  if (risk.subjectType === "minor" && risk.sensitiveContext !== "none") {
+  if (risk.subjectType === "minor" && risk.sensitiveContext && risk.sensitiveContext !== "none") {
     decision = "reject";
     controls.push("Reject minor-related sensitive synthetic media and preserve evidence for safety review.");
   }
@@ -396,6 +465,7 @@ function assessScenario(risk) {
     controls.push("Restrict deceptive political impersonation and require prominent synthetic-media disclosure.");
   }
 
+  addJurisdictionRequirements(risk, jurisdictionRequirements, controls, frameworks, evidence);
   addLabelRequirements(risk, labelsOut, controls, frameworks);
 
   if (!risk.visibleLabel && (realPerson || risk.subjectType === "synthetic")) {
@@ -416,7 +486,7 @@ function assessScenario(risk) {
     const hasEscalationTrigger =
       publicFigure ||
       risk.subjectType === "minor" ||
-      risk.sensitiveContext !== "none" ||
+      (risk.sensitiveContext && risk.sensitiveContext !== "none") ||
       risk.useCase === "politicalMessage" ||
       risk.useCase === "parody" ||
       score >= 9;
@@ -429,20 +499,27 @@ function assessScenario(risk) {
     }
   }
 
-  const riskLevel = decision === "reject" ? "prohibited" : score >= 9 ? "high" : score >= 5 ? "medium" : "low";
+  if (!hasCoreScenario(risk)) {
+    decision = "intake";
+  }
+
+  const riskLevel = decision === "intake" ? "Not assessed" : decision === "reject" ? "prohibited" : score >= 9 ? "high" : score >= 5 ? "medium" : "low";
   const title = {
+    intake: "Scenario intake incomplete",
     reject: "Reject before generation",
     escalate: "Escalate to human review",
     conditional: "Approve with conditions",
     approve: "Approve standard workflow",
   }[decision];
   const reviewer = {
+    intake: "Complete intake fields",
     reject: "Block and preserve evidence",
     escalate: "Enhanced human review",
     conditional: "Release only after controls are satisfied",
     approve: "Standard labeling and audit logging",
   }[decision];
   const summary = {
+    intake: "The memo is showing jurisdiction and evidence guidance, but a final decision requires the core scenario fields.",
     reject: "The request cannot proceed until verified authorization and prohibited-use concerns are resolved.",
     escalate: "The request may be permissible, but the risk profile requires human reviewer sign-off before release.",
     conditional: "The request can proceed only after specific controls, labels, or license-scope gaps are closed.",
@@ -451,7 +528,7 @@ function assessScenario(risk) {
 
   return {
     decision,
-    score,
+    score: decision === "intake" ? "-" : score,
     riskLevel,
     title,
     reviewer,
@@ -459,6 +536,7 @@ function assessScenario(risk) {
     riskDrivers: unique(riskDrivers),
     controls: unique(controls.length ? controls : ["Apply standard pre-publication moderation, label verification, and audit logging."]),
     labels: unique(labelsOut.length ? labelsOut : ["Maintain visible AI disclosure and internal content provenance record."]),
+    jurisdictions: unique(jurisdictionRequirements),
     gaps: unique(gaps.length ? gaps : ["No material authorization gaps detected from the selected fields."]),
     reviews: unique(reviews.length ? reviews : ["No enhanced human review trigger selected."]),
     frameworks: unique(frameworks),
@@ -479,7 +557,8 @@ function render() {
   const risk = getScenario();
   const memo = assessScenario(risk);
 
-  decisionPill.textContent = memo.decision === "conditional" ? "Approve with conditions" : memo.decision;
+  decisionPill.textContent =
+    memo.decision === "conditional" ? "Approve with conditions" : memo.decision === "intake" ? "Intake incomplete" : memo.decision;
   decisionPill.className = `risk-pill ${memo.decision}`;
   scoreValue.textContent = memo.score;
   resultTitle.textContent = memo.title;
@@ -490,6 +569,7 @@ function render() {
   renderList(sections.riskDrivers, memo.riskDrivers);
   renderList(sections.controls, memo.controls);
   renderList(sections.labels, memo.labels);
+  renderList(sections.jurisdictions, memo.jurisdictions);
   renderList(sections.gaps, memo.gaps);
   renderList(sections.reviews, memo.reviews);
   renderList(sections.frameworks, memo.frameworks);

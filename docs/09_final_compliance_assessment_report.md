@@ -116,6 +116,17 @@ Approve standard workflow: The request may proceed through ordinary synthetic-me
 | Creator posts fan parody using a public figure's likeness with visible AI label | Escalate | Parody is not automatic authorization and may still mislead viewers | Human review, no endorsement implication, prominent label, no paid ad placement, region-specific policy check |
 | Fully synthetic non-commercial character for an internal draft | Approve standard workflow | No real-person likeness or commercial release | Standard AI label, audit log, and routine moderation |
 
+## 5C. Region-Specific Release Requirements
+
+The platform should treat release geography as a control trigger, not only as metadata. When a user selects a publication region, the review workflow should add jurisdiction-specific requirements to the memo.
+
+| Release Region | Review Requirements | Evidence Artifact |
+|---|---|---|
+| European Union | Viewer-facing disclosure for AI-generated or manipulated image, audio, or video content; technical provenance or detectability where feasible; enhanced review for misleading deepfakes and high-impact contexts | Label placement screenshot, metadata/provenance record, reviewer approval |
+| China | Explicit visible label for AI-generated synthetic content; implicit machine-readable label such as metadata or watermarking; service-provider record tying content, account, label state, and publication/export event | Visible label screenshot, implicit label record, export/repost persistence check |
+| United States | Right-of-publicity, privacy, deceptive endorsement, and platform-policy review for real-person likeness or voice; enhanced review for political, sexual, defamatory, or commercial impersonation | Publicity/endorsement assessment, consent artifact, sensitive-context reviewer note |
+| Global release | Apply the strictest selected-region control by default; require export-resistant provenance and region-specific policy notes before release | Global release checklist, provenance/export log, takedown routing record |
+
 ## 6. Consent and Licensing Controls
 
 The platform should require specific consent before generating or commercializing an AI actor based on a real person. Consent should identify the person, the authorized rights holder, the covered attributes, permitted use, duration, territory, distribution channels, commercial rights, compensation, revocation pathway, secondary use, and whether model training is allowed.

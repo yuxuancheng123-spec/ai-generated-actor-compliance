@@ -356,6 +356,10 @@ h1 {
   background: var(--green);
 }
 
+.risk-pill.intake {
+  background: #687385;
+}
+
 .artifact-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

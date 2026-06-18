@@ -119,6 +119,7 @@ The browser demo is a rule-based case review workflow, not an ML model. It asks 
 - Risk drivers and reviewer path;
 - Required pre-release controls;
 - Labeling and disclosure requirements;
+- Region-specific compliance requirements for EU, China, US, or global release;
 - Consent and licensing gaps;
 - Human review triggers;
 - Framework mapping;

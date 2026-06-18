@@ -18,6 +18,10 @@ The assessed platform is a fictional AI short-drama / synthetic media service. I
 
 Synthetic media platforms can create value for production teams and performers, but they can also enable stolen face, unauthorized voice cloning, misleading endorsements, non-consensual deepfakes, training-data misuse, and weak remedies for affected people. This project demonstrates how a platform can move from abstract AI responsibility concerns to concrete compliance controls.
 
+## Market Positioning
+
+This project sits between three real product categories: synthetic media detection tools, content provenance systems, and AI governance platforms. Detection tools help answer whether content appears synthetic or manipulated. Provenance systems help preserve how content was created or edited. AI governance platforms provide intake, risk assessment, control mapping, and evidence workflows. This project combines those patterns for a narrow synthetic media use case: deciding whether an AI actor request can be generated, published, commercialized, or escalated.
+
 ## Frameworks Used
 
 - EU AI Act Article 50 transparency obligations for AI-generated and manipulated content;
@@ -35,7 +39,7 @@ Synthetic media platforms can create value for production teams and performers, 
 - Incident response playbook;
 - Deepfake provenance and watermarking review;
 - Framework mapping files;
-- Rule-based risk scoring demo;
+- Rule-based compliance review memo demo;
 - Final compliance assessment report.
 
 ## Skills Demonstrated
@@ -47,7 +51,7 @@ Synthetic media platforms can create value for production teams and performers, 
 - AI-generated content labeling policy design;
 - Incident response planning;
 - Provenance and watermarking control evaluation;
-- Translating compliance rules into executable review logic.
+- Translating compliance rules into executable review memo logic.
 
 ## Best Files to Review
 
@@ -56,5 +60,4 @@ Synthetic media platforms can create value for production teams and performers, 
 3. [Risk Register](03_risk_register.md)
 4. [Consent and Licensing Checklist](04_consent_checklist.md)
 5. [AI Content Labeling Policy](05_labeling_policy.md)
-6. [Risk Scoring Demo](../scripts/risk_scoring_demo.py)
-
+6. [Interactive Web Demo](../web/index.html)

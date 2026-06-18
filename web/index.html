@@ -106,6 +106,7 @@
               <div class="field">
                 <label for="requester-type">Requester type</label>
                 <select id="requester-type" name="requesterType">
+                  <option value="" selected>Select requester type</option>
                   <option value="creator">Individual creator</option>
                   <option value="brand">Brand or advertiser</option>
                   <option value="production">Production company</option>
@@ -115,6 +116,7 @@
               <div class="field">
                 <label for="subject-type">Person depicted</label>
                 <select id="subject-type" name="subjectType">
+                  <option value="" selected>Select person depicted</option>
                   <option value="publicFigure">Celebrity or public figure</option>
                   <option value="ordinaryPerson">Ordinary third party</option>
                   <option value="self">Uploader themselves</option>
@@ -130,11 +132,11 @@
           <fieldset class="switch-grid">
             <legend>2. Source media used</legend>
             <label class="switch">
-              <input type="checkbox" name="mediaFace" checked />
+              <input type="checkbox" name="mediaFace" />
               <span>Face or likeness</span>
             </label>
             <label class="switch">
-              <input type="checkbox" name="mediaVoice" checked />
+              <input type="checkbox" name="mediaVoice" />
               <span>Voice sample</span>
             </label>
             <label class="switch">
@@ -153,6 +155,7 @@
               <div class="field">
                 <label for="use-case">Use case</label>
                 <select id="use-case" name="useCase">
+                  <option value="" selected>Select use case</option>
                   <option value="shortDrama">Short drama scene</option>
                   <option value="advertisement">Advertisement</option>
                   <option value="virtualInfluencer">Virtual influencer post</option>
@@ -164,6 +167,7 @@
               <div class="field">
                 <label for="monetization">Commercialization</label>
                 <select id="monetization" name="monetization">
+                  <option value="" selected>Select commercialization</option>
                   <option value="paidAd">Paid ad or endorsement</option>
                   <option value="publicPost">Public post</option>
                   <option value="draft">Internal draft only</option>
@@ -173,6 +177,7 @@
             </div>
             <label for="sensitive-context">Sensitive context</label>
             <select id="sensitive-context" name="sensitiveContext">
+              <option value="" selected>Select sensitive context</option>
               <option value="none">None</option>
               <option value="sexual">Sexual</option>
               <option value="political">Political</option>
@@ -185,11 +190,11 @@
           <fieldset class="switch-grid">
             <legend>4. Distribution regions</legend>
             <label class="switch">
-              <input type="checkbox" name="regionEu" checked />
+              <input type="checkbox" name="regionEu" />
               <span>European Union</span>
             </label>
             <label class="switch">
-              <input type="checkbox" name="regionChina" checked />
+              <input type="checkbox" name="regionChina" />
               <span>China</span>
             </label>
             <label class="switch">
@@ -206,6 +211,7 @@
             <legend>5. Consent evidence</legend>
             <label for="consent-evidence">Authorization evidence</label>
             <select id="consent-evidence" name="consentEvidence">
+              <option value="" selected>Select authorization evidence</option>
               <option value="none">No authorization evidence</option>
               <option value="selfAttestation">Uploader self-attestation</option>
               <option value="uploadedContract">Uploaded contract</option>
@@ -312,6 +318,10 @@
           <div class="memo-section">
             <h4>Labeling and disclosure</h4>
             <ul id="label-list"></ul>
+          </div>
+          <div class="memo-section">
+            <h4>Jurisdiction requirements</h4>
+            <ul id="jurisdiction-list"></ul>
           </div>
           <div class="memo-section">
             <h4>Consent and licensing gaps</h4>
