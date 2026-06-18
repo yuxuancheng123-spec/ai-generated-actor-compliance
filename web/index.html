@@ -354,62 +354,108 @@
             <span class="micro-label">Compliance review memo</span>
             <span class="risk-pill" id="decision-pill">Reject</span>
           </div>
-          <div class="memo-hero">
-            <div>
-              <span class="memo-label">Decision</span>
-              <h3 id="result-title">Reject before generation</h3>
-            </div>
-            <div class="score-orbit compact-orbit" aria-label="Risk score">
-              <span id="score-value">12</span>
-            </div>
-          </div>
-          <p id="result-copy">
-            The request lacks verified authorization for a real-person commercial AI actor workflow.
-          </p>
 
-          <dl class="memo-meta">
-            <div>
-              <dt>Risk level</dt>
-              <dd id="risk-level-text">Prohibited</dd>
+          <section class="report-module executive-snapshot" aria-label="Executive snapshot">
+            <div class="module-heading">
+              <span>01</span>
+              <h3>Executive snapshot</h3>
             </div>
-            <div>
-              <dt>Reviewer path</dt>
-              <dd id="reviewer-path">Block and preserve evidence</dd>
+            <div class="snapshot-grid">
+              <div class="snapshot-card primary">
+                <span>Decision</span>
+                <strong id="result-title">Reject before generation</strong>
+              </div>
+              <div class="snapshot-card score-card">
+                <span>Risk score</span>
+                <strong id="score-value">12</strong>
+              </div>
+              <div class="snapshot-card">
+                <span>Risk level</span>
+                <strong id="risk-level-text">Prohibited</strong>
+              </div>
+              <div class="snapshot-card">
+                <span>Reviewer path</span>
+                <strong id="reviewer-path">Block and preserve evidence</strong>
+              </div>
             </div>
-          </dl>
+            <p id="result-copy">
+              The request lacks verified authorization for a real-person commercial AI actor workflow.
+            </p>
+          </section>
 
-          <div class="memo-section">
-            <h4>Key risk drivers</h4>
-            <ul id="risk-driver-list"></ul>
-          </div>
-          <div class="memo-section">
-            <h4>Required controls before release</h4>
-            <ul id="control-list"></ul>
-          </div>
-          <div class="memo-section">
-            <h4>Labeling and disclosure</h4>
-            <ul id="label-list"></ul>
-          </div>
-          <div class="memo-section">
-            <h4>Jurisdiction requirements</h4>
-            <ul id="jurisdiction-list"></ul>
-          </div>
-          <div class="memo-section">
-            <h4>Consent and licensing gaps</h4>
-            <ul id="gap-list"></ul>
-          </div>
-          <div class="memo-section">
-            <h4>Human review triggers</h4>
-            <ul id="review-list"></ul>
-          </div>
-          <div class="memo-section">
-            <h4>Framework mapping</h4>
+          <section class="report-module" aria-label="Scenario classification">
+            <div class="module-heading">
+              <span>02</span>
+              <h3>Scenario classification</h3>
+            </div>
+            <dl class="profile-grid" id="scenario-profile"></dl>
+          </section>
+
+          <section class="report-module" aria-label="Key findings">
+            <div class="module-heading">
+              <span>03</span>
+              <h3>Key findings</h3>
+            </div>
+            <ul class="finding-list" id="risk-driver-list"></ul>
+          </section>
+
+          <section class="report-module" aria-label="Control recommendations">
+            <div class="module-heading">
+              <span>04</span>
+              <h3>Control recommendations</h3>
+            </div>
+            <div class="control-recommendation-grid">
+              <div>
+                <h4>Consent controls</h4>
+                <ul id="consent-control-list"></ul>
+              </div>
+              <div>
+                <h4>Labeling controls</h4>
+                <ul id="label-control-list"></ul>
+              </div>
+              <div>
+                <h4>Release controls</h4>
+                <ul id="release-control-list"></ul>
+              </div>
+              <div>
+                <h4>Incident controls</h4>
+                <ul id="incident-control-list"></ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="report-module" aria-label="Jurisdiction matrix">
+            <div class="module-heading">
+              <span>05</span>
+              <h3>Jurisdiction matrix</h3>
+            </div>
+            <div class="jurisdiction-matrix" id="jurisdiction-matrix"></div>
+          </section>
+
+          <section class="report-module" aria-label="Evidence and next steps">
+            <div class="module-heading">
+              <span>06</span>
+              <h3>Evidence and next steps</h3>
+            </div>
+            <div class="evidence-grid">
+              <div>
+                <h4>Evidence artifacts</h4>
+                <ul id="evidence-list"></ul>
+              </div>
+              <div>
+                <h4>Reviewer next steps</h4>
+                <ul id="next-step-list"></ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="report-module framework-module" aria-label="Framework mapping">
+            <div class="module-heading">
+              <span>07</span>
+              <h3>Framework mapping</h3>
+            </div>
             <ul id="framework-list"></ul>
-          </div>
-          <div class="memo-section">
-            <h4>Evidence checklist</h4>
-            <ul id="evidence-list"></ul>
-          </div>
+          </section>
           <div class="next-actions">
             <a href="../docs/09_final_compliance_assessment_report.md">Read final report</a>
             <a href="../scripts/risk_scoring_demo.py">View Python rules</a>

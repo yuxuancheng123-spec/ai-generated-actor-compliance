@@ -977,60 +977,9 @@ select:has(option[value=""]:checked) {
   padding: 4px 2px 0;
 }
 
-.memo-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 18px;
-  align-items: center;
-  margin: 22px 0 12px;
-  padding: 20px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  background:
-    linear-gradient(135deg, var(--decision-soft, rgba(0, 111, 237, 0.08)), transparent 54%),
-    rgba(255, 255, 255, 0.74);
-}
-
-.memo-label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 780;
-}
-
-.score-orbit {
-  display: grid;
-  place-items: center;
-  width: 160px;
-  height: 160px;
-  margin: 32px auto 24px;
-  border: 1px solid color-mix(in srgb, var(--decision, var(--blue)) 24%, transparent);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at center, #fff 0 54%, transparent 55%),
-    conic-gradient(from 180deg, var(--decision, var(--blue)), color-mix(in srgb, var(--decision, var(--blue)) 18%, transparent), #e1e8f1, var(--decision, var(--blue)));
-}
-
-.score-orbit span {
-  color: var(--decision, var(--ink));
-  font-size: 52px;
-  font-weight: 780;
-}
-
-.compact-orbit {
-  width: 96px;
-  height: 96px;
-  margin: 0;
-}
-
-.compact-orbit span {
-  font-size: 34px;
-}
-
 .result-panel h3 {
-  margin-bottom: 10px;
-  font-size: 26px;
+  margin: 0;
+  font-size: 16px;
   line-height: 1.08;
 }
 
@@ -1042,79 +991,150 @@ select:has(option[value=""]:checked) {
   line-height: 1.55;
 }
 
-.memo-meta {
+.report-module {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.executive-snapshot {
+  background:
+    linear-gradient(135deg, var(--decision-soft, rgba(0, 111, 237, 0.08)), transparent 60%),
+    rgba(255, 255, 255, 0.76);
+}
+
+.module-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.module-heading span {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: var(--decision-soft, rgba(0, 111, 237, 0.08));
+  color: var(--decision, var(--blue-ink));
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  font-weight: 860;
+}
+
+.module-heading h3,
+.control-recommendation-grid h4,
+.evidence-grid h4,
+.jurisdiction-card h4 {
+  margin: 0;
+  color: var(--ink);
+}
+
+.snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.snapshot-card {
+  display: flex;
+  min-height: 92px;
+  padding: 13px;
+  border: 1px solid rgba(13, 17, 23, 0.07);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.82);
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.snapshot-card span,
+.profile-grid dt,
+.jurisdiction-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.snapshot-card strong {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.18;
+}
+
+.snapshot-card.primary strong {
+  font-size: 22px;
+}
+
+.score-card {
+  border-color: color-mix(in srgb, var(--decision, var(--blue)) 18%, transparent);
+  background:
+    radial-gradient(circle at 86% 18%, var(--decision-soft, rgba(0, 111, 237, 0.08)), transparent 44px),
+    rgba(255, 255, 255, 0.86);
+}
+
+.score-card strong {
+  color: var(--decision, var(--blue-ink));
+  font-size: 34px;
+}
+
+.executive-snapshot p {
+  margin: 0;
+  padding-top: 2px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.profile-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
   overflow: hidden;
-  margin: 18px 0 14px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  background: var(--line);
-}
-
-.memo-meta div {
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.84);
-}
-
-.memo-meta dt {
-  margin-bottom: 4px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 760;
-}
-
-.memo-meta dd {
   margin: 0;
-  color: var(--ink);
-  font-size: 15px;
-  font-weight: 780;
-}
-
-.memo-section {
-  display: grid;
-  gap: 12px;
-  margin-top: 10px;
-  padding: 15px;
   border: 1px solid var(--hairline);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.68);
+  background: var(--hairline);
 }
 
-.memo-section h4 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.profile-grid div {
+  display: grid;
+  gap: 5px;
+  min-height: 72px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.profile-grid dd {
   margin: 0;
   color: var(--ink);
   font-size: 14px;
-  letter-spacing: 0.01em;
+  font-weight: 760;
+  line-height: 1.3;
 }
 
-.memo-section h4::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--decision, var(--blue));
-  box-shadow: 0 0 0 4px var(--decision-soft, rgba(0, 111, 237, 0.09));
-}
-
-.memo-section ul,
+.finding-list,
+.control-recommendation-grid ul,
+.jurisdiction-card ul,
+.evidence-grid ul,
+.framework-module ul,
 #reason-list {
   display: grid;
   gap: 8px;
-  margin: 20px 0 24px;
-  padding-left: 0;
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
-.memo-section ul {
-  margin: 0;
-}
-
-.memo-section li {
+.finding-list li,
+.control-recommendation-grid li,
+.evidence-grid li,
+.framework-module li {
   position: relative;
   padding: 9px 10px 9px 26px;
   border: 1px solid rgba(13, 17, 23, 0.055);
@@ -1122,7 +1142,10 @@ select:has(option[value=""]:checked) {
   background: rgba(247, 249, 252, 0.72);
 }
 
-.memo-section li::before {
+.finding-list li::before,
+.control-recommendation-grid li::before,
+.evidence-grid li::before,
+.framework-module li::before {
   content: "";
   position: absolute;
   left: 11px;
@@ -1133,13 +1156,72 @@ select:has(option[value=""]:checked) {
   background: rgba(13, 17, 23, 0.36);
 }
 
-#jurisdiction-list li {
-  border-color: rgba(0, 111, 237, 0.12);
-  background: linear-gradient(180deg, rgba(237, 246, 255, 0.86), rgba(255, 255, 255, 0.7));
+.finding-list li:first-child {
+  border-color: color-mix(in srgb, var(--decision, var(--blue)) 18%, transparent);
+  background: linear-gradient(180deg, var(--decision-soft, rgba(0, 111, 237, 0.08)), rgba(255, 255, 255, 0.72));
 }
 
-#jurisdiction-list li::before {
-  background: var(--blue);
+.finding-list li:first-child::before {
+  background: var(--decision, var(--blue));
+}
+
+.control-recommendation-grid,
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.control-recommendation-grid > div,
+.evidence-grid > div {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(13, 17, 23, 0.055);
+  border-radius: var(--radius);
+  background: rgba(247, 249, 252, 0.68);
+}
+
+.control-recommendation-grid h4,
+.evidence-grid h4 {
+  font-size: 13px;
+}
+
+.jurisdiction-matrix {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.jurisdiction-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 164px;
+  padding: 12px;
+  border: 1px solid rgba(13, 17, 23, 0.055);
+  border-radius: var(--radius);
+  background: rgba(247, 249, 252, 0.68);
+}
+
+.jurisdiction-card.active {
+  border-color: rgba(0, 111, 237, 0.18);
+  background: linear-gradient(180deg, rgba(237, 246, 255, 0.9), rgba(255, 255, 255, 0.74));
+}
+
+.jurisdiction-card h4 {
+  font-size: 15px;
+}
+
+.jurisdiction-card ul {
+  gap: 6px;
+}
+
+.jurisdiction-card li {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .next-actions {
@@ -1373,7 +1455,12 @@ select:has(option[value=""]:checked) {
   .artifact-strip,
   .control-layers,
   .field-grid,
-  .switch-grid {
+  .switch-grid,
+  .snapshot-grid,
+  .profile-grid,
+  .control-recommendation-grid,
+  .jurisdiction-matrix,
+  .evidence-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1404,13 +1491,9 @@ select:has(option[value=""]:checked) {
     flex-direction: column;
   }
 
-  .memo-hero,
-  .memo-meta {
-    grid-template-columns: 1fr;
-  }
-
-  .compact-orbit {
-    width: 92px;
-    height: 92px;
+  .snapshot-card,
+  .profile-grid div,
+  .jurisdiction-card {
+    min-height: auto;
   }
 }
