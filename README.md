@@ -6,7 +6,9 @@ English title: Compliance Assessment for AI-Generated Actors and Deepfake Conten
 
 ## Project Pitch
 
-This project is a product compliance case study for a fictional synthetic media platform that lets users create AI-generated actors from real human likeness, voice, video, and motion data. It translates emerging AI transparency, deepfake labeling, digital replica, performer consent, and risk governance requirements into practical platform controls that product, legal, trust and safety, and engineering teams could actually use.
+This project is an English-first product compliance case study for a fictional synthetic media platform that lets creators and production teams generate AI actors from face, voice, video, and motion data. It turns a high-level AI responsibility problem into a practical review workflow: intake the content request, check authorization and labeling obligations, map jurisdiction-specific requirements, and generate a structured compliance assessment report.
+
+The portfolio is designed to read like a real AI governance work product rather than a research note. It includes policy artifacts, risk controls, framework mappings, incident response procedures, provenance analysis, and an interactive browser demo that simulates an intake-to-report review flow for synthetic media content.
 
 ## Role and Scenario
 
@@ -22,6 +24,7 @@ This is a fictional educational project and is not legal advice.
 
 | Artifact | Purpose |
 |---|---|
+| [Interactive Web Demo](web/index.html) | Provides a two-stage workflow: synthetic media intake first, generated compliance report after completion |
 | [Project Brief](docs/01_project_brief.md) | Defines the platform assumption, research questions, and applicable frameworks |
 | [System Description](docs/02_system_description.md) | Describes inputs, AI processing, outputs, lifecycle stages, and high-risk points |
 | [Data Flow Diagram](diagrams/data_flow_diagram.md) | Maps how source media, consent records, generated content, labels, and incident records flow through the platform |
@@ -32,7 +35,6 @@ This is a fictional educational project and is not legal advice.
 | [Provenance and Watermarking Review](docs/07_deepfake_provenance_watermarking_review.md) | Compares visible watermarks, metadata, C2PA/content credentials, model-side watermarks, and hash registries |
 | [Framework Mappings](frameworks/) | Maps controls to EU AI Act Article 50, China AI labeling rules, SAG-AFTRA AI principles, and NIST AI RMF |
 | [Risk Scoring Demo](scripts/risk_scoring_demo.py) | Shows how compliance rules can become a simple executable content review aid |
-| [Interactive Web Demo](web/index.html) | Lets reviewers generate a compliance review memo from a realistic synthetic media intake form |
 | [Final Assessment Report](docs/09_final_compliance_assessment_report.md) | Summarizes the assessment, findings, recommended controls, and governance model |
 
 ## How to Review This Repo
@@ -41,9 +43,9 @@ This is a fictional educational project and is not legal advice.
 
 Read this README, then open:
 
+- [Interactive Web Demo](web/index.html)
 - [Final Assessment Report](docs/09_final_compliance_assessment_report.md)
 - [Risk Register](docs/03_risk_register.md)
-- [Risk Scoring Demo README](scripts/README.md)
 
 ### 10-minute review
 
@@ -52,6 +54,7 @@ Read the 3-minute path, then open:
 - [Consent and Licensing Checklist](docs/04_consent_checklist.md)
 - [AI Content Labeling Policy](docs/05_labeling_policy.md)
 - [Incident Response Playbook](docs/06_incident_response.md)
+- [Risk Scoring Demo README](scripts/README.md)
 
 ### Deep dive
 
@@ -79,13 +82,19 @@ This project asks how a synthetic media platform should answer the following pro
 
 ## Control Architecture
 
-The proposed compliance control architecture uses five layers:
+The proposed compliance control architecture uses five layers across the synthetic media lifecycle:
 
 1. Pre-generation gate: identity verification, source media review, consent/license check, and prohibited-use screening.
 2. Authorization controls: specific-purpose consent for face, voice, motion, performance, commercial use, duration, territory, secondary use, and training-data use.
 3. Labeling and provenance controls: visible labels, metadata labels, watermarking, content credentials, export logs, and hash registries.
 4. Human review and escalation: enhanced review for public figures, children, endorsements, political content, sexual content, defamatory portrayals, medical claims, and financial claims.
 5. Incident response and governance: takedown workflow, evidence preservation, affected-person notification, vendor escalation, metrics, and post-incident control improvement.
+
+The interactive demo implements this architecture as a product workflow:
+
+1. Intake workspace: collect request context, source media, use case, release regions, consent evidence, and platform controls.
+2. Completeness check: show required missing fields and intake progress before report generation.
+3. Generated report: output executive snapshot, scenario classification, key findings, control recommendations, jurisdiction matrix, evidence checklist, and framework mapping.
 
 ## Frameworks Used
 
@@ -113,19 +122,22 @@ Then visit:
 http://localhost:8000/web/
 ```
 
-The browser demo is a rule-based case review workflow, not an ML model. It asks for requester type, depicted person, source media, use case, monetization, release regions, consent evidence, license scope, labeling controls, and training-data use. It outputs a structured compliance review memo with:
+The browser demo is a rule-based workflow, not an ML model. It has two stages:
+
+1. Intake workspace: enter requester type, depicted person, source media, use case, monetization, release regions, consent evidence, license scope, labeling controls, and training-data use. The page shows intake completeness, required missing fields, and a short intake profile.
+2. Generated report: after the required intake is complete, click `Generate compliance report` to produce a modular consulting-style report.
+
+The generated report includes:
 
 - Decision: reject, escalate, approve with conditions, or approve;
-- Risk drivers and reviewer path;
-- Required pre-release controls;
-- Labeling and disclosure requirements;
-- Region-specific compliance requirements for EU, China, US, or global release;
-- Consent and licensing gaps;
-- Human review triggers;
-- Framework mapping;
-- Evidence checklist.
+- Executive snapshot with risk score, risk level, and reviewer path;
+- Scenario classification based on the intake profile;
+- Key findings and risk drivers;
+- Consent, labeling, release, and incident control recommendations;
+- Jurisdiction matrix for EU, China, US, and global release paths;
+- Evidence artifacts, reviewer next steps, and framework mapping.
 
-The full report is linked from the web demo header, hero, and result panel.
+Preset scenarios are included so reviewers can quickly test high-risk and low-risk cases, including unauthorized celebrity advertising, licensed performer workflows, fan parody, and fully synthetic internal drafts.
 
 ### Python demo
 
@@ -174,9 +186,13 @@ ai-generated-actor-compliance/
 │   └── nist_ai_rmf_mapping.md
 ├── diagrams/
 │   └── data_flow_diagram.md
-└── scripts/
-    ├── README.md
-    └── risk_scoring_demo.py
+├── scripts/
+│   ├── README.md
+│   └── risk_scoring_demo.py
+└── web/
+    ├── index.html
+    ├── styles.css
+    └── app.js
 ```
 
 ## Skills Demonstrated
@@ -187,4 +203,5 @@ ai-generated-actor-compliance/
 - AI content labeling and provenance policy design;
 - Incident response planning;
 - Framework mapping across EU, China, SAG-AFTRA, and NIST AI RMF;
-- Translating compliance rules into executable risk scoring logic.
+- Translating compliance rules into executable review logic;
+- Designing a product-style compliance intake and generated report workflow.
