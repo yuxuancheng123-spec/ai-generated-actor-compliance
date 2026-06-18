@@ -704,6 +704,218 @@ h1 {
   grid-template-columns: minmax(0, 0.88fr) minmax(430px, 1fr);
 }
 
+.workflow-shell {
+  width: min(calc(100% - 32px), var(--max));
+  margin: 0 auto 96px;
+}
+
+.workflow-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--soft-shadow);
+}
+
+.workflow-topbar h3 {
+  margin: 6px 0 0;
+  font-size: 26px;
+  line-height: 1.05;
+}
+
+.workflow-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 111, 237, 0.18);
+  border-radius: 999px;
+  background: rgba(0, 111, 237, 0.07);
+  color: var(--blue-ink);
+  font-size: 13px;
+  font-weight: 820;
+  white-space: nowrap;
+}
+
+.workflow-steps {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.workflow-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 7px 9px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.66);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 780;
+}
+
+.workflow-steps span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(13, 17, 23, 0.06);
+  color: var(--muted);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  font-weight: 860;
+}
+
+.workflow-steps li.active {
+  border-color: rgba(0, 111, 237, 0.28);
+  background: linear-gradient(180deg, rgba(232, 242, 255, 0.95), rgba(255, 255, 255, 0.82));
+  color: var(--blue-ink);
+  box-shadow: 0 12px 34px rgba(0, 111, 237, 0.08);
+}
+
+.workflow-steps li.active span,
+.workflow-steps li.complete span {
+  background: var(--blue);
+  color: #fff;
+}
+
+.workflow-steps li.complete:not(.active) {
+  color: var(--ink);
+}
+
+.intake-view {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.44fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.workflow-shell.report-mode .workflow-steps {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.report-view {
+  position: static;
+  width: min(920px, 100%);
+  max-height: none;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.intake-summary-panel {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 12px;
+}
+
+.summary-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--soft-shadow);
+}
+
+.summary-card h4 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.summary-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.hero-summary strong {
+  color: var(--ink);
+  font-size: 46px;
+  line-height: 1;
+}
+
+.completion-track {
+  overflow: hidden;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(13, 17, 23, 0.08);
+}
+
+.completion-track span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--blue), #73b7ff);
+  transition: width 220ms ease;
+}
+
+#missing-list,
+.intake-profile {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+#missing-list {
+  list-style: none;
+}
+
+#missing-list li {
+  padding: 9px 10px;
+  border: 1px solid rgba(13, 17, 23, 0.055);
+  border-radius: var(--radius);
+  background: rgba(247, 249, 252, 0.76);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.intake-profile div {
+  display: grid;
+  gap: 3px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.intake-profile div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.intake-profile dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.intake-profile dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
 .risk-form,
 .result-panel {
   padding: 18px;
@@ -761,6 +973,11 @@ fieldset {
 
 fieldset:last-of-type {
   margin-bottom: 16px;
+}
+
+fieldset[hidden],
+[hidden] {
+  display: none !important;
 }
 
 legend {
@@ -904,6 +1121,27 @@ select:has(option[value=""]:checked) {
   background: rgba(247, 249, 252, 0.78);
 }
 
+.workflow-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline);
+}
+
+.generate-button {
+  margin-left: auto;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .preset {
   padding: 0 14px;
   border-color: transparent;
@@ -954,6 +1192,11 @@ select:has(option[value=""]:checked) {
 .memo-panel {
   max-height: calc(100dvh - 112px);
   overflow: auto;
+}
+
+.report-view.memo-panel {
+  max-height: none;
+  overflow: visible;
 }
 
 .memo-toolbar {
@@ -1392,7 +1635,8 @@ select:has(option[value=""]:checked) {
   }
 
   .hero,
-  .demo-grid {
+  .demo-grid,
+  .intake-view {
     grid-template-columns: 1fr;
   }
 
@@ -1425,6 +1669,14 @@ select:has(option[value=""]:checked) {
   .memo-panel {
     max-height: none;
   }
+
+  .intake-summary-panel {
+    position: static;
+  }
+
+  .workflow-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 620px) {
@@ -1434,6 +1686,7 @@ select:has(option[value=""]:checked) {
   .case-gallery,
   .section-intro,
   .demo-grid,
+  .workflow-shell,
   .control-section,
   .site-footer {
     width: min(calc(100% - 20px), var(--max));
@@ -1471,10 +1724,22 @@ select:has(option[value=""]:checked) {
   }
 
   .form-heading,
+  .workflow-topbar,
+  .workflow-actions,
   .memo-toolbar,
   .result-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .workflow-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workflow-actions .button,
+  .generate-button {
+    width: 100%;
+    margin-left: 0;
   }
 
   .live-dot,

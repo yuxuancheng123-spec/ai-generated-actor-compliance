@@ -157,17 +157,36 @@
         </p>
       </section>
 
-      <section id="demo" class="demo-grid memo-grid" aria-label="Compliance review memo demo">
-        <form class="risk-form" id="risk-form">
-          <div class="form-heading">
-            <div>
-              <span class="micro-label">Intake console</span>
-              <h3>Scenario inputs</h3>
-            </div>
-            <span class="live-dot">Live memo</span>
+      <section id="demo" class="workflow-shell" aria-label="Compliance review workflow">
+        <div class="workflow-topbar">
+          <div>
+            <span class="micro-label">Synthetic media review workflow</span>
+            <h3>Intake first. Report after completion.</h3>
           </div>
+          <span class="workflow-mode-pill" id="workflow-mode">Intake workspace</span>
+        </div>
 
-          <fieldset>
+        <ol class="workflow-steps" aria-label="Review workflow steps">
+          <li data-step-index="0" class="active"><span>01</span>Context</li>
+          <li data-step-index="1"><span>02</span>Media</li>
+          <li data-step-index="2"><span>03</span>Use</li>
+          <li data-step-index="3"><span>04</span>Consent</li>
+          <li data-step-index="4"><span>05</span>Controls</li>
+          <li data-step-index="5"><span>06</span>Report</li>
+        </ol>
+
+        <div class="intake-view" id="intake-view">
+          <form class="risk-form" id="risk-form">
+            <div class="form-heading">
+              <div>
+                <span class="micro-label">Intake console</span>
+                <h3 id="step-title">Request context</h3>
+                <p id="step-copy">Identify who is requesting the synthetic media review and whose identity is depicted.</p>
+              </div>
+              <span class="live-dot">Draft intake</span>
+            </div>
+
+          <fieldset data-step="0">
             <legend>1. Request context</legend>
             <div class="field-grid">
               <div class="field">
@@ -196,7 +215,7 @@
             </div>
           </fieldset>
 
-          <fieldset class="switch-grid">
+          <fieldset class="switch-grid" data-step="1">
             <legend>2. Source media used</legend>
             <label class="switch">
               <input type="checkbox" name="mediaFace" />
@@ -216,7 +235,7 @@
             </label>
           </fieldset>
 
-          <fieldset>
+          <fieldset data-step="2">
             <legend>3. Use and distribution</legend>
             <div class="field-grid">
               <div class="field">
@@ -254,7 +273,7 @@
             </select>
           </fieldset>
 
-          <fieldset class="switch-grid">
+          <fieldset class="switch-grid" data-step="2">
             <legend>4. Distribution regions</legend>
             <label class="switch">
               <input type="checkbox" name="regionEu" />
@@ -274,7 +293,7 @@
             </label>
           </fieldset>
 
-          <fieldset>
+          <fieldset data-step="3">
             <legend>5. Consent evidence</legend>
             <label for="consent-evidence">Authorization evidence</label>
             <select id="consent-evidence" name="consentEvidence">
@@ -317,7 +336,7 @@
             </div>
           </fieldset>
 
-          <fieldset>
+          <fieldset data-step="4">
             <legend>6. Platform controls</legend>
             <label class="switch">
               <input type="checkbox" name="visibleLabel" />
@@ -343,9 +362,34 @@
             <button class="preset" type="button" data-preset="fanParody">Fan parody</button>
             <button class="preset" type="button" data-preset="syntheticLow">Synthetic low risk</button>
           </div>
-        </form>
+            <div class="workflow-actions">
+              <button class="button secondary" type="button" id="prev-step">Previous</button>
+              <button class="button primary" type="button" id="next-step">Next</button>
+              <button class="button primary generate-button" type="button" id="generate-report">Generate compliance report</button>
+            </div>
+          </form>
 
-        <aside class="result-panel memo-panel" aria-live="polite" aria-label="Compliance review memo">
+          <aside class="intake-summary-panel" aria-live="polite" aria-label="Intake completion summary">
+            <div class="summary-card hero-summary">
+              <span class="micro-label">Intake completeness</span>
+              <strong id="completion-score">0%</strong>
+              <div class="completion-track" aria-hidden="true">
+                <span id="completion-bar"></span>
+              </div>
+              <p id="completion-copy">Complete the core scenario fields before generating the report.</p>
+            </div>
+            <div class="summary-card">
+              <h4>Required before report</h4>
+              <ul id="missing-list"></ul>
+            </div>
+            <div class="summary-card">
+              <h4>Current intake profile</h4>
+              <dl class="intake-profile" id="intake-profile"></dl>
+            </div>
+          </aside>
+        </div>
+
+        <aside class="result-panel memo-panel report-view" id="report-view" aria-live="polite" aria-label="Compliance review memo" hidden>
           <div class="memo-toolbar">
             <span>Generated assessment</span>
             <span>Case ID SYN-0428</span>
@@ -457,6 +501,7 @@
             <ul id="framework-list"></ul>
           </section>
           <div class="next-actions">
+            <button class="button secondary" type="button" id="edit-intake">Edit intake</button>
             <a href="../docs/09_final_compliance_assessment_report.md">Read final report</a>
             <a href="../scripts/risk_scoring_demo.py">View Python rules</a>
           </div>

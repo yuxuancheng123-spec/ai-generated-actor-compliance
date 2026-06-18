@@ -163,6 +163,21 @@ const presets = {
 };
 
 const form = document.querySelector("#risk-form");
+const workflowShell = document.querySelector("#demo");
+const intakeView = document.querySelector("#intake-view");
+const reportView = document.querySelector("#report-view");
+const workflowMode = document.querySelector("#workflow-mode");
+const stepTitle = document.querySelector("#step-title");
+const stepCopy = document.querySelector("#step-copy");
+const prevStepButton = document.querySelector("#prev-step");
+const nextStepButton = document.querySelector("#next-step");
+const generateReportButton = document.querySelector("#generate-report");
+const editIntakeButton = document.querySelector("#edit-intake");
+const completionScore = document.querySelector("#completion-score");
+const completionBar = document.querySelector("#completion-bar");
+const completionCopy = document.querySelector("#completion-copy");
+const missingList = document.querySelector("#missing-list");
+const intakeProfile = document.querySelector("#intake-profile");
 const decisionPill = document.querySelector("#decision-pill");
 const scoreValue = document.querySelector("#score-value");
 const resultTitle = document.querySelector("#result-title");
@@ -183,6 +198,31 @@ const sections = {
   frameworks: document.querySelector("#framework-list"),
   evidence: document.querySelector("#evidence-list"),
 };
+
+const workflowSteps = [
+  {
+    title: "Request context",
+    copy: "Identify who is requesting the synthetic media review and whose identity is depicted.",
+  },
+  {
+    title: "Media inputs",
+    copy: "Select the face, voice, motion, or prior performance assets used to generate the content.",
+  },
+  {
+    title: "Use and distribution",
+    copy: "Define the publication purpose, commercialization path, sensitivity, and release regions.",
+  },
+  {
+    title: "Consent evidence",
+    copy: "Record the authorization artifact and license scope for the depicted person or performer.",
+  },
+  {
+    title: "Platform controls",
+    copy: "Confirm labeling, provenance, watermarking, and training-use controls before report generation.",
+  },
+];
+
+let currentStep = 0;
 
 function checked(data, field) {
   return data.has(field);
@@ -677,6 +717,118 @@ function displayRiskLevel(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function requiredIntakeItems(risk) {
+  const media = selectedMedia(risk);
+  const regions = effectiveRegions(risk);
+  return [
+    { label: "Requester type", complete: Boolean(risk.requesterType), step: 0 },
+    { label: "Person depicted", complete: Boolean(risk.subjectType), step: 0 },
+    { label: "Source media selection", complete: media.length > 0 || risk.subjectType === "synthetic", step: 1 },
+    { label: "Use case", complete: Boolean(risk.useCase), step: 2 },
+    { label: "Commercialization", complete: Boolean(risk.monetization), step: 2 },
+    { label: "Sensitive context", complete: Boolean(risk.sensitiveContext), step: 2 },
+    { label: "Distribution region", complete: regions.length > 0, step: 2 },
+    { label: "Authorization evidence", complete: Boolean(risk.consentEvidence), step: 3 },
+  ];
+}
+
+function intakeCompletion(risk) {
+  const items = requiredIntakeItems(risk);
+  const completed = items.filter((item) => item.complete).length;
+  return {
+    items,
+    completed,
+    percent: Math.round((completed / items.length) * 100),
+    ready: completed === items.length,
+  };
+}
+
+function renderIntakeProfile(risk) {
+  renderDefinitionList(intakeProfile, scenarioProfile(risk).slice(0, 6));
+}
+
+function renderMissingItems(items) {
+  missingList.replaceChildren();
+  const missing = items.filter((item) => !item.complete);
+
+  if (!missing.length) {
+    const item = document.createElement("li");
+    item.textContent = "All required intake fields are complete.";
+    missingList.append(item);
+    return;
+  }
+
+  missing.forEach((missingItem) => {
+    const item = document.createElement("li");
+    item.textContent = missingItem.label;
+    missingList.append(item);
+  });
+}
+
+function setWorkflowStep(step) {
+  currentStep = Math.max(0, Math.min(step, workflowSteps.length - 1));
+  const risk = getScenario();
+  const completion = intakeCompletion(risk);
+
+  document.querySelectorAll("[data-step]").forEach((panel) => {
+    panel.hidden = Number(panel.dataset.step) !== currentStep;
+  });
+
+  document.querySelectorAll("[data-step-index]").forEach((item) => {
+    const index = Number(item.dataset.stepIndex);
+    item.classList.toggle("active", index === currentStep);
+    item.classList.toggle("complete", index < currentStep || (index < workflowSteps.length - 1 && completion.items.filter((entry) => entry.step === index).every((entry) => entry.complete)));
+  });
+
+  stepTitle.textContent = workflowSteps[currentStep].title;
+  stepCopy.textContent = workflowSteps[currentStep].copy;
+  prevStepButton.disabled = currentStep === 0;
+  nextStepButton.hidden = currentStep === workflowSteps.length - 1;
+  generateReportButton.hidden = currentStep !== workflowSteps.length - 1;
+}
+
+function updateIntakeStatus(risk) {
+  const completion = intakeCompletion(risk);
+  completionScore.textContent = `${completion.percent}%`;
+  completionBar.style.width = `${completion.percent}%`;
+  completionCopy.textContent = completion.ready
+    ? "Ready to generate the compliance report."
+    : "Complete the core scenario fields before generating the report.";
+  generateReportButton.disabled = !completion.ready;
+  renderMissingItems(completion.items);
+  renderIntakeProfile(risk);
+}
+
+function showReport() {
+  const risk = getScenario();
+  const completion = intakeCompletion(risk);
+  if (!completion.ready) {
+    const firstMissing = completion.items.find((item) => !item.complete);
+    if (firstMissing) setWorkflowStep(firstMissing.step);
+    updateIntakeStatus(risk);
+    return;
+  }
+
+  intakeView.hidden = true;
+  reportView.hidden = false;
+  workflowShell.classList.add("report-mode");
+  workflowMode.textContent = "Generated report";
+  document.querySelectorAll("[data-step-index]").forEach((item) => {
+    const index = Number(item.dataset.stepIndex);
+    item.classList.toggle("active", index === 5);
+    item.classList.add("complete");
+  });
+  reportView.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+function showIntake() {
+  reportView.hidden = true;
+  intakeView.hidden = false;
+  workflowShell.classList.remove("report-mode");
+  workflowMode.textContent = "Intake workspace";
+  setWorkflowStep(currentStep);
+}
+
 function render() {
   const risk = getScenario();
   const memo = assessScenario(risk);
@@ -702,6 +854,7 @@ function render() {
   renderList(sections.nextSteps, nextSteps(memo));
   renderList(sections.frameworks, memo.frameworks);
   renderList(sections.evidence, memo.evidence);
+  updateIntakeStatus(risk);
 }
 
 function setCheckbox(field, value) {
@@ -745,6 +898,8 @@ function applyPreset(name) {
     "trainingUse",
   ].forEach((field) => setCheckbox(field, preset[field]));
 
+  currentStep = workflowSteps.length - 1;
+  showIntake();
   render();
 }
 
@@ -755,4 +910,10 @@ document.querySelectorAll("[data-preset]").forEach((button) => {
   button.addEventListener("click", () => applyPreset(button.dataset.preset));
 });
 
+prevStepButton.addEventListener("click", () => setWorkflowStep(currentStep - 1));
+nextStepButton.addEventListener("click", () => setWorkflowStep(currentStep + 1));
+generateReportButton.addEventListener("click", showReport);
+editIntakeButton.addEventListener("click", showIntake);
+
+setWorkflowStep(0);
 render();
