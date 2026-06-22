@@ -4,6 +4,38 @@ Chinese title: AI生成演员与深度伪造内容合规评估：面向合成媒
 
 English title: Compliance Assessment for AI-Generated Actors and Deepfake Content: Consent, Labeling, and Governance Controls for Synthetic Media Platforms
 
+## Quick Links
+
+| Link | URL |
+|---|---|
+| Portfolio homepage | <https://yuxuancheng123-spec.github.io/yuxuan-cheng-portfolio/> |
+| Portfolio repository | <https://github.com/yuxuancheng123-spec/yuxuan-cheng-portfolio> |
+| Compliance repository | <https://github.com/yuxuancheng123-spec/ai-generated-actor-compliance> |
+| English compliance web demo | <https://yuxuancheng123-spec.github.io/ai-generated-actor-compliance/web/> |
+| Chinese compliance web demo | <https://yuxuancheng123-spec.github.io/ai-generated-actor-compliance/web/demo.zh.html> |
+| Final assessment report | [docs/09_final_compliance_assessment_report.md](docs/09_final_compliance_assessment_report.md) |
+| Portfolio summary | [docs/10_portfolio_summary.md](docs/10_portfolio_summary.md) |
+| Risk scoring demo | [scripts/risk_scoring_demo.py](scripts/risk_scoring_demo.py) |
+
+If the GitHub Pages links do not open, confirm that the repository is public and that GitHub Pages is enabled for the `main` branch.
+
+## Local Preview Links
+
+From the parent folder:
+
+```bash
+cd "/Users/miine/Documents/Compliance Assessment"
+python3 -m http.server 8010
+```
+
+Then open:
+
+| Local page | URL |
+|---|---|
+| Portfolio homepage | <http://127.0.0.1:8010/yuxuan-cheng-portfolio/> |
+| English compliance demo | <http://127.0.0.1:8010/ai-generated-actor-compliance/web/> |
+| Chinese compliance demo | <http://127.0.0.1:8010/ai-generated-actor-compliance/web/demo.zh.html> |
+
 ## Project Pitch
 
 This project is an English-first product compliance case study for a fictional synthetic media platform that lets creators and production teams generate AI actors from face, voice, video, and motion data. It turns a high-level AI responsibility problem into a practical review workflow: intake the content request, check authorization and labeling obligations, map jurisdiction-specific requirements, and generate a structured compliance assessment report.
