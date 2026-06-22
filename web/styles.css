@@ -390,6 +390,14 @@ h3 {
   margin: 4px 0 0;
 }
 
+.evidence-panel-copy {
+  max-width: 66ch;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .evidence-repo-link {
   display: inline-flex;
   align-items: center;
@@ -452,6 +460,19 @@ h3 {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
+}
+
+.evidence-card em {
+  align-self: end;
+  width: max-content;
+  margin-top: 6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 820;
 }
 
 .intake-view {
