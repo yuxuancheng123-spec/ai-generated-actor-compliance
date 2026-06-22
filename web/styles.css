@@ -367,6 +367,93 @@ h3 {
   text-align: center;
 }
 
+.evidence-panel {
+  display: grid;
+  gap: 14px;
+  margin-left: 50px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(11, 122, 80, 0.1), transparent 150px),
+    var(--surface);
+}
+
+.evidence-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.evidence-panel-heading h2 {
+  margin: 4px 0 0;
+}
+
+.evidence-repo-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.evidence-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.evidence-card {
+  display: grid;
+  gap: 8px;
+  min-height: 164px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(250, 250, 250, 0.86);
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.evidence-card:hover,
+.evidence-card:focus-visible {
+  border-color: rgba(0, 111, 237, 0.26);
+  background: #fff;
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.evidence-card span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.evidence-card strong {
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.evidence-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .intake-view {
   min-width: 0;
 }
@@ -1052,6 +1139,7 @@ dd {
 
   .field-grid,
   .switch-grid,
+  .evidence-card-grid,
   .snapshot-grid,
   .control-recommendation-grid,
   .evidence-grid,
@@ -1060,6 +1148,15 @@ dd {
   .report-cover,
   .assessment-sidebar {
     grid-template-columns: 1fr;
+  }
+
+  .evidence-panel {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .evidence-panel-heading {
+    flex-direction: column;
   }
 
   .form-heading,
