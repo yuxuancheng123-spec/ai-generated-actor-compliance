@@ -36,6 +36,20 @@
             <a class="button primary" href="#demo">Try demo</a>
             <a class="button secondary" href="../docs/09_final_compliance_assessment_report.md">Open report</a>
           </div>
+          <dl class="hero-metrics" aria-label="Compliance workflow highlights">
+            <div>
+              <dt>5-step</dt>
+              <dd>Intake gate</dd>
+            </div>
+            <div>
+              <dt>4-region</dt>
+              <dd>Release matrix</dd>
+            </div>
+            <div>
+              <dt>7-part</dt>
+              <dd>Generated report</dd>
+            </div>
+          </dl>
         </div>
 
         <aside class="hero-device" aria-label="Compliance review preview">
@@ -55,6 +69,14 @@
               <div>
                 <span class="micro-label">Content request</span>
                 <strong>Celebrity face in commercial short drama</strong>
+              </div>
+              <div class="console-status-grid" aria-label="Control status preview">
+                <span>Consent gate</span>
+                <strong>Failed</strong>
+                <span>Release scope</span>
+                <strong>EU / CN / US</strong>
+                <span>Reviewer queue</span>
+                <strong>Rights escalation</strong>
               </div>
               <div class="signal-row">
                 <span>Authorization</span>
@@ -150,10 +172,10 @@
 
       <section class="section-intro" aria-labelledby="demo-title">
         <p class="section-kicker">Interactive review</p>
-        <h2 id="demo-title">Generate a compliance review memo.</h2>
+        <h2 id="demo-title">Run the intake. Generate the report.</h2>
         <p>
-          The browser demo turns a realistic synthetic media intake form into a product compliance memo:
-          decision, risk drivers, required controls, labeling duties, consent gaps, and framework mapping.
+          The browser demo separates intake from reporting, then turns the completed scenario into a
+          modular compliance assessment with controls, evidence, and jurisdiction-specific duties.
         </p>
       </section>
 
@@ -390,6 +412,23 @@
         </div>
 
         <aside class="result-panel memo-panel report-view" id="report-view" aria-live="polite" aria-label="Compliance review memo" hidden>
+          <section class="report-cover" aria-label="Report cover">
+            <div>
+              <span class="micro-label">Synthetic media compliance assessment</span>
+              <h3>AI Actor Review Report</h3>
+              <p>Generated from structured intake for a fictional synthetic media platform.</p>
+            </div>
+            <dl>
+              <div>
+                <dt>Prepared for</dt>
+                <dd>Product compliance review</dd>
+              </div>
+              <div>
+                <dt>Review status</dt>
+                <dd>Generated from intake</dd>
+              </div>
+            </dl>
+          </section>
           <div class="memo-toolbar">
             <span>Generated assessment</span>
             <span>Case ID SYN-0428</span>
