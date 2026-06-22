@@ -3,190 +3,56 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI Actor Compliance Assessment</title>
+    <title>AI Actor Compliance Workspace</title>
     <meta
       name="description"
-      content="Interactive portfolio case study for AI-generated actor and deepfake content compliance."
+      content="ChatGPT-style compliance workspace for AI-generated actor and deepfake content review."
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <header class="site-header" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="AI Actor Compliance home">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span>AI Actor Compliance</span>
-      </a>
-      <nav class="nav-links" aria-label="Project links">
-        <a href="#demo">Review Memo</a>
-        <a href="#controls">Controls</a>
-        <a href="../docs/09_final_compliance_assessment_report.md">Report</a>
-        <a href="https://github.com/yuxuancheng123-spec/ai-generated-actor-compliance">GitHub</a>
-      </nav>
-    </header>
-
-    <main id="top">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <p class="eyebrow">Synthetic media compliance case</p>
-          <h1 id="hero-title">Consent-first AI actor compliance.</h1>
-          <p class="hero-lede">
-            Assess authorization, labeling, and incident controls before synthetic media ships.
-          </p>
-          <div class="hero-actions" aria-label="Primary actions">
-            <a class="button primary" href="#demo">Try demo</a>
-            <a class="button secondary" href="../docs/09_final_compliance_assessment_report.md">Open report</a>
-          </div>
-          <dl class="hero-metrics" aria-label="Compliance workflow highlights">
-            <div>
-              <dt>5-step</dt>
-              <dd>Intake gate</dd>
-            </div>
-            <div>
-              <dt>4-region</dt>
-              <dd>Release matrix</dd>
-            </div>
-            <div>
-              <dt>7-part</dt>
-              <dd>Generated report</dd>
-            </div>
-          </dl>
-        </div>
-
-        <aside class="hero-device" aria-label="Compliance review preview">
-          <div class="device-topbar">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <div class="review-frame">
-            <div class="scan-stage">
-              <div class="face-grid" aria-hidden="true">
-                <span></span><span></span><span></span><span></span>
-              </div>
-              <div class="scan-line" aria-hidden="true"></div>
-            </div>
-            <div class="review-stack">
-              <div>
-                <span class="micro-label">Content request</span>
-                <strong>Celebrity face in commercial short drama</strong>
-              </div>
-              <div class="console-status-grid" aria-label="Control status preview">
-                <span>Consent gate</span>
-                <strong>Failed</strong>
-                <span>Release scope</span>
-                <strong>EU / CN / US</strong>
-                <span>Reviewer queue</span>
-                <strong>Rights escalation</strong>
-              </div>
-              <div class="signal-row">
-                <span>Authorization</span>
-                <strong class="signal-danger">Missing</strong>
-              </div>
-              <div class="signal-row">
-                <span>AI label</span>
-                <strong class="signal-danger">Missing</strong>
-              </div>
-              <div class="risk-pill prohibited">Prohibited</div>
-            </div>
-          </div>
-        </aside>
-      </section>
-
-      <section class="artifact-strip" aria-label="Portfolio artifacts">
-        <a href="../docs/03_risk_register.md">
-          <span>01</span>
-          Risk register
+    <main id="top" class="chatgpt-shell">
+      <aside class="workspace-sidebar" aria-label="Project navigation">
+        <a class="brand" href="#top" aria-label="AI Actor Compliance home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>AI Actor Compliance</span>
         </a>
-        <a href="../docs/04_consent_checklist.md">
-          <span>02</span>
-          Consent checklist
-        </a>
-        <a href="../docs/05_labeling_policy.md">
-          <span>03</span>
-          Labeling policy
-        </a>
-        <a href="../docs/06_incident_response.md">
-          <span>04</span>
-          Incident playbook
-        </a>
-      </section>
 
-      <section class="case-gallery" aria-labelledby="case-gallery-title">
-        <div class="gallery-heading">
-          <h2 id="case-gallery-title">Review the moments where synthetic media risk appears.</h2>
-          <div class="gallery-links">
-            <a href="#demo">Start review</a>
-            <a href="../docs/09_final_compliance_assessment_report.md">Open report</a>
-          </div>
-        </div>
-        <div class="case-rail" aria-label="Synthetic media compliance scenarios">
-          <article class="case-tile actor-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="face-orb"></span>
-              <span class="mesh-line one"></span>
-              <span class="mesh-line two"></span>
-              <span class="scan-beam"></span>
-            </div>
-            <h3>AI actor</h3>
-            <p>Face, likeness, and motion data before generation.</p>
-          </article>
-          <article class="case-tile voice-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="wave one"></span>
-              <span class="wave two"></span>
-              <span class="wave three"></span>
-            </div>
-            <h3>Voice clone</h3>
-            <p>Consent and scope checks for synthetic dialogue.</p>
-          </article>
-          <article class="case-tile drama-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="film-frame primary"></span>
-              <span class="film-frame secondary"></span>
-              <span class="play-mark"></span>
-            </div>
-            <h3>Short drama</h3>
-            <p>Release review before publication and monetization.</p>
-          </article>
-          <article class="case-tile label-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="label-card"></span>
-              <span class="label-chip"></span>
-              <span class="metadata-line one"></span>
-              <span class="metadata-line two"></span>
-            </div>
-            <h3>Disclosure</h3>
-            <p>Visible labels, metadata, and provenance signals.</p>
-          </article>
-          <article class="case-tile incident-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="alert-ring"></span>
-              <span class="evidence-card"></span>
-              <span class="route-line"></span>
-            </div>
-            <h3>Incident response</h3>
-            <p>Takedown, evidence preservation, and remediation.</p>
-          </article>
-        </div>
-      </section>
+        <section class="sidebar-block">
+          <p class="sidebar-label">Case workspace</p>
+          <a class="sidebar-link active" href="#demo">Compliance intake</a>
+          <a class="sidebar-link" href="../docs/09_final_compliance_assessment_report.md">Final report</a>
+          <a class="sidebar-link" href="../README.md">Repository README</a>
+          <a class="sidebar-link" href="https://github.com/yuxuancheng123-spec/ai-generated-actor-compliance">GitHub</a>
+        </section>
 
-      <section class="section-intro" aria-labelledby="demo-title">
-        <p class="section-kicker">Interactive review</p>
-        <h2 id="demo-title">Run the intake. Generate the report.</h2>
-        <p>
-          The browser demo separates intake from reporting, then turns the completed scenario into a
-          modular compliance assessment with controls, evidence, and jurisdiction-specific duties.
-        </p>
-      </section>
+        <section class="sidebar-block">
+          <p class="sidebar-label">Artifacts</p>
+          <a class="sidebar-link" href="../docs/03_risk_register.md">Risk register</a>
+          <a class="sidebar-link" href="../docs/04_consent_checklist.md">Consent checklist</a>
+          <a class="sidebar-link" href="../docs/05_labeling_policy.md">Labeling policy</a>
+          <a class="sidebar-link" href="../docs/06_incident_response.md">Incident playbook</a>
+        </section>
 
-      <section id="demo" class="workflow-shell" aria-label="Compliance review workflow">
-        <div class="workflow-topbar">
+        <section class="sidebar-block sidebar-presets">
+          <p class="sidebar-label">Quick scenarios</p>
+          <button class="preset" type="button" data-preset="unauthorizedCelebrityAd">Stolen celebrity ad</button>
+          <button class="preset" type="button" data-preset="licensedPerformer">Licensed performer</button>
+          <button class="preset" type="button" data-preset="fanParody">Fan parody</button>
+          <button class="preset" type="button" data-preset="syntheticLow">Synthetic low risk</button>
+        </section>
+
+        <p class="sidebar-note">Fictional educational project. Not legal advice.</p>
+      </aside>
+
+      <section id="demo" class="conversation-panel workflow-shell" aria-label="Compliance review workflow">
+        <header class="conversation-header">
           <div>
-            <span class="micro-label">Synthetic media review workflow</span>
-            <h3>Intake first. Report after completion.</h3>
+            <p class="micro-label">Synthetic media review</p>
+            <h1>Compliance Assistant</h1>
           </div>
           <span class="workflow-mode-pill" id="workflow-mode">Intake workspace</span>
-        </div>
+        </header>
 
         <ol class="workflow-steps" aria-label="Review workflow steps">
           <li data-step-index="0" class="active"><span>01</span>Context</li>
@@ -197,393 +63,407 @@
           <li data-step-index="5"><span>06</span>Report</li>
         </ol>
 
-        <div class="intake-view" id="intake-view">
-          <form class="risk-form" id="risk-form">
-            <div class="form-heading">
-              <div>
-                <span class="micro-label">Intake console</span>
-                <h3 id="step-title">Request context</h3>
-                <p id="step-copy">Identify who is requesting the synthetic media review and whose identity is depicted.</p>
-              </div>
-              <span class="live-dot">Draft intake</span>
-            </div>
-
-          <fieldset data-step="0">
-            <legend>1. Request context</legend>
-            <div class="field-grid">
-              <div class="field">
-                <label for="requester-type">Requester type</label>
-                <select id="requester-type" name="requesterType">
-                  <option value="" selected>Select requester type</option>
-                  <option value="creator">Individual creator</option>
-                  <option value="brand">Brand or advertiser</option>
-                  <option value="production">Production company</option>
-                  <option value="performer">Performer licensing own replica</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="subject-type">Person depicted</label>
-                <select id="subject-type" name="subjectType">
-                  <option value="" selected>Select person depicted</option>
-                  <option value="publicFigure">Celebrity or public figure</option>
-                  <option value="ordinaryPerson">Ordinary third party</option>
-                  <option value="self">Uploader themselves</option>
-                  <option value="performer">Contracted performer</option>
-                  <option value="politician">Political figure</option>
-                  <option value="minor">Child or minor</option>
-                  <option value="synthetic">Fully synthetic character</option>
-                </select>
+        <div class="message-stream">
+          <article class="assistant-message intro-message">
+            <div class="avatar" aria-hidden="true">AI</div>
+            <div class="message-body">
+              <p>
+                Welcome. I can turn a synthetic media request into a consent, labeling, and release review.
+                Complete the intake below, then generate a structured compliance report.
+              </p>
+              <div class="quick-start-row" aria-label="Scenario shortcuts">
+                <button class="preset chip-preset" type="button" data-preset="unauthorizedCelebrityAd">Test a stolen celebrity ad</button>
+                <button class="preset chip-preset" type="button" data-preset="licensedPerformer">Test licensed performer</button>
               </div>
             </div>
-          </fieldset>
+          </article>
 
-          <fieldset class="switch-grid" data-step="1">
-            <legend>2. Source media used</legend>
-            <label class="switch">
-              <input type="checkbox" name="mediaFace" />
-              <span>Face or likeness</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="mediaVoice" />
-              <span>Voice sample</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="mediaMotion" />
-              <span>Body motion</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="mediaPerformance" />
-              <span>Prior performance clip</span>
-            </label>
-          </fieldset>
+          <div class="intake-view" id="intake-view">
+            <form class="risk-form" id="risk-form">
+              <article class="assistant-message intake-card">
+                <div class="avatar" aria-hidden="true">01</div>
+                <div class="message-body">
+                  <div class="form-heading">
+                    <div>
+                      <p class="micro-label">Current question</p>
+                      <h2 id="step-title">Request context</h2>
+                      <p id="step-copy">Identify who is requesting the synthetic media review and whose identity is depicted.</p>
+                    </div>
+                    <span class="live-dot">Draft</span>
+                  </div>
 
-          <fieldset data-step="2">
-            <legend>3. Use and distribution</legend>
-            <div class="field-grid">
-              <div class="field">
-                <label for="use-case">Use case</label>
-                <select id="use-case" name="useCase">
-                  <option value="" selected>Select use case</option>
-                  <option value="shortDrama">Short drama scene</option>
-                  <option value="advertisement">Advertisement</option>
-                  <option value="virtualInfluencer">Virtual influencer post</option>
-                  <option value="fanContent">Fan content</option>
-                  <option value="parody">Parody or satire</option>
-                  <option value="politicalMessage">Political message</option>
-                </select>
+                  <fieldset data-step="0">
+                    <legend>Request context</legend>
+                    <div class="field-grid">
+                      <div class="field">
+                        <label for="requester-type">Requester type</label>
+                        <select id="requester-type" name="requesterType">
+                          <option value="" selected>Select requester type</option>
+                          <option value="creator">Individual creator</option>
+                          <option value="brand">Brand or advertiser</option>
+                          <option value="production">Production company</option>
+                          <option value="performer">Performer licensing own replica</option>
+                        </select>
+                      </div>
+                      <div class="field">
+                        <label for="subject-type">Person depicted</label>
+                        <select id="subject-type" name="subjectType">
+                          <option value="" selected>Select person depicted</option>
+                          <option value="publicFigure">Celebrity or public figure</option>
+                          <option value="ordinaryPerson">Ordinary third party</option>
+                          <option value="self">Uploader themselves</option>
+                          <option value="performer">Contracted performer</option>
+                          <option value="politician">Political figure</option>
+                          <option value="minor">Child or minor</option>
+                          <option value="synthetic">Fully synthetic character</option>
+                        </select>
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  <fieldset class="switch-grid" data-step="1">
+                    <legend>Source media used</legend>
+                    <label class="switch">
+                      <input type="checkbox" name="mediaFace" />
+                      <span>Face or likeness</span>
+                    </label>
+                    <label class="switch">
+                      <input type="checkbox" name="mediaVoice" />
+                      <span>Voice sample</span>
+                    </label>
+                    <label class="switch">
+                      <input type="checkbox" name="mediaMotion" />
+                      <span>Body motion</span>
+                    </label>
+                    <label class="switch">
+                      <input type="checkbox" name="mediaPerformance" />
+                      <span>Prior performance clip</span>
+                    </label>
+                  </fieldset>
+
+                  <fieldset data-step="2">
+                    <legend>Use and distribution</legend>
+                    <div class="field-grid">
+                      <div class="field">
+                        <label for="use-case">Use case</label>
+                        <select id="use-case" name="useCase">
+                          <option value="" selected>Select use case</option>
+                          <option value="shortDrama">Short drama scene</option>
+                          <option value="advertisement">Advertisement</option>
+                          <option value="virtualInfluencer">Virtual influencer post</option>
+                          <option value="fanContent">Fan content</option>
+                          <option value="parody">Parody or satire</option>
+                          <option value="politicalMessage">Political message</option>
+                        </select>
+                      </div>
+                      <div class="field">
+                        <label for="monetization">Commercialization</label>
+                        <select id="monetization" name="monetization">
+                          <option value="" selected>Select commercialization</option>
+                          <option value="paidAd">Paid ad or endorsement</option>
+                          <option value="publicPost">Public post</option>
+                          <option value="draft">Internal draft only</option>
+                          <option value="resale">License or resale</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="sensitive-context">Sensitive context</label>
+                      <select id="sensitive-context" name="sensitiveContext">
+                        <option value="" selected>Select sensitive context</option>
+                        <option value="none">None</option>
+                        <option value="sexual">Sexual</option>
+                        <option value="political">Political</option>
+                        <option value="medical">Medical</option>
+                        <option value="financial">Financial</option>
+                        <option value="defamatory">Defamatory</option>
+                      </select>
+                    </div>
+                  </fieldset>
+
+                  <fieldset class="switch-grid" data-step="2">
+                    <legend>Distribution regions</legend>
+                    <label class="switch">
+                      <input type="checkbox" name="regionEu" />
+                      <span>European Union</span>
+                    </label>
+                    <label class="switch">
+                      <input type="checkbox" name="regionChina" />
+                      <span>China</span>
+                    </label>
+                    <label class="switch">
+                      <input type="checkbox" name="regionUs" />
+                      <span>United States</span>
+                    </label>
+                    <label class="switch">
+                      <input type="checkbox" name="regionGlobal" />
+                      <span>Global release</span>
+                    </label>
+                  </fieldset>
+
+                  <fieldset data-step="3">
+                    <legend>Consent evidence</legend>
+                    <div class="field">
+                      <label for="consent-evidence">Authorization evidence</label>
+                      <select id="consent-evidence" name="consentEvidence">
+                        <option value="" selected>Select authorization evidence</option>
+                        <option value="none">No authorization evidence</option>
+                        <option value="selfAttestation">Uploader self-attestation</option>
+                        <option value="uploadedContract">Uploaded contract</option>
+                        <option value="verifiedPortal">Verified performer portal</option>
+                        <option value="performerAgreement">Performer AI replica agreement</option>
+                      </select>
+                    </div>
+                    <div class="switch-grid compact-grid">
+                      <label class="switch">
+                        <input type="checkbox" name="scopeCommercial" />
+                        <span>Commercial use covered</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="scopeTraining" />
+                        <span>Training use covered</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="scopeTerritory" />
+                        <span>Territory covered</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="scopeDuration" />
+                        <span>Duration covered</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="scopeSecondaryUse" />
+                        <span>Secondary use covered</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="scopeRevocation" />
+                        <span>Revocation path exists</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="scopeCompensation" />
+                        <span>Compensation terms exist</span>
+                      </label>
+                    </div>
+                  </fieldset>
+
+                  <fieldset data-step="4">
+                    <legend>Platform controls</legend>
+                    <div class="switch-grid compact-grid">
+                      <label class="switch">
+                        <input type="checkbox" name="visibleLabel" />
+                        <span>Visible AI label planned</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="machineLabel" />
+                        <span>Machine-readable metadata planned</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="watermark" />
+                        <span>Persistent watermark or provenance planned</span>
+                      </label>
+                      <label class="switch">
+                        <input type="checkbox" name="trainingUse" />
+                        <span>Use source media for training or model improvement</span>
+                      </label>
+                    </div>
+                  </fieldset>
+                </div>
+              </article>
+
+              <div class="composer-bar" aria-label="Workflow actions">
+                <button class="button secondary" type="button" id="prev-step">Previous</button>
+                <div class="composer-prompt">
+                  <span>Review step</span>
+                  <strong id="composer-step-label">Context</strong>
+                </div>
+                <button class="button primary" type="button" id="next-step">Next</button>
+                <button class="button primary generate-button" type="button" id="generate-report">Generate report</button>
               </div>
-              <div class="field">
-                <label for="monetization">Commercialization</label>
-                <select id="monetization" name="monetization">
-                  <option value="" selected>Select commercialization</option>
-                  <option value="paidAd">Paid ad or endorsement</option>
-                  <option value="publicPost">Public post</option>
-                  <option value="draft">Internal draft only</option>
-                  <option value="resale">License or resale</option>
-                </select>
-              </div>
-            </div>
-            <label for="sensitive-context">Sensitive context</label>
-            <select id="sensitive-context" name="sensitiveContext">
-              <option value="" selected>Select sensitive context</option>
-              <option value="none">None</option>
-              <option value="sexual">Sexual</option>
-              <option value="political">Political</option>
-              <option value="medical">Medical</option>
-              <option value="financial">Financial</option>
-              <option value="defamatory">Defamatory</option>
-            </select>
-          </fieldset>
-
-          <fieldset class="switch-grid" data-step="2">
-            <legend>4. Distribution regions</legend>
-            <label class="switch">
-              <input type="checkbox" name="regionEu" />
-              <span>European Union</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="regionChina" />
-              <span>China</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="regionUs" />
-              <span>United States</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="regionGlobal" />
-              <span>Global release</span>
-            </label>
-          </fieldset>
-
-          <fieldset data-step="3">
-            <legend>5. Consent evidence</legend>
-            <label for="consent-evidence">Authorization evidence</label>
-            <select id="consent-evidence" name="consentEvidence">
-              <option value="" selected>Select authorization evidence</option>
-              <option value="none">No authorization evidence</option>
-              <option value="selfAttestation">Uploader self-attestation</option>
-              <option value="uploadedContract">Uploaded contract</option>
-              <option value="verifiedPortal">Verified performer portal</option>
-              <option value="performerAgreement">Performer AI replica agreement</option>
-            </select>
-            <div class="switch-grid compact-grid">
-              <label class="switch">
-                <input type="checkbox" name="scopeCommercial" />
-                <span>Commercial use covered</span>
-              </label>
-              <label class="switch">
-                <input type="checkbox" name="scopeTraining" />
-                <span>Training use covered</span>
-              </label>
-              <label class="switch">
-                <input type="checkbox" name="scopeTerritory" />
-                <span>Territory covered</span>
-              </label>
-              <label class="switch">
-                <input type="checkbox" name="scopeDuration" />
-                <span>Duration covered</span>
-              </label>
-              <label class="switch">
-                <input type="checkbox" name="scopeSecondaryUse" />
-                <span>Secondary use covered</span>
-              </label>
-              <label class="switch">
-                <input type="checkbox" name="scopeRevocation" />
-                <span>Revocation path exists</span>
-              </label>
-              <label class="switch">
-                <input type="checkbox" name="scopeCompensation" />
-                <span>Compensation terms exist</span>
-              </label>
-            </div>
-          </fieldset>
-
-          <fieldset data-step="4">
-            <legend>6. Platform controls</legend>
-            <label class="switch">
-              <input type="checkbox" name="visibleLabel" />
-              <span>Visible AI label planned</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="machineLabel" />
-              <span>Machine-readable metadata planned</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="watermark" />
-              <span>Persistent watermark or provenance planned</span>
-            </label>
-            <label class="switch">
-              <input type="checkbox" name="trainingUse" />
-              <span>Use source media for training or model improvement</span>
-            </label>
-          </fieldset>
-
-          <div class="preset-row" aria-label="Scenario presets">
-            <button class="preset" type="button" data-preset="unauthorizedCelebrityAd">Stolen celebrity ad</button>
-            <button class="preset" type="button" data-preset="licensedPerformer">Licensed performer</button>
-            <button class="preset" type="button" data-preset="fanParody">Fan parody</button>
-            <button class="preset" type="button" data-preset="syntheticLow">Synthetic low risk</button>
+            </form>
           </div>
-            <div class="workflow-actions">
-              <button class="button secondary" type="button" id="prev-step">Previous</button>
-              <button class="button primary" type="button" id="next-step">Next</button>
-              <button class="button primary generate-button" type="button" id="generate-report">Generate compliance report</button>
-            </div>
-          </form>
 
-          <aside class="intake-summary-panel" aria-live="polite" aria-label="Intake completion summary">
-            <div class="summary-card hero-summary">
-              <span class="micro-label">Intake completeness</span>
-              <strong id="completion-score">0%</strong>
-              <div class="completion-track" aria-hidden="true">
-                <span id="completion-bar"></span>
+          <aside class="result-panel memo-panel report-view" id="report-view" aria-live="polite" aria-label="Compliance review memo" hidden>
+            <article class="assistant-message report-message">
+              <div class="avatar" aria-hidden="true">AI</div>
+              <div class="message-body report-output">
+                <section class="report-cover" aria-label="Report cover">
+                  <div>
+                    <span class="micro-label">Generated assessment</span>
+                    <h2>AI Actor Review Report</h2>
+                    <p>Structured compliance output generated from the intake facts.</p>
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>Prepared for</dt>
+                      <dd>Product compliance review</dd>
+                    </div>
+                    <div>
+                      <dt>Case ID</dt>
+                      <dd>SYN-0428</dd>
+                    </div>
+                  </dl>
+                </section>
+
+                <div class="result-header">
+                  <span class="micro-label">Compliance review memo</span>
+                  <span class="risk-pill" id="decision-pill">Reject</span>
+                </div>
+
+                <section class="report-module executive-snapshot" aria-label="Executive snapshot">
+                  <div class="module-heading">
+                    <span>01</span>
+                    <h3>Executive snapshot</h3>
+                  </div>
+                  <div class="snapshot-grid">
+                    <div class="snapshot-card primary">
+                      <span>Decision</span>
+                      <strong id="result-title">Reject before generation</strong>
+                    </div>
+                    <div class="snapshot-card score-card">
+                      <span>Risk score</span>
+                      <strong id="score-value">12</strong>
+                    </div>
+                    <div class="snapshot-card">
+                      <span>Risk level</span>
+                      <strong id="risk-level-text">Prohibited</strong>
+                    </div>
+                    <div class="snapshot-card">
+                      <span>Reviewer path</span>
+                      <strong id="reviewer-path">Block and preserve evidence</strong>
+                    </div>
+                  </div>
+                  <p id="result-copy">
+                    The request lacks verified authorization for a real-person commercial AI actor workflow.
+                  </p>
+                </section>
+
+                <section class="report-module" aria-label="Scenario classification">
+                  <div class="module-heading">
+                    <span>02</span>
+                    <h3>Scenario classification</h3>
+                  </div>
+                  <dl class="profile-grid" id="scenario-profile"></dl>
+                </section>
+
+                <section class="report-module" aria-label="Key findings">
+                  <div class="module-heading">
+                    <span>03</span>
+                    <h3>Key findings</h3>
+                  </div>
+                  <ul class="finding-list" id="risk-driver-list"></ul>
+                </section>
+
+                <section class="report-module" aria-label="Control recommendations">
+                  <div class="module-heading">
+                    <span>04</span>
+                    <h3>Control recommendations</h3>
+                  </div>
+                  <div class="control-recommendation-grid">
+                    <div>
+                      <h4>Consent controls</h4>
+                      <ul id="consent-control-list"></ul>
+                    </div>
+                    <div>
+                      <h4>Labeling controls</h4>
+                      <ul id="label-control-list"></ul>
+                    </div>
+                    <div>
+                      <h4>Release controls</h4>
+                      <ul id="release-control-list"></ul>
+                    </div>
+                    <div>
+                      <h4>Incident controls</h4>
+                      <ul id="incident-control-list"></ul>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="report-module" aria-label="Jurisdiction matrix">
+                  <div class="module-heading">
+                    <span>05</span>
+                    <h3>Jurisdiction matrix</h3>
+                  </div>
+                  <div class="jurisdiction-matrix" id="jurisdiction-matrix"></div>
+                </section>
+
+                <section class="report-module" aria-label="Evidence and next steps">
+                  <div class="module-heading">
+                    <span>06</span>
+                    <h3>Evidence and next steps</h3>
+                  </div>
+                  <div class="evidence-grid">
+                    <div>
+                      <h4>Evidence artifacts</h4>
+                      <ul id="evidence-list"></ul>
+                    </div>
+                    <div>
+                      <h4>Reviewer next steps</h4>
+                      <ul id="next-step-list"></ul>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="report-module framework-module" aria-label="Framework mapping">
+                  <div class="module-heading">
+                    <span>07</span>
+                    <h3>Framework mapping</h3>
+                  </div>
+                  <ul id="framework-list"></ul>
+                </section>
+
+                <div class="next-actions">
+                  <button class="button secondary" type="button" id="edit-intake">Edit intake</button>
+                  <a href="../docs/09_final_compliance_assessment_report.md">Read final report</a>
+                  <a href="../scripts/risk_scoring_demo.py">View Python rules</a>
+                </div>
               </div>
-              <p id="completion-copy">Complete the core scenario fields before generating the report.</p>
-            </div>
-            <div class="summary-card">
-              <h4>Required before report</h4>
-              <ul id="missing-list"></ul>
-            </div>
-            <div class="summary-card">
-              <h4>Current intake profile</h4>
-              <dl class="intake-profile" id="intake-profile"></dl>
-            </div>
+            </article>
           </aside>
         </div>
-
-        <aside class="result-panel memo-panel report-view" id="report-view" aria-live="polite" aria-label="Compliance review memo" hidden>
-          <section class="report-cover" aria-label="Report cover">
-            <div>
-              <span class="micro-label">Synthetic media compliance assessment</span>
-              <h3>AI Actor Review Report</h3>
-              <p>Generated from structured intake for a fictional synthetic media platform.</p>
-            </div>
-            <dl>
-              <div>
-                <dt>Prepared for</dt>
-                <dd>Product compliance review</dd>
-              </div>
-              <div>
-                <dt>Review status</dt>
-                <dd>Generated from intake</dd>
-              </div>
-            </dl>
-          </section>
-          <div class="memo-toolbar">
-            <span>Generated assessment</span>
-            <span>Case ID SYN-0428</span>
-          </div>
-          <div class="result-header">
-            <span class="micro-label">Compliance review memo</span>
-            <span class="risk-pill" id="decision-pill">Reject</span>
-          </div>
-
-          <section class="report-module executive-snapshot" aria-label="Executive snapshot">
-            <div class="module-heading">
-              <span>01</span>
-              <h3>Executive snapshot</h3>
-            </div>
-            <div class="snapshot-grid">
-              <div class="snapshot-card primary">
-                <span>Decision</span>
-                <strong id="result-title">Reject before generation</strong>
-              </div>
-              <div class="snapshot-card score-card">
-                <span>Risk score</span>
-                <strong id="score-value">12</strong>
-              </div>
-              <div class="snapshot-card">
-                <span>Risk level</span>
-                <strong id="risk-level-text">Prohibited</strong>
-              </div>
-              <div class="snapshot-card">
-                <span>Reviewer path</span>
-                <strong id="reviewer-path">Block and preserve evidence</strong>
-              </div>
-            </div>
-            <p id="result-copy">
-              The request lacks verified authorization for a real-person commercial AI actor workflow.
-            </p>
-          </section>
-
-          <section class="report-module" aria-label="Scenario classification">
-            <div class="module-heading">
-              <span>02</span>
-              <h3>Scenario classification</h3>
-            </div>
-            <dl class="profile-grid" id="scenario-profile"></dl>
-          </section>
-
-          <section class="report-module" aria-label="Key findings">
-            <div class="module-heading">
-              <span>03</span>
-              <h3>Key findings</h3>
-            </div>
-            <ul class="finding-list" id="risk-driver-list"></ul>
-          </section>
-
-          <section class="report-module" aria-label="Control recommendations">
-            <div class="module-heading">
-              <span>04</span>
-              <h3>Control recommendations</h3>
-            </div>
-            <div class="control-recommendation-grid">
-              <div>
-                <h4>Consent controls</h4>
-                <ul id="consent-control-list"></ul>
-              </div>
-              <div>
-                <h4>Labeling controls</h4>
-                <ul id="label-control-list"></ul>
-              </div>
-              <div>
-                <h4>Release controls</h4>
-                <ul id="release-control-list"></ul>
-              </div>
-              <div>
-                <h4>Incident controls</h4>
-                <ul id="incident-control-list"></ul>
-              </div>
-            </div>
-          </section>
-
-          <section class="report-module" aria-label="Jurisdiction matrix">
-            <div class="module-heading">
-              <span>05</span>
-              <h3>Jurisdiction matrix</h3>
-            </div>
-            <div class="jurisdiction-matrix" id="jurisdiction-matrix"></div>
-          </section>
-
-          <section class="report-module" aria-label="Evidence and next steps">
-            <div class="module-heading">
-              <span>06</span>
-              <h3>Evidence and next steps</h3>
-            </div>
-            <div class="evidence-grid">
-              <div>
-                <h4>Evidence artifacts</h4>
-                <ul id="evidence-list"></ul>
-              </div>
-              <div>
-                <h4>Reviewer next steps</h4>
-                <ul id="next-step-list"></ul>
-              </div>
-            </div>
-          </section>
-
-          <section class="report-module framework-module" aria-label="Framework mapping">
-            <div class="module-heading">
-              <span>07</span>
-              <h3>Framework mapping</h3>
-            </div>
-            <ul id="framework-list"></ul>
-          </section>
-          <div class="next-actions">
-            <button class="button secondary" type="button" id="edit-intake">Edit intake</button>
-            <a href="../docs/09_final_compliance_assessment_report.md">Read final report</a>
-            <a href="../scripts/risk_scoring_demo.py">View Python rules</a>
-          </div>
-        </aside>
       </section>
 
-      <section id="controls" class="control-section" aria-labelledby="controls-title">
-        <div class="section-intro compact">
-          <h2 id="controls-title">Control architecture</h2>
-          <p>
-            The case study treats real-person face and voice data as high-risk inputs and places controls
-            before generation, before publication, and after complaints.
-          </p>
-        </div>
-        <div class="control-layers">
-          <article>
-            <span>Gate</span>
-            <h3>Pre-generation review</h3>
-            <p>Identity verification, consent records, license scope, and prohibited-use screening.</p>
-          </article>
-          <article>
-            <span>License</span>
-            <h3>Granular authorization</h3>
-            <p>Separate permissions for face, voice, motion, commercial use, duration, territory, and training.</p>
-          </article>
-          <article>
-            <span>Label</span>
-            <h3>Disclosure and provenance</h3>
-            <p>Visible labels, metadata labels, watermarks, content credentials, export logs, and hashes.</p>
-          </article>
-          <article>
-            <span>Respond</span>
-            <h3>Rights-holder playbook</h3>
-            <p>Complaint intake, rapid containment, evidence preservation, takedown, and control improvement.</p>
-          </article>
-        </div>
-      </section>
+      <aside class="assessment-sidebar" aria-live="polite" aria-label="Live assessment">
+        <section class="summary-card hero-summary">
+          <span class="micro-label">Readiness</span>
+          <strong id="completion-score">0%</strong>
+          <div class="completion-track" aria-hidden="true">
+            <span id="completion-bar"></span>
+          </div>
+          <p id="completion-copy">Complete the core scenario fields before generating the report.</p>
+        </section>
+
+        <section class="summary-card">
+          <h2>Required before report</h2>
+          <ul id="missing-list"></ul>
+        </section>
+
+        <section class="summary-card">
+          <h2>Current intake profile</h2>
+          <dl class="intake-profile" id="intake-profile"></dl>
+        </section>
+
+        <section class="summary-card control-summary">
+          <h2>Control architecture</h2>
+          <div class="control-layers">
+            <article>
+              <span>Gate</span>
+              <h3>Pre-generation</h3>
+              <p>Verify identity, consent, scope, and prohibited-use triggers.</p>
+            </article>
+            <article>
+              <span>Label</span>
+              <h3>Disclosure</h3>
+              <p>Apply visible labels, machine-readable metadata, and provenance records.</p>
+            </article>
+            <article>
+              <span>Respond</span>
+              <h3>Incident playbook</h3>
+              <p>Preserve evidence, route complaints, and remove unauthorized replicas.</p>
+            </article>
+          </div>
+        </section>
+      </aside>
     </main>
-
-    <footer class="site-footer">
-      <p>This fictional educational project is not legal advice.</p>
-      <a href="../README.md">Back to repository README</a>
-    </footer>
 
     <script src="./app.js"></script>
   </body>

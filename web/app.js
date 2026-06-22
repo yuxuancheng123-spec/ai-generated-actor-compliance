@@ -169,6 +169,7 @@ const reportView = document.querySelector("#report-view");
 const workflowMode = document.querySelector("#workflow-mode");
 const stepTitle = document.querySelector("#step-title");
 const stepCopy = document.querySelector("#step-copy");
+const composerStepLabel = document.querySelector("#composer-step-label");
 const prevStepButton = document.querySelector("#prev-step");
 const nextStepButton = document.querySelector("#next-step");
 const generateReportButton = document.querySelector("#generate-report");
@@ -782,6 +783,7 @@ function setWorkflowStep(step) {
 
   stepTitle.textContent = workflowSteps[currentStep].title;
   stepCopy.textContent = workflowSteps[currentStep].copy;
+  composerStepLabel.textContent = workflowSteps[currentStep].title;
   prevStepButton.disabled = currentStep === 0;
   nextStepButton.hidden = currentStep === workflowSteps.length - 1;
   generateReportButton.hidden = currentStep !== workflowSteps.length - 1;
@@ -811,6 +813,7 @@ function showReport() {
 
   intakeView.hidden = true;
   reportView.hidden = false;
+  document.body.classList.add("report-generated");
   workflowShell.classList.add("report-mode");
   workflowMode.textContent = "Generated report";
   document.querySelectorAll("[data-step-index]").forEach((item) => {
@@ -824,6 +827,7 @@ function showReport() {
 function showIntake() {
   reportView.hidden = true;
   intakeView.hidden = false;
+  document.body.classList.remove("report-generated");
   workflowShell.classList.remove("report-mode");
   workflowMode.textContent = "Intake workspace";
   setWorkflowStep(currentStep);
@@ -900,6 +904,7 @@ function applyPreset(name) {
 
   currentStep = workflowSteps.length - 1;
   showIntake();
+  workflowMode.textContent = "Preset loaded";
   render();
 }
 
