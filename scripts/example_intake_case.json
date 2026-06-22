@@ -1,0 +1,27 @@
+{
+  "case_id": "CASE-2026-001",
+  "title": "Licensed performer advertisement",
+  "requester_type": "brand",
+  "content_type": "video",
+  "person_depicted": "real_person",
+  "authorization_status": "verified",
+  "public_figure": false,
+  "minor": false,
+  "commercial_use": true,
+  "sensitive_context": "none",
+  "ai_labeled": true,
+  "training_use": false,
+  "regions": ["EU", "China", "US"],
+  "consent_evidence": [
+    "signed likeness release",
+    "voice replica addendum",
+    "commercial-use rider"
+  ],
+  "license_scope": {
+    "purpose": "digital advertisement",
+    "duration": "6 months",
+    "territory": "EU, China, US",
+    "revocation": "contractual notice",
+    "secondary_use": "not permitted without new approval"
+  }
+}

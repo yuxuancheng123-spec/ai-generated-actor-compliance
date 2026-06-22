@@ -16,6 +16,7 @@ English title: Compliance Assessment for AI-Generated Actors and Deepfake Conten
 | Final assessment report | [docs/09_final_compliance_assessment_report.md](docs/09_final_compliance_assessment_report.md) |
 | Portfolio summary | [docs/10_portfolio_summary.md](docs/10_portfolio_summary.md) |
 | Risk scoring demo | [scripts/risk_scoring_demo.py](scripts/risk_scoring_demo.py) |
+| Privacy engineering artifacts | [privacy_engineering/](privacy_engineering/) |
 
 If the GitHub Pages links do not open, confirm that the repository is public and that GitHub Pages is enabled for the `main` branch.
 
@@ -65,8 +66,9 @@ This is a fictional educational project and is not legal advice.
 | [AI Content Labeling Policy](docs/05_labeling_policy.md) | Defines visible labels, metadata labels, watermarking, export rules, appeal paths, and enforcement |
 | [Incident Response Playbook](docs/06_incident_response.md) | Provides intake, triage, containment, evidence preservation, takedown, notification, and post-incident review steps |
 | [Provenance and Watermarking Review](docs/07_deepfake_provenance_watermarking_review.md) | Compares visible watermarks, metadata, C2PA/content credentials, model-side watermarks, and hash registries |
+| [Privacy Engineering Artifacts](privacy_engineering/) | Adds an upgraded data flow diagram, PII/data lifecycle inventory, and misuse case threat model |
 | [Framework Mappings](frameworks/) | Maps controls to EU AI Act Article 50, China AI labeling rules, SAG-AFTRA AI principles, and NIST AI RMF |
-| [Risk Scoring Demo](scripts/risk_scoring_demo.py) | Shows how compliance rules can become a simple executable content review aid |
+| [Risk Scoring Demo](scripts/risk_scoring_demo.py) | Reads CLI flags or JSON intake cases and outputs a risk score plus Markdown compliance report |
 | [Final Assessment Report](docs/09_final_compliance_assessment_report.md) | Summarizes the assessment, findings, recommended controls, and governance model |
 
 ## How to Review This Repo
@@ -78,6 +80,7 @@ Read this README, then open:
 - [Interactive Web Demo](web/index.html)
 - [Final Assessment Report](docs/09_final_compliance_assessment_report.md)
 - [Risk Register](docs/03_risk_register.md)
+- [Privacy Engineering Data Flow v2](privacy_engineering/data_flow_diagram_v2.md)
 
 ### 10-minute review
 
@@ -87,6 +90,8 @@ Read the 3-minute path, then open:
 - [AI Content Labeling Policy](docs/05_labeling_policy.md)
 - [Incident Response Playbook](docs/06_incident_response.md)
 - [Risk Scoring Demo README](scripts/README.md)
+- [PII and Data Lifecycle Table](privacy_engineering/pii_data_lifecycle_table.md)
+- [Threat Model and Misuse Cases](privacy_engineering/threat_model_misuse_cases.md)
 
 ### Deep dive
 
@@ -216,10 +221,16 @@ ai-generated-actor-compliance/
 │   ├── china_ai_labeling_mapping.md
 │   ├── sag_aftra_mapping.md
 │   └── nist_ai_rmf_mapping.md
+├── privacy_engineering/
+│   ├── data_flow_diagram_v2.md
+│   ├── pii_data_lifecycle_table.md
+│   └── threat_model_misuse_cases.md
 ├── diagrams/
 │   └── data_flow_diagram.md
 ├── scripts/
+│   ├── example_intake_case.json
 │   ├── README.md
+│   ├── test_risk_scoring_demo.py
 │   └── risk_scoring_demo.py
 └── web/
     ├── index.html
