@@ -163,8 +163,7 @@ const presets = {
 };
 
 const form = document.querySelector("#risk-form");
-const workflowShell = document.querySelector("#demo");
-const intakeView = document.querySelector("#intake-view");
+const workflowShell = document.querySelector("#review-system");
 const reportView = document.querySelector("#report-view");
 const workflowMode = document.querySelector("#workflow-mode");
 const stepTitle = document.querySelector("#step-title");
@@ -174,11 +173,19 @@ const prevStepButton = document.querySelector("#prev-step");
 const nextStepButton = document.querySelector("#next-step");
 const generateReportButton = document.querySelector("#generate-report");
 const editIntakeButton = document.querySelector("#edit-intake");
-const completionScore = document.querySelector("#completion-score");
-const completionBar = document.querySelector("#completion-bar");
-const completionCopy = document.querySelector("#completion-copy");
-const missingList = document.querySelector("#missing-list");
-const intakeProfile = document.querySelector("#intake-profile");
+const liveDecision = document.querySelector("#live-decision");
+const liveScore = document.querySelector("#live-score");
+const liveRiskLevel = document.querySelector("#live-risk-level");
+const liveMainBlocker = document.querySelector("#live-main-blocker");
+const liveReviewerPath = document.querySelector("#live-reviewer-path");
+const evidenceReadiness = document.querySelector("#evidence-readiness");
+const riskSummaryCard = document.querySelector(".risk-summary-card");
+const stepResultList = document.querySelector("#step-result-list");
+const evidenceGapList = document.querySelector("#evidence-gap-list");
+const riskRegisterPreview = document.querySelector("#risk-register-preview");
+const regulatoryContext = document.querySelector("#regulatory-context");
+const memoStatus = document.querySelector("#memo-status");
+const reportStateCopy = document.querySelector("#report-state-copy");
 const decisionPill = document.querySelector("#decision-pill");
 const scoreValue = document.querySelector("#score-value");
 const resultTitle = document.querySelector("#result-title");
@@ -189,6 +196,7 @@ const resultPanel = document.querySelector(".result-panel");
 
 const sections = {
   riskDrivers: document.querySelector("#risk-driver-list"),
+  missingEvidence: document.querySelector("#missing-evidence-list"),
   scenarioProfile: document.querySelector("#scenario-profile"),
   consentControls: document.querySelector("#consent-control-list"),
   labelControls: document.querySelector("#label-control-list"),
@@ -589,6 +597,7 @@ function assessScenario(risk) {
 }
 
 function renderList(target, items) {
+  if (!target) return;
   target.replaceChildren();
   items.forEach((text) => {
     const item = document.createElement("li");
@@ -598,6 +607,7 @@ function renderList(target, items) {
 }
 
 function renderDefinitionList(target, items) {
+  if (!target) return;
   target.replaceChildren();
   items.forEach(({ label, value }) => {
     const item = document.createElement("div");
@@ -607,6 +617,259 @@ function renderDefinitionList(target, items) {
     description.textContent = value;
     item.append(term, description);
     target.append(item);
+  });
+}
+
+function decisionLabel(decision) {
+  return {
+    intake: "Intake incomplete",
+    reject: "Reject",
+    escalate: "Escalate",
+    conditional: "Approve with conditions",
+    approve: "Approve",
+  }[decision] || decision;
+}
+
+function mainBlocker(memo) {
+  const blockingGap = memo.gaps.find((item) => !/No material/i.test(item));
+  if (blockingGap) return blockingGap;
+  const labelGap = memo.labels.find((item) => /missing|requires|Add|Apply/i.test(item));
+  if (labelGap) return labelGap;
+  const review = memo.reviews.find((item) => !/No enhanced/i.test(item));
+  if (review) return review;
+  return "No blocking issue detected from the selected fields.";
+}
+
+function checklistStatus(complete, warning = false) {
+  if (complete) return "pass";
+  return warning ? "warn" : "fail";
+}
+
+function evidenceChecklist(risk) {
+  if (isBlankScenario(risk)) {
+    return [
+      "Verified identity",
+      "Consent or performer AI replica agreement",
+      "Commercial use scope",
+      "Territory and duration",
+      "Compensation terms",
+      "Revocation pathway",
+      "Labeling implementation",
+      "Provenance or watermarking control",
+      "Incident escalation owner",
+    ].map((label) => ({ label, complete: false, warning: true }));
+  }
+
+  const realPerson = usesRealPerson(risk);
+  const commercial = isCommercial(risk);
+  const regions = effectiveRegions(risk);
+  const verifiedAuthorization = hasVerifiedAuthorization(risk);
+  const needsLabel = realPerson || risk.subjectType === "synthetic" || regions.length > 0;
+  const needsProvenance = regions.includes("EU") || regions.includes("China") || regions.includes("Global release") || commercial;
+
+  return [
+    {
+      label: "Verified identity",
+      complete: !realPerson || verifiedAuthorization || risk.subjectType === "self",
+      warning: realPerson,
+    },
+    {
+      label: "Consent or performer AI replica agreement",
+      complete: !realPerson || verifiedAuthorization,
+      warning: realPerson,
+    },
+    {
+      label: "Commercial use scope",
+      complete: !commercial || risk.scopeCommercial,
+      warning: commercial,
+    },
+    {
+      label: "Territory and duration",
+      complete: !realPerson || (risk.scopeTerritory && risk.scopeDuration),
+      warning: realPerson,
+    },
+    {
+      label: "Compensation terms",
+      complete: risk.subjectType !== "performer" || risk.scopeCompensation,
+      warning: risk.subjectType === "performer",
+    },
+    {
+      label: "Revocation pathway",
+      complete: !realPerson || risk.scopeRevocation,
+      warning: realPerson,
+    },
+    {
+      label: "Labeling implementation",
+      complete: !needsLabel || (risk.visibleLabel && (!regions.includes("China") || risk.machineLabel)),
+      warning: needsLabel,
+    },
+    {
+      label: "Provenance or watermarking control",
+      complete: !needsProvenance || risk.watermark,
+      warning: needsProvenance,
+    },
+    {
+      label: "Incident escalation owner",
+      complete: hasCoreScenario(risk) && regions.length > 0,
+      warning: true,
+    },
+  ];
+}
+
+function evidenceReadinessPercent(risk) {
+  const items = evidenceChecklist(risk);
+  const complete = items.filter((item) => item.complete).length;
+  return Math.round((complete / items.length) * 100);
+}
+
+function stepReviewResults(risk) {
+  const realPerson = usesRealPerson(risk);
+  const commercial = isCommercial(risk);
+  const verifiedAuthorization = hasVerifiedAuthorization(risk);
+  const regions = effectiveRegions(risk);
+  const labelReady = risk.visibleLabel && (!regions.includes("China") || risk.machineLabel) && (!regions.length || risk.watermark || !(regions.includes("EU") || regions.includes("China") || regions.includes("Global release")));
+
+  return [
+    {
+      label: realPerson ? "Real-person risk detected" : risk.subjectType === "synthetic" ? "No real-person source selected" : "Person depicted not selected",
+      status: realPerson ? "warn" : risk.subjectType === "synthetic" ? "pass" : "fail",
+    },
+    {
+      label: selectedMedia(risk).length ? `Source media: ${selectedMedia(risk).join(", ")}` : "Source media not selected",
+      status: selectedMedia(risk).length || risk.subjectType === "synthetic" ? "pass" : "fail",
+    },
+    {
+      label: commercial ? "Commercial endorsement triggers enhanced review" : risk.useCase ? "No paid endorsement trigger selected" : "Use case not selected",
+      status: commercial ? "warn" : risk.useCase ? "pass" : "fail",
+    },
+    {
+      label: verifiedAuthorization ? "Authorization evidence is present" : realPerson ? "Authorization missing" : "Authorization not required for synthetic-only draft",
+      status: verifiedAuthorization || risk.subjectType === "synthetic" ? "pass" : realPerson ? "fail" : "warn",
+    },
+    {
+      label: labelReady ? "Labeling and provenance controls look ready" : "Labeling controls incomplete",
+      status: labelReady ? "pass" : "warn",
+    },
+  ];
+}
+
+function renderStatusList(target, items) {
+  if (!target) return;
+  target.replaceChildren();
+  items.forEach(({ label, status }) => {
+    const item = document.createElement("li");
+    item.className = status;
+    item.textContent = label;
+    target.append(item);
+  });
+}
+
+function renderEvidenceChecklist(risk) {
+  renderStatusList(
+    evidenceGapList,
+    evidenceChecklist(risk).map((item) => ({
+      label: item.complete ? `${item.label}: ready` : `${item.label}: gap`,
+      status: checklistStatus(item.complete, item.warning),
+    }))
+  );
+}
+
+function riskRegisterRows(risk) {
+  const realPerson = usesRealPerson(risk);
+  return [
+    {
+      risk: "Unauthorized likeness use",
+      severity: realPerson && !hasVerifiedAuthorization(risk) ? "High" : "Medium",
+      control: "Identity verification, consent vault, upload restriction",
+      active: realPerson && !hasVerifiedAuthorization(risk),
+    },
+    {
+      risk: "Unauthorized voice cloning",
+      severity: risk.mediaVoice ? "High" : "Medium",
+      control: "Voice consent check, audio fingerprinting, licensing review",
+      active: risk.mediaVoice && !hasVerifiedAuthorization(risk),
+    },
+    {
+      risk: "Training reuse beyond consent",
+      severity: risk.trainingUse && !risk.scopeTraining ? "High" : "Medium",
+      control: "Separate training opt-in, data use logs, audit rights",
+      active: risk.trainingUse && !risk.scopeTraining,
+    },
+    {
+      risk: "Public figure manipulation",
+      severity: isPublicFigure(risk) ? "High" : "Medium",
+      control: "Enhanced human review, endorsement screening, policy limits",
+      active: isPublicFigure(risk),
+    },
+    {
+      risk: "Label removal after export",
+      severity: risk.watermark ? "Medium" : "High",
+      control: "Visible label, metadata, watermarking, provenance detection",
+      active: !risk.watermark && effectiveRegions(risk).length > 0,
+    },
+  ];
+}
+
+function renderRiskRegisterPreview(risk) {
+  if (!riskRegisterPreview) return;
+  riskRegisterPreview.replaceChildren();
+  riskRegisterRows(risk).forEach((row) => {
+    const tableRow = document.createElement("tr");
+    if (row.active) tableRow.className = "active";
+    [row.risk, row.severity, row.control].forEach((value) => {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      tableRow.append(cell);
+    });
+    riskRegisterPreview.append(tableRow);
+  });
+}
+
+function regulatoryItems(risk) {
+  const regions = effectiveRegions(risk);
+  return [
+    {
+      title: "EU AI Act Article 50",
+      body: regions.includes("EU") || regions.includes("Global release")
+        ? "Viewer-facing disclosure and detectable provenance are in scope for AI-generated or manipulated media."
+        : "Select EU or global release to trigger EU transparency notes.",
+    },
+    {
+      title: "China AI-generated content labeling rules",
+      body: regions.includes("China") || regions.includes("Global release")
+        ? "Explicit visible label, implicit machine-readable signal, and provider records should be checked."
+        : "Select China or global release to trigger explicit and implicit labeling notes.",
+    },
+    {
+      title: "SAG-AFTRA AI principles",
+      body: usesRealPerson(risk)
+        ? "Digital replica use should require clear consent, compensation, specific purpose, and scope limits."
+        : "Real-person performer controls are not triggered by the current synthetic-only posture.",
+    },
+    {
+      title: "NIST AI RMF",
+      body: "Govern, Map, Measure, and Manage controls structure the intake gate, risk scoring, review path, and incident response.",
+    },
+    {
+      title: "C2PA / content provenance concepts",
+      body: risk.watermark
+        ? "Provenance or watermarking is selected; verify export persistence and platform-side detection."
+        : "Add content credentials, metadata, watermarking, or export hashes for provenance resilience.",
+    },
+  ];
+}
+
+function renderRegulatoryContext(risk) {
+  if (!regulatoryContext) return;
+  regulatoryContext.replaceChildren();
+  regulatoryItems(risk).forEach(({ title, body }) => {
+    const card = document.createElement("article");
+    const heading = document.createElement("strong");
+    const copy = document.createElement("p");
+    heading.textContent = title;
+    copy.textContent = body;
+    card.append(heading, copy);
+    regulatoryContext.append(card);
   });
 }
 
@@ -744,42 +1007,29 @@ function intakeCompletion(risk) {
   };
 }
 
-function renderIntakeProfile(risk) {
-  renderDefinitionList(intakeProfile, scenarioProfile(risk).slice(0, 6));
-}
-
-function renderMissingItems(items) {
-  missingList.replaceChildren();
-  const missing = items.filter((item) => !item.complete);
-
-  if (!missing.length) {
-    const item = document.createElement("li");
-    item.textContent = "All required intake fields are complete.";
-    missingList.append(item);
-    return;
-  }
-
-  missing.forEach((missingItem) => {
-    const item = document.createElement("li");
-    item.textContent = missingItem.label;
-    missingList.append(item);
+function updateWorkflowProgress(risk) {
+  const completion = intakeCompletion(risk);
+  document.querySelectorAll("[data-step-index]").forEach((item) => {
+    const index = Number(item.dataset.stepIndex);
+    item.classList.toggle("active", index === currentStep);
+    item.classList.toggle(
+      "complete",
+      index < currentStep ||
+        (index < workflowSteps.length &&
+          completion.items.filter((entry) => entry.step === index).every((entry) => entry.complete))
+    );
   });
 }
 
 function setWorkflowStep(step) {
   currentStep = Math.max(0, Math.min(step, workflowSteps.length - 1));
   const risk = getScenario();
-  const completion = intakeCompletion(risk);
 
   document.querySelectorAll("[data-step]").forEach((panel) => {
     panel.hidden = Number(panel.dataset.step) !== currentStep;
   });
 
-  document.querySelectorAll("[data-step-index]").forEach((item) => {
-    const index = Number(item.dataset.stepIndex);
-    item.classList.toggle("active", index === currentStep);
-    item.classList.toggle("complete", index < currentStep || (index < workflowSteps.length - 1 && completion.items.filter((entry) => entry.step === index).every((entry) => entry.complete)));
-  });
+  updateWorkflowProgress(risk);
 
   stepTitle.textContent = workflowSteps[currentStep].title;
   stepCopy.textContent = workflowSteps[currentStep].copy;
@@ -789,16 +1039,22 @@ function setWorkflowStep(step) {
   generateReportButton.hidden = currentStep !== workflowSteps.length - 1;
 }
 
-function updateIntakeStatus(risk) {
+function updateLiveEvaluation(risk, memo) {
   const completion = intakeCompletion(risk);
-  completionScore.textContent = `${completion.percent}%`;
-  completionBar.style.width = `${completion.percent}%`;
-  completionCopy.textContent = completion.ready
-    ? "Ready to generate the compliance report."
-    : "Complete the core scenario fields before generating the report.";
   generateReportButton.disabled = !completion.ready;
-  renderMissingItems(completion.items);
-  renderIntakeProfile(risk);
+
+  liveDecision.textContent = decisionLabel(memo.decision);
+  liveScore.textContent = memo.score;
+  liveRiskLevel.textContent = displayRiskLevel(memo.riskLevel);
+  liveMainBlocker.textContent = mainBlocker(memo);
+  liveReviewerPath.textContent = memo.reviewer;
+  evidenceReadiness.textContent = `${evidenceReadinessPercent(risk)}%`;
+  riskSummaryCard.dataset.decision = memo.decision;
+
+  renderStatusList(stepResultList, stepReviewResults(risk));
+  renderEvidenceChecklist(risk);
+  renderRiskRegisterPreview(risk);
+  renderRegulatoryContext(risk);
 }
 
 function showReport() {
@@ -807,35 +1063,34 @@ function showReport() {
   if (!completion.ready) {
     const firstMissing = completion.items.find((item) => !item.complete);
     if (firstMissing) setWorkflowStep(firstMissing.step);
-    updateIntakeStatus(risk);
+    render();
     return;
   }
 
-  intakeView.hidden = true;
-  reportView.hidden = false;
   document.body.classList.add("report-generated");
   workflowShell.classList.add("report-mode");
   workflowMode.textContent = "Generated report";
+  memoStatus.textContent = "Generated";
+  reportStateCopy.textContent = "Generated memo based on the current intake.";
   document.querySelectorAll("[data-step-index]").forEach((item) => {
-    const index = Number(item.dataset.stepIndex);
-    item.classList.toggle("active", index === 5);
     item.classList.add("complete");
   });
   reportView.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
 function showIntake() {
-  reportView.hidden = true;
-  intakeView.hidden = false;
   document.body.classList.remove("report-generated");
   workflowShell.classList.remove("report-mode");
   workflowMode.textContent = "Intake workspace";
+  memoStatus.textContent = "Draft";
+  reportStateCopy.textContent = "Live draft memo. Generate to lock the current review view.";
   setWorkflowStep(currentStep);
 }
 
 function render() {
   const risk = getScenario();
   const memo = assessScenario(risk);
+  updateWorkflowProgress(risk);
 
   decisionPill.textContent =
     memo.decision === "conditional" ? "Approve with conditions" : memo.decision === "intake" ? "Intake incomplete" : memo.decision;
@@ -849,6 +1104,7 @@ function render() {
 
   renderDefinitionList(sections.scenarioProfile, scenarioProfile(risk));
   renderList(sections.riskDrivers, prioritize(memo.riskDrivers, "No material risk finding has been generated yet."));
+  renderList(sections.missingEvidence, prioritize(memo.gaps, "No material evidence gap has been generated yet."));
   const groups = controlGroups(memo);
   renderList(sections.consentControls, groups.consent);
   renderList(sections.labelControls, groups.labeling);
@@ -858,7 +1114,7 @@ function render() {
   renderList(sections.nextSteps, nextSteps(memo));
   renderList(sections.frameworks, memo.frameworks);
   renderList(sections.evidence, memo.evidence);
-  updateIntakeStatus(risk);
+  updateLiveEvaluation(risk, memo);
 }
 
 function setCheckbox(field, value) {
