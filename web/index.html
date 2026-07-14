@@ -85,9 +85,8 @@
           <button class="scenario-card preset" type="button" data-preset="unauthorizedCelebrityAd">
             <span class="scenario-decision reject">Expected: Reject</span>
             <strong>Unauthorized Celebrity Advertisement</strong>
-            <p>Brand uses a celebrity face and voice in a paid synthetic endorsement without verified authorization.</p>
+            <p>Public figure, commercial use, missing consent</p>
             <dl>
-              <div><dt>Main drivers</dt><dd>Public figure, commercial use, missing consent</dd></div>
               <div><dt>Why it matters</dt><dd>Tests rights clearance, deceptive endorsement, and takedown controls.</dd></div>
             </dl>
           </button>
@@ -95,9 +94,8 @@
           <button class="scenario-card preset" type="button" data-preset="licensedPerformer">
             <span class="scenario-decision approve">Expected: Approve</span>
             <strong>Licensed Performer Digital Replica</strong>
-            <p>Production company uses a performer agreement to generate short-drama scenes with labeling and provenance.</p>
+            <p>Verified agreement, scoped release, disclosure controls</p>
             <dl>
-              <div><dt>Main drivers</dt><dd>Verified agreement, scoped release, disclosure controls</dd></div>
               <div><dt>Why it matters</dt><dd>Shows how a compliant digital replica workflow can proceed.</dd></div>
             </dl>
           </button>
@@ -105,9 +103,8 @@
           <button class="scenario-card preset" type="button" data-preset="fanParody">
             <span class="scenario-decision escalate">Expected: Escalate</span>
             <strong>Fan Parody / Satire</strong>
-            <p>Creator posts public figure parody with no commercial sale, but no verified likeness authorization.</p>
+            <p>Public figure, parody claim, unverified authorization</p>
             <dl>
-              <div><dt>Main drivers</dt><dd>Public figure, parody claim, unverified authorization</dd></div>
               <div><dt>Why it matters</dt><dd>Tests review judgment where context may reduce but not remove risk.</dd></div>
             </dl>
           </button>
@@ -115,9 +112,8 @@
           <button class="scenario-card preset" type="button" data-preset="syntheticLow">
             <span class="scenario-decision conditional">Expected: Low</span>
             <strong>Fully Synthetic Internal Draft</strong>
-            <p>Creator drafts a fully synthetic character with no real-person source media and no external monetization.</p>
+            <p>Synthetic character, internal draft, basic labeling</p>
             <dl>
-              <div><dt>Main drivers</dt><dd>Synthetic character, internal draft, basic labeling</dd></div>
               <div><dt>Why it matters</dt><dd>Shows the lower-risk path while keeping labeling records.</dd></div>
             </dl>
           </button>
@@ -133,10 +129,16 @@
           <span class="workflow-mode-pill" id="workflow-mode">Intake workspace</span>
         </div>
 
-        <div class="three-panel-layout">
-          <section class="panel intake-panel" aria-labelledby="intake-title">
+        <div class="mobile-workspace-tabs" role="tablist" aria-label="Workspace views">
+          <button class="workspace-tab active" type="button" role="tab" aria-selected="true" data-workspace-tab="intake">Intake</button>
+          <button class="workspace-tab" type="button" role="tab" aria-selected="false" data-workspace-tab="risk">Risk</button>
+          <button class="workspace-tab" type="button" role="tab" aria-selected="false" data-workspace-tab="report">Report</button>
+        </div>
+
+        <div class="workspace-layout">
+          <section class="panel intake-panel" aria-labelledby="intake-title" data-workspace-panel="intake">
             <div class="panel-heading">
-              <span>Left panel</span>
+              <span>Primary workspace</span>
               <h3 id="intake-title">Case Intake Workflow</h3>
               <p>Capture facts needed to evaluate consent, generation, labeling, release, and incident response controls.</p>
             </div>
@@ -283,14 +285,14 @@
                   <strong id="composer-step-label">Context</strong>
                 </div>
                 <button class="button primary" type="button" id="next-step">Next</button>
-                <button class="button primary generate-button" type="button" id="generate-report">Generate memo</button>
+                <button class="button primary generate-button" type="button" id="generate-report">Generate report</button>
               </div>
             </form>
           </section>
 
-          <aside class="panel evaluation-panel" aria-labelledby="evaluation-title">
+          <aside class="panel evaluation-panel" aria-labelledby="evaluation-title" data-workspace-panel="risk">
             <div class="panel-heading">
-              <span>Center panel</span>
+              <span>Live feedback</span>
               <h3 id="evaluation-title">Live Risk Evaluation</h3>
               <p>Updates as the intake changes. This is rule-based demo logic, not an ML model.</p>
             </div>
@@ -313,18 +315,28 @@
               </dl>
             </section>
 
-            <section class="summary-card">
-              <h4>Step-level review results</h4>
+            <section class="summary-card priority-summary">
+              <h4>Triggered rules</h4>
+              <ul class="triggered-rule-list" id="triggered-rule-list"></ul>
+            </section>
+
+            <section class="summary-card priority-summary">
+              <h4>Missing evidence</h4>
+              <ul class="evidence-gap-list compact-evidence-list" id="live-missing-evidence-list"></ul>
+            </section>
+
+            <details class="summary-card disclosure-card">
+              <summary>Step-level review results</summary>
               <ul class="step-result-list" id="step-result-list"></ul>
-            </section>
+            </details>
 
-            <section class="summary-card">
-              <h4>Evidence Gap Checklist</h4>
+            <details class="summary-card disclosure-card">
+              <summary>Evidence Gap Checklist</summary>
               <ul class="evidence-gap-list" id="evidence-gap-list"></ul>
-            </section>
+            </details>
 
-            <section class="summary-card">
-              <h4>Risk Register Preview</h4>
+            <details class="summary-card disclosure-card">
+              <summary>Risk Register Preview</summary>
               <div class="table-wrap">
                 <table class="risk-register-table">
                   <thead>
@@ -337,19 +349,27 @@
                   <tbody id="risk-register-preview"></tbody>
                 </table>
               </div>
-            </section>
+            </details>
 
-            <section class="summary-card">
-              <h4>Regulatory Context</h4>
+            <details class="summary-card disclosure-card">
+              <summary>Regulatory Context</summary>
               <div class="regulatory-context" id="regulatory-context"></div>
-            </section>
-          </aside>
+            </details>
 
+            <div class="evaluation-actions">
+              <button class="button primary" type="button" id="view-full-report">View full report</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="full-report-section" id="full-report" aria-label="Generated compliance report" data-workspace-panel="report">
+        <div class="report-shell">
           <aside class="panel report-panel" aria-labelledby="report-title">
             <div class="panel-heading">
-              <span>Right panel</span>
+              <span>Full report</span>
               <h3 id="report-title">Generated Compliance Report</h3>
-              <p id="report-state-copy">Live draft memo. Generate to lock the current review view.</p>
+              <p id="report-state-copy">Generate a report from the intake workspace, then review the full memo here.</p>
             </div>
 
             <article class="result-panel memo-panel report-view" id="report-view" aria-live="polite" aria-label="Compliance review memo">

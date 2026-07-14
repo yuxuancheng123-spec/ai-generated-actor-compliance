@@ -166,12 +166,14 @@ const form = document.querySelector("#risk-form");
 const workflowShell = document.querySelector("#review-system");
 const reportView = document.querySelector("#report-view");
 const workflowMode = document.querySelector("#workflow-mode");
+const fullReportSection = document.querySelector("#full-report");
 const stepTitle = document.querySelector("#step-title");
 const stepCopy = document.querySelector("#step-copy");
 const composerStepLabel = document.querySelector("#composer-step-label");
 const prevStepButton = document.querySelector("#prev-step");
 const nextStepButton = document.querySelector("#next-step");
 const generateReportButton = document.querySelector("#generate-report");
+const viewFullReportButton = document.querySelector("#view-full-report");
 const editIntakeButton = document.querySelector("#edit-intake");
 const liveDecision = document.querySelector("#live-decision");
 const liveScore = document.querySelector("#live-score");
@@ -180,6 +182,8 @@ const liveMainBlocker = document.querySelector("#live-main-blocker");
 const liveReviewerPath = document.querySelector("#live-reviewer-path");
 const evidenceReadiness = document.querySelector("#evidence-readiness");
 const riskSummaryCard = document.querySelector(".risk-summary-card");
+const triggeredRuleList = document.querySelector("#triggered-rule-list");
+const liveMissingEvidenceList = document.querySelector("#live-missing-evidence-list");
 const stepResultList = document.querySelector("#step-result-list");
 const evidenceGapList = document.querySelector("#evidence-gap-list");
 const riskRegisterPreview = document.querySelector("#risk-register-preview");
@@ -232,6 +236,8 @@ const workflowSteps = [
 ];
 
 let currentStep = 0;
+let activeWorkspaceTab = "intake";
+let reportGenerated = false;
 
 function checked(data, field) {
   return data.has(field);
@@ -764,13 +770,27 @@ function renderStatusList(target, items) {
   });
 }
 
+function renderPlainStatusList(target, items, fallback) {
+  if (!target) return;
+  target.replaceChildren();
+  const safeItems = items.length ? items : [fallback];
+  safeItems.forEach((label) => {
+    const item = document.createElement("li");
+    item.textContent = label;
+    target.append(item);
+  });
+}
+
 function renderEvidenceChecklist(risk) {
-  renderStatusList(
-    evidenceGapList,
-    evidenceChecklist(risk).map((item) => ({
+  const items = evidenceChecklist(risk).map((item) => ({
       label: item.complete ? `${item.label}: ready` : `${item.label}: gap`,
       status: checklistStatus(item.complete, item.warning),
-    }))
+    }));
+  renderStatusList(evidenceGapList, items);
+  const missing = items.filter((item) => item.status !== "pass").slice(0, 5);
+  renderStatusList(
+    liveMissingEvidenceList,
+    missing.length ? missing : [{ label: "No open evidence gaps in the selected intake.", status: "pass" }]
   );
 }
 
@@ -1051,10 +1071,28 @@ function updateLiveEvaluation(risk, memo) {
   evidenceReadiness.textContent = `${evidenceReadinessPercent(risk)}%`;
   riskSummaryCard.dataset.decision = memo.decision;
 
+  renderPlainStatusList(
+    triggeredRuleList,
+    prioritize(memo.riskDrivers, "No triggered rules yet. Complete intake to evaluate the case.").slice(0, 6),
+    "No triggered rules yet. Complete intake to evaluate the case."
+  );
   renderStatusList(stepResultList, stepReviewResults(risk));
   renderEvidenceChecklist(risk);
   renderRiskRegisterPreview(risk);
   renderRegulatoryContext(risk);
+}
+
+function setWorkspaceTab(tab) {
+  activeWorkspaceTab = tab;
+  document.querySelectorAll("[data-workspace-tab]").forEach((button) => {
+    const active = button.dataset.workspaceTab === tab;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+  document.querySelectorAll("[data-workspace-panel]").forEach((panel) => {
+    panel.dataset.mobileActive = panel.dataset.workspacePanel === tab ? "true" : "false";
+  });
+  document.body.dataset.workspaceTab = tab;
 }
 
 function showReport() {
@@ -1067,6 +1105,7 @@ function showReport() {
     return;
   }
 
+  reportGenerated = true;
   document.body.classList.add("report-generated");
   workflowShell.classList.add("report-mode");
   workflowMode.textContent = "Generated report";
@@ -1075,15 +1114,18 @@ function showReport() {
   document.querySelectorAll("[data-step-index]").forEach((item) => {
     item.classList.add("complete");
   });
-  reportView.scrollIntoView({ block: "start", behavior: "smooth" });
+  setWorkspaceTab("report");
+  fullReportSection.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
 function showIntake() {
+  reportGenerated = false;
   document.body.classList.remove("report-generated");
   workflowShell.classList.remove("report-mode");
   workflowMode.textContent = "Intake workspace";
   memoStatus.textContent = "Draft";
-  reportStateCopy.textContent = "Live draft memo. Generate to lock the current review view.";
+  reportStateCopy.textContent = "Generate a report from the intake workspace, then review the full memo here.";
+  setWorkspaceTab("intake");
   setWorkflowStep(currentStep);
 }
 
@@ -1161,6 +1203,9 @@ function applyPreset(name) {
   currentStep = workflowSteps.length - 1;
   showIntake();
   workflowMode.textContent = "Preset loaded";
+  document.querySelectorAll("[data-preset]").forEach((button) => {
+    button.classList.toggle("selected", button.dataset.preset === name);
+  });
   render();
 }
 
@@ -1174,7 +1219,18 @@ document.querySelectorAll("[data-preset]").forEach((button) => {
 prevStepButton.addEventListener("click", () => setWorkflowStep(currentStep - 1));
 nextStepButton.addEventListener("click", () => setWorkflowStep(currentStep + 1));
 generateReportButton.addEventListener("click", showReport);
+viewFullReportButton.addEventListener("click", showReport);
 editIntakeButton.addEventListener("click", showIntake);
+document.querySelectorAll("[data-workspace-tab]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const tab = button.dataset.workspaceTab;
+    if (tab === "report" && !reportGenerated) {
+      reportStateCopy.textContent = "No generated report yet. Complete intake and generate a report to lock the memo.";
+    }
+    setWorkspaceTab(tab);
+  });
+});
 
+setWorkspaceTab("intake");
 setWorkflowStep(0);
 render();
