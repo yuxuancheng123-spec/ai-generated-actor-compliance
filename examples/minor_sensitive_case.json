@@ -1,0 +1,62 @@
+{
+  "schema_version": "2026-07-14",
+  "case_id": "CASE-MINOR-SENSITIVE-001",
+  "title": "Minor identity in sensitive synthetic scene",
+  "requester": {
+    "requester_type": "individual_creator",
+    "role": "requester"
+  },
+  "represented_person": {
+    "person_type": "minor",
+    "identity_verification": "unverified",
+    "is_public_figure": "no",
+    "is_minor": "yes"
+  },
+  "source_media": {
+    "media_types": ["facial_image"],
+    "source_owner": "unknown",
+    "collection_context": "uploaded by third party",
+    "pii_categories": ["face"],
+    "evidence_status": "unverified"
+  },
+  "intended_use": {
+    "use_case": "short_drama",
+    "commercial_use": "no",
+    "sensitive_context": "violence",
+    "distribution_regions": ["us"],
+    "publication_channel": "public post"
+  },
+  "consent": {
+    "consent_status": "unverified",
+    "likeness_scope": "unverified",
+    "voice_scope": "not_provided",
+    "motion_scope": "not_provided",
+    "performance_scope": "not_provided",
+    "commercial_use_authorized": "unknown",
+    "training_use_authorized": "no",
+    "secondary_use_authorized": "unknown",
+    "territory": [],
+    "prohibited_uses": []
+  },
+  "disclosure_plan": {
+    "visible_label": "verified",
+    "machine_readable_metadata": "unknown",
+    "watermark": "unknown",
+    "platform_disclosure": "verified",
+    "c2pa_content_credentials": "unknown"
+  },
+  "provenance_controls": {
+    "source_media_hashing": "unknown",
+    "output_hash_registry": "unknown",
+    "model_version_logged": "unknown",
+    "export_event_logged": "unknown",
+    "vendor_lineage_logged": "unknown"
+  },
+  "evidence_attachments": [],
+  "reviewer_status": "pending",
+  "timestamps": {
+    "created_at": "2026-07-14T00:00:00Z",
+    "updated_at": "2026-07-14T00:00:00Z",
+    "retention_until": "2027-07-14"
+  }
+}

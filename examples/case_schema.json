@@ -1,0 +1,689 @@
+{
+  "$defs": {
+    "ActorRole": {
+      "enum": [
+        "requester",
+        "reviewer",
+        "compliance_admin"
+      ],
+      "title": "ActorRole",
+      "type": "string"
+    },
+    "ConsentRecordInput": {
+      "additionalProperties": false,
+      "properties": {
+        "consent_status": {
+          "$ref": "#/$defs/VerificationStatus"
+        },
+        "authorizing_party": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Authorizing Party"
+        },
+        "authorized_party": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Authorized Party"
+        },
+        "purpose": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Purpose"
+        },
+        "likeness_scope": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "voice_scope": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "motion_scope": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "performance_scope": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "commercial_use_authorized": {
+          "$ref": "#/$defs/YesNoUnknown",
+          "default": "unknown"
+        },
+        "training_use_authorized": {
+          "$ref": "#/$defs/YesNoUnknown",
+          "default": "unknown"
+        },
+        "secondary_use_authorized": {
+          "$ref": "#/$defs/YesNoUnknown",
+          "default": "unknown"
+        },
+        "territory": {
+          "items": {
+            "$ref": "#/$defs/DistributionRegion"
+          },
+          "title": "Territory",
+          "type": "array"
+        },
+        "duration_start": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Start"
+        },
+        "duration_end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration End"
+        },
+        "revocation_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revocation Path"
+        },
+        "compensation_terms": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Compensation Terms"
+        },
+        "prohibited_uses": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Prohibited Uses",
+          "type": "array"
+        },
+        "evidence_reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Reference"
+        }
+      },
+      "required": [
+        "consent_status"
+      ],
+      "title": "ConsentRecordInput",
+      "type": "object"
+    },
+    "DisclosurePlan": {
+      "additionalProperties": false,
+      "properties": {
+        "visible_label": {
+          "$ref": "#/$defs/VerificationStatus"
+        },
+        "machine_readable_metadata": {
+          "$ref": "#/$defs/VerificationStatus"
+        },
+        "watermark": {
+          "$ref": "#/$defs/VerificationStatus"
+        },
+        "platform_disclosure": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "c2pa_content_credentials": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "label_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label Text"
+        }
+      },
+      "required": [
+        "visible_label",
+        "machine_readable_metadata",
+        "watermark"
+      ],
+      "title": "DisclosurePlan",
+      "type": "object"
+    },
+    "DistributionRegion": {
+      "enum": [
+        "eu",
+        "china",
+        "us",
+        "global",
+        "other",
+        "not_provided"
+      ],
+      "title": "DistributionRegion",
+      "type": "string"
+    },
+    "EvidenceAttachment": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "evidence_type": {
+          "title": "Evidence Type",
+          "type": "string"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uri"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "retention_until": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retention Until"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "evidence_type"
+      ],
+      "title": "EvidenceAttachment",
+      "type": "object"
+    },
+    "IntendedUse": {
+      "enum": [
+        "short_drama",
+        "advertisement",
+        "virtual_influencer",
+        "fan_content",
+        "parody",
+        "political_message",
+        "internal_test",
+        "model_training",
+        "other"
+      ],
+      "title": "IntendedUse",
+      "type": "string"
+    },
+    "IntendedUsePlan": {
+      "additionalProperties": false,
+      "properties": {
+        "use_case": {
+          "$ref": "#/$defs/IntendedUse"
+        },
+        "commercial_use": {
+          "$ref": "#/$defs/YesNoUnknown"
+        },
+        "sensitive_context": {
+          "$ref": "#/$defs/SensitiveContext"
+        },
+        "distribution_regions": {
+          "items": {
+            "$ref": "#/$defs/DistributionRegion"
+          },
+          "title": "Distribution Regions",
+          "type": "array"
+        },
+        "publication_channel": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Publication Channel"
+        },
+        "audience": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Audience"
+        }
+      },
+      "required": [
+        "use_case",
+        "commercial_use",
+        "sensitive_context",
+        "distribution_regions"
+      ],
+      "title": "IntendedUsePlan",
+      "type": "object"
+    },
+    "PersonType": {
+      "enum": [
+        "fully_synthetic",
+        "self",
+        "ordinary_person",
+        "performer",
+        "public_figure",
+        "political_figure",
+        "minor",
+        "unknown"
+      ],
+      "title": "PersonType",
+      "type": "string"
+    },
+    "ProvenanceControls": {
+      "additionalProperties": false,
+      "properties": {
+        "source_media_hashing": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "output_hash_registry": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "model_version_logged": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "export_event_logged": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        },
+        "vendor_lineage_logged": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        }
+      },
+      "title": "ProvenanceControls",
+      "type": "object"
+    },
+    "RepresentedPerson": {
+      "additionalProperties": false,
+      "properties": {
+        "person_type": {
+          "$ref": "#/$defs/PersonType"
+        },
+        "identity_verification": {
+          "$ref": "#/$defs/VerificationStatus"
+        },
+        "is_public_figure": {
+          "$ref": "#/$defs/YesNoUnknown",
+          "default": "unknown"
+        },
+        "is_minor": {
+          "$ref": "#/$defs/YesNoUnknown",
+          "default": "unknown"
+        },
+        "relationship_to_requester": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relationship To Requester"
+        }
+      },
+      "required": [
+        "person_type",
+        "identity_verification"
+      ],
+      "title": "RepresentedPerson",
+      "type": "object"
+    },
+    "Requester": {
+      "additionalProperties": false,
+      "properties": {
+        "requester_type": {
+          "$ref": "#/$defs/RequesterType"
+        },
+        "organization_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Organization Name"
+        },
+        "contact_email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Contact Email"
+        },
+        "role": {
+          "$ref": "#/$defs/ActorRole",
+          "default": "requester"
+        }
+      },
+      "required": [
+        "requester_type"
+      ],
+      "title": "Requester",
+      "type": "object"
+    },
+    "RequesterType": {
+      "enum": [
+        "individual_creator",
+        "brand_advertiser",
+        "production_company",
+        "performer_owner",
+        "platform_operator",
+        "unknown"
+      ],
+      "title": "RequesterType",
+      "type": "string"
+    },
+    "ReviewerStatus": {
+      "enum": [
+        "pending",
+        "in_review",
+        "approved",
+        "approved_with_conditions",
+        "rejected",
+        "archived"
+      ],
+      "title": "ReviewerStatus",
+      "type": "string"
+    },
+    "SensitiveContext": {
+      "enum": [
+        "none",
+        "sexual",
+        "political",
+        "medical",
+        "financial",
+        "defamatory",
+        "violence",
+        "unknown",
+        "not_provided"
+      ],
+      "title": "SensitiveContext",
+      "type": "string"
+    },
+    "SourceMedia": {
+      "additionalProperties": false,
+      "properties": {
+        "media_types": {
+          "items": {
+            "$ref": "#/$defs/SourceMediaType"
+          },
+          "title": "Media Types",
+          "type": "array"
+        },
+        "source_owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Owner"
+        },
+        "collection_context": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Collection Context"
+        },
+        "pii_categories": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Pii Categories",
+          "type": "array"
+        },
+        "evidence_status": {
+          "$ref": "#/$defs/VerificationStatus",
+          "default": "unknown"
+        }
+      },
+      "required": [
+        "media_types"
+      ],
+      "title": "SourceMedia",
+      "type": "object"
+    },
+    "SourceMediaType": {
+      "enum": [
+        "facial_image",
+        "voice_sample",
+        "video_clip",
+        "motion_capture",
+        "prior_performance",
+        "prompt_only",
+        "other"
+      ],
+      "title": "SourceMediaType",
+      "type": "string"
+    },
+    "TimestampMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "retention_until": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retention Until"
+        }
+      },
+      "title": "TimestampMetadata",
+      "type": "object"
+    },
+    "VerificationStatus": {
+      "enum": [
+        "not_provided",
+        "unknown",
+        "unverified",
+        "verified",
+        "expired",
+        "rejected"
+      ],
+      "title": "VerificationStatus",
+      "type": "string"
+    },
+    "YesNoUnknown": {
+      "enum": [
+        "yes",
+        "no",
+        "unknown",
+        "not_provided"
+      ],
+      "title": "YesNoUnknown",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "2026-07-14",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "requester": {
+      "$ref": "#/$defs/Requester"
+    },
+    "represented_person": {
+      "$ref": "#/$defs/RepresentedPerson"
+    },
+    "source_media": {
+      "$ref": "#/$defs/SourceMedia"
+    },
+    "intended_use": {
+      "$ref": "#/$defs/IntendedUsePlan"
+    },
+    "consent": {
+      "$ref": "#/$defs/ConsentRecordInput"
+    },
+    "disclosure_plan": {
+      "$ref": "#/$defs/DisclosurePlan"
+    },
+    "provenance_controls": {
+      "$ref": "#/$defs/ProvenanceControls"
+    },
+    "evidence_attachments": {
+      "items": {
+        "$ref": "#/$defs/EvidenceAttachment"
+      },
+      "title": "Evidence Attachments",
+      "type": "array"
+    },
+    "reviewer_status": {
+      "$ref": "#/$defs/ReviewerStatus",
+      "default": "pending"
+    },
+    "timestamps": {
+      "$ref": "#/$defs/TimestampMetadata"
+    }
+  },
+  "required": [
+    "title",
+    "requester",
+    "represented_person",
+    "source_media",
+    "intended_use",
+    "consent",
+    "disclosure_plan",
+    "provenance_controls"
+  ],
+  "title": "CaseIntake",
+  "type": "object"
+}

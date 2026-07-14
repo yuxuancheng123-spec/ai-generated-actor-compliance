@@ -2,183 +2,202 @@
 
 Chinese title: AI生成演员与深度伪造内容合规评估：面向合成媒体平台的授权、标识与治理控制
 
-English title: Compliance Assessment for AI-Generated Actors and Deepfake Content: Consent, Labeling, and Governance Controls for Synthetic Media Platforms
+English title: Compliance Assessment for AI-Generated Actors and Deepfake Content: Consent, Labeling, Privacy Engineering, and Governance Controls for Synthetic Media Platforms
+
+## Project Overview
+
+This project evaluates a fictional AI actor / synthetic media platform that allows creators, brands, and production teams to generate digital performances from real face, voice, motion, video, and consent records. The project now has two layers:
+
+- A product-facing GitHub Pages demo that runs entirely in the browser;
+- A FastAPI reference implementation that models canonical intake schema, rule evaluation, SQLite records, reports, role-aware review actions, retention, soft deletion, and audit logs.
+
+The deployed GitHub Pages demo runs client-side. The FastAPI service is a separate engineering implementation using the same case concepts and stricter schema/rule definitions. The deployed web demo does not call the Python backend.
 
 ## Quick Links
 
 | Link | URL |
 |---|---|
-| Portfolio homepage | <https://yuxuancheng123-spec.github.io/yuxuan-cheng-portfolio/> |
-| Portfolio repository | <https://github.com/yuxuancheng123-spec/yuxuan-cheng-portfolio> |
 | Compliance repository | <https://github.com/yuxuancheng123-spec/ai-generated-actor-compliance> |
-| English compliance web demo | <https://yuxuancheng123-spec.github.io/ai-generated-actor-compliance/web/> |
-| Chinese compliance web demo | <https://yuxuancheng123-spec.github.io/ai-generated-actor-compliance/web/demo.zh.html> |
+| English GitHub Pages demo | <https://yuxuancheng123-spec.github.io/ai-generated-actor-compliance/web/> |
+| Chinese GitHub Pages demo | <https://yuxuancheng123-spec.github.io/ai-generated-actor-compliance/web/demo.zh.html> |
 | Final assessment report | [docs/09_final_compliance_assessment_report.md](docs/09_final_compliance_assessment_report.md) |
-| Portfolio summary | [docs/10_portfolio_summary.md](docs/10_portfolio_summary.md) |
-| Risk scoring demo | [scripts/risk_scoring_demo.py](scripts/risk_scoring_demo.py) |
-| Privacy engineering artifacts | [privacy_engineering/](privacy_engineering/) |
+| Technical architecture | [docs/11_privacy_engineering_technical_architecture.md](docs/11_privacy_engineering_technical_architecture.md) |
+| LINDDUN threat model | [docs/12_linddun_threat_model.md](docs/12_linddun_threat_model.md) |
+| FastAPI backend | [backend/](backend/) |
+| Canonical examples | [examples/](examples/) |
+| Static web demo | [web/](web/) |
 
-If the GitHub Pages links do not open, confirm that the repository is public and that GitHub Pages is enabled for the `main` branch.
+## Why This Problem Matters
 
-## Local Preview Links
+Synthetic actor platforms can create value for short drama production, advertising, performer digital replicas, virtual influencers, and fan content. The same workflow can also enable stolen-face content, unauthorized voice cloning, misleading endorsements, unlicensed training data use, label stripping, and weak incident response.
 
-From the parent folder:
+This project treats the problem as a privacy engineering system, not only as a legal memo. It asks whether the platform can prove who authorized the use, what scope was granted, which rule fired, why the decision was made, and how the evidence is retained for audit or incident response.
 
-```bash
-cd "/Users/miine/Documents/Compliance Assessment"
-python3 -m http.server 8010
+## Architecture
+
+```mermaid
+flowchart LR
+  FE[Frontend intake] --> SCHEMA[JSON schema validation]
+  SCHEMA --> API[FastAPI]
+  API --> RULES[Rules engine]
+  RULES --> DECISION[Decision and triggered rules]
+  API --> DB[(SQLite case and evidence records)]
+  API --> AUDIT[(Audit log)]
+  DECISION --> REPORT[Markdown / JSON report]
+  REVIEWER[Reviewer] --> API
 ```
 
-Then open:
+## Privacy Engineering Scope
 
-| Local page | URL |
+Implemented controls:
+
+| Control | Implementation |
 |---|---|
-| Portfolio homepage | <http://127.0.0.1:8010/yuxuan-cheng-portfolio/> |
-| English compliance demo | <http://127.0.0.1:8010/ai-generated-actor-compliance/web/> |
-| Chinese compliance demo | <http://127.0.0.1:8010/ai-generated-actor-compliance/web/demo.zh.html> |
+| Consent record | Captures authorizing party, authorized party, purpose, likeness/voice/motion/performance scope, territory, duration, training use, secondary use, revocation, compensation, and evidence status |
+| Audit log | Records case creation, assessment completion, review updates, and soft deletion requests |
+| Retention and deletion | Tracks `retention_until`, `deleted_at`, `deletion_requested`, and keeps necessary audit records after soft deletion |
+| Role-based access | Defines `requester`, `reviewer`, and `compliance_admin`; review and deletion actions require elevated roles |
 
-## Project Pitch
+Prototype boundary:
 
-This project is an English-first product compliance case study for a fictional synthetic media platform that lets creators and production teams generate AI actors from face, voice, video, and motion data. It turns a high-level AI responsibility problem into a practical review workflow: intake the content request, check authorization and labeling obligations, map jurisdiction-specific requirements, and generate a structured compliance assessment report.
+- Evidence files are referenced, not stored.
+- Role checks use an `X-Actor-Role` header for demonstration, not production authentication.
+- SQLite is used for local modeling and tests.
+- The static web demo remains independent from the backend.
 
-The portfolio is designed to read like a real AI governance work product rather than a research note. It includes policy artifacts, risk controls, framework mappings, incident response procedures, provenance analysis, and an interactive browser demo that simulates an intake-to-report review flow for synthetic media content.
+## Threat Model
 
-## Role and Scenario
+The project includes a LINDDUN threat model covering:
 
-Role: AI Compliance Analyst
+- Linkability;
+- Identifiability;
+- Non-repudiation;
+- Detectability;
+- Disclosure of information;
+- Unawareness;
+- Non-compliance;
+- Forged consent;
+- Label stripping;
+- Vendor training misuse;
+- Insider access.
 
-Platform scenario: A fictional AI short-drama / AI actor generation platform allows creators, production companies, brands, and performers to upload facial images, voice samples, video clips, motion data, scripts, prompts, and licensing records. The platform can generate synthetic performances for short dramas, ads, virtual influencers, fan videos, and authorized performer digital replicas.
+See [docs/12_linddun_threat_model.md](docs/12_linddun_threat_model.md).
 
-Core compliance problem: The platform must prevent unauthorized use of a real person's face or voice while supporting lawful synthetic media workflows through consent, licensing, labeling, provenance, audit logging, and incident response controls.
+## Data Model
 
-This is a fictional educational project and is not legal advice.
+The backend persists:
 
-## What This Project Delivers
-
-| Artifact | Purpose |
+| Table | Purpose |
 |---|---|
-| [Interactive Web Demo](web/index.html) | Provides a two-stage workflow: synthetic media intake first, generated compliance report after completion |
-| [Project Brief](docs/01_project_brief.md) | Defines the platform assumption, research questions, and applicable frameworks |
-| [System Description](docs/02_system_description.md) | Describes inputs, AI processing, outputs, lifecycle stages, and high-risk points |
-| [Data Flow Diagram](diagrams/data_flow_diagram.md) | Maps how source media, consent records, generated content, labels, and incident records flow through the platform |
-| [Risk Register](docs/03_risk_register.md) | Identifies 15 key risks, including unauthorized likeness use, voice cloning, training misuse, public figure manipulation, and label removal |
-| [Consent and Licensing Checklist](docs/04_consent_checklist.md) | Converts face, voice, motion, performer, and commercial-use authorization into a platform review checklist |
-| [AI Content Labeling Policy](docs/05_labeling_policy.md) | Defines visible labels, metadata labels, watermarking, export rules, appeal paths, and enforcement |
-| [Incident Response Playbook](docs/06_incident_response.md) | Provides intake, triage, containment, evidence preservation, takedown, notification, and post-incident review steps |
-| [Provenance and Watermarking Review](docs/07_deepfake_provenance_watermarking_review.md) | Compares visible watermarks, metadata, C2PA/content credentials, model-side watermarks, and hash registries |
-| [Privacy Engineering Artifacts](privacy_engineering/) | Adds an upgraded data flow diagram, PII/data lifecycle inventory, and misuse case threat model |
-| [Framework Mappings](frameworks/) | Maps controls to EU AI Act Article 50, China AI labeling rules, SAG-AFTRA AI principles, and NIST AI RMF |
-| [Risk Scoring Demo](scripts/risk_scoring_demo.py) | Reads CLI flags or JSON intake cases and outputs a risk score plus Markdown compliance report |
-| [Final Assessment Report](docs/09_final_compliance_assessment_report.md) | Summarizes the assessment, findings, recommended controls, and governance model |
+| `case_records` | Canonical intake JSON, requester/person type, review status, retention, soft deletion |
+| `consent_records` | Scope, purpose, territory, duration, training use, secondary use, revocation, compensation |
+| `evidence_records` | Evidence owner, type, URI/reference, verification status, retention date |
+| `assessment_results` | Rule version, score, risk level, decision, reviewer path, missing information, report |
+| `triggered_rules` | Rule trace with severity, score, hard-stop status, control, and source reference |
+| `audit_logs` | Case creation, assessment, review update, report/deletion events |
 
-## How to Review This Repo
+The canonical case schema is defined in [backend/app/schemas.py](backend/app/schemas.py). Unknown, not provided, unverified, and verified values are separate enum states, so missing fields are not silently treated as `false`.
 
-### 3-minute review
+## Rules Engine
 
-Read this README, then open:
+Rules are defined in [backend/app/rules.py](backend/app/rules.py). Each rule includes:
 
-- [Interactive Web Demo](web/index.html)
-- [Final Assessment Report](docs/09_final_compliance_assessment_report.md)
-- [Risk Register](docs/03_risk_register.md)
-- [Privacy Engineering Data Flow v2](privacy_engineering/data_flow_diagram_v2.md)
+- `rule_id`
+- `title`
+- `description`
+- `severity`
+- `score`
+- `hard_stop`
+- `affected_domain`
+- `recommended_control`
+- `source_reference`
+- `version`
 
-### 10-minute review
+Assessment output includes:
 
-Read the 3-minute path, then open:
+- `total_score`
+- `risk_level`
+- `decision`
+- `triggered_rules`
+- `hard_stops`
+- `recommended_controls`
+- `missing_information`
+- `reviewer_path`
+- `report_markdown`
 
-- [Consent and Licensing Checklist](docs/04_consent_checklist.md)
-- [AI Content Labeling Policy](docs/05_labeling_policy.md)
-- [Incident Response Playbook](docs/06_incident_response.md)
-- [Risk Scoring Demo README](scripts/README.md)
-- [PII and Data Lifecycle Table](privacy_engineering/pii_data_lifecycle_table.md)
-- [Threat Model and Misuse Cases](privacy_engineering/threat_model_misuse_cases.md)
+Risk levels:
 
-### Deep dive
+| Condition | Result |
+|---|---|
+| Any hard stop | `prohibited` + `reject` |
+| Score >= 9 | `high` + `manual_review` |
+| Score >= 5 | `medium` + `approve_with_conditions`, unless missing information requires review |
+| Score < 5 | `low` + `approve`, unless missing information requires review |
 
-Review the full system and governance package:
+Hard stops cannot be offset by low-risk facts.
 
-- [System Description](docs/02_system_description.md)
-- [Data Flow Diagram](diagrams/data_flow_diagram.md)
-- [Provenance and Watermarking Review](docs/07_deepfake_provenance_watermarking_review.md)
-- [EU AI Act Mapping](frameworks/eu_ai_act_mapping.md)
-- [China AI Labeling Mapping](frameworks/china_ai_labeling_mapping.md)
-- [SAG-AFTRA AI Mapping](frameworks/sag_aftra_mapping.md)
-- [NIST AI RMF Mapping](frameworks/nist_ai_rmf_mapping.md)
+## API
 
-## Key Compliance Questions
+Implemented endpoints:
 
-This project asks how a synthetic media platform should answer the following product compliance questions:
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/api/v1/assessments` | Validate case JSON, evaluate rules, persist records, generate audit log |
+| `GET` | `/api/v1/assessments/{case_id}` | Return case, latest assessment, deletion state, and audit events |
+| `GET` | `/api/v1/assessments/{case_id}/report` | Return Markdown report payload |
+| `POST` | `/api/v1/assessments/{case_id}/review` | Reviewer/admin updates review status and notes |
+| `DELETE` | `/api/v1/assessments/{case_id}` | Compliance admin soft-deletes a case and records deletion event |
 
-1. Can a user generate an AI actor from a real person's face or voice?
-2. What evidence of consent or licensing should the platform require?
-3. When should AI-generated, AI-modified, or deepfake-style content be visibly labeled?
-4. How should labels and provenance signals persist after download, export, or reposting?
-5. How should the platform distinguish authorized digital replicas from unauthorized deepfakes?
-6. What should happen when a person reports stolen face, stolen voice, or unauthorized digital replica use?
-7. How should controls be mapped to EU AI Act, China labeling rules, SAG-AFTRA principles, and NIST AI RMF?
-
-## Control Architecture
-
-The proposed compliance control architecture uses five layers across the synthetic media lifecycle:
-
-1. Pre-generation gate: identity verification, source media review, consent/license check, and prohibited-use screening.
-2. Authorization controls: specific-purpose consent for face, voice, motion, performance, commercial use, duration, territory, secondary use, and training-data use.
-3. Labeling and provenance controls: visible labels, metadata labels, watermarking, content credentials, export logs, and hash registries.
-4. Human review and escalation: enhanced review for public figures, children, endorsements, political content, sexual content, defamatory portrayals, medical claims, and financial claims.
-5. Incident response and governance: takedown workflow, evidence preservation, affected-person notification, vendor escalation, metrics, and post-incident control improvement.
-
-The interactive demo implements this architecture as a product workflow:
-
-1. Intake workspace: collect request context, source media, use case, release regions, consent evidence, and platform controls.
-2. Completeness check: show required missing fields and intake progress before report generation.
-3. Generated report: output executive snapshot, scenario classification, key findings, control recommendations, jurisdiction matrix, evidence checklist, and framework mapping.
-
-## Frameworks Used
-
-- EU AI Act Article 50 transparency obligations for AI-generated and manipulated content;
-- China AI-generated synthetic content labeling requirements;
-- SAG-AFTRA AI-related consent, compensation, and digital replica principles;
-- NIST AI Risk Management Framework categories: Govern, Map, Measure, Manage;
-- C2PA/content provenance concepts for synthetic media labeling and traceability.
-
-## Run the Demo
-
-The risk scoring demo is intentionally simple and rule-based. It is not an ML model. It shows how compliance requirements can be translated into repeatable content review logic.
-
-### Browser demo
-
-Open [web/index.html](web/index.html) directly in a browser, or run a local server from the project root:
+## Local Setup
 
 ```bash
-python3 -m http.server 8000
+cd ai-generated-actor-compliance
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn backend.app.main:app --reload
 ```
 
-Then visit:
+Open the API docs:
 
 ```text
-http://localhost:8000/web/
+http://127.0.0.1:8000/docs
 ```
 
-The browser demo is a rule-based workflow, not an ML model. It has two stages:
+## Tests
 
-1. Intake workspace: enter requester type, depicted person, source media, use case, monetization, release regions, consent evidence, license scope, labeling controls, and training-data use. The page shows intake completeness, required missing fields, and a short intake profile.
-2. Generated report: after the required intake is complete, click `Generate compliance report` to produce a modular consulting-style report.
+Run the backend and script tests:
 
-The generated report includes:
+```bash
+pytest
+```
 
-- Decision: reject, escalate, approve with conditions, or approve;
-- Executive snapshot with risk score, risk level, and reviewer path;
-- Scenario classification based on the intake profile;
-- Key findings and risk drivers;
-- Consent, labeling, release, and incident control recommendations;
-- Jurisdiction matrix for EU, China, US, and global release paths;
-- Evidence artifacts, reviewer next steps, and framework mapping.
+The tests cover:
 
-Preset scenarios are included so reviewers can quickly test high-risk and low-risk cases, including unauthorized celebrity advertising, licensed performer workflows, fan parody, and fully synthetic internal drafts.
+- Authorized performer workflow;
+- Unverified consent;
+- Public figure commercial endorsement risk;
+- Minor or sensitive context;
+- Training use without authorization;
+- Required field validation;
+- Labeling and provenance rules;
+- Hard-stop priority;
+- Rule trace in reports;
+- Assessment audit log;
+- Review role checks;
+- Retention and soft deletion.
 
-### Python demo
+## Example Assessment
 
-From the project root:
+Run the CLI wrapper against a canonical JSON case:
+
+```bash
+python3 scripts/risk_scoring_demo.py \
+  --input examples/unauthorized_public_figure_ad.json \
+  --json-output
+```
+
+Run with flags:
 
 ```bash
 python3 scripts/risk_scoring_demo.py \
@@ -191,60 +210,69 @@ python3 scripts/risk_scoring_demo.py \
   --ai-labeled false
 ```
 
-Expected result:
+Expected trace includes:
 
 ```text
-Risk level: prohibited
-Reasons:
-- uses or imitates a real person
-- no verified authorization for real-person likeness or voice
+R-01 Real-person commercial use without verified authorization +5 HARD STOP
+```
+
+Export JSON Schema:
+
+```bash
+python -m backend.app.schema_export
+```
+
+## Docker
+
+```bash
+docker build -t ai-actor-compliance-api .
+docker run --rm -p 8000:8000 ai-actor-compliance-api
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/docs
 ```
 
 ## Repository Structure
 
 ```text
 ai-generated-actor-compliance/
-├── README.md
+├── backend/
+│   └── app/
+│       ├── schemas.py
+│       ├── rules.py
+│       ├── models.py
+│       ├── services.py
+│       └── main.py
 ├── docs/
-│   ├── 01_project_brief.md
-│   ├── 02_system_description.md
-│   ├── 03_risk_register.md
-│   ├── 04_consent_checklist.md
-│   ├── 05_labeling_policy.md
-│   ├── 06_incident_response.md
-│   ├── 07_deepfake_provenance_watermarking_review.md
-│   ├── 08_final_report_outline.md
-│   ├── 09_final_compliance_assessment_report.md
-│   └── 10_portfolio_summary.md
+├── examples/
 ├── frameworks/
-│   ├── eu_ai_act_mapping.md
-│   ├── china_ai_labeling_mapping.md
-│   ├── sag_aftra_mapping.md
-│   └── nist_ai_rmf_mapping.md
 ├── privacy_engineering/
-│   ├── data_flow_diagram_v2.md
-│   ├── pii_data_lifecycle_table.md
-│   └── threat_model_misuse_cases.md
-├── diagrams/
-│   └── data_flow_diagram.md
 ├── scripts/
-│   ├── example_intake_case.json
-│   ├── README.md
-│   ├── test_risk_scoring_demo.py
-│   └── risk_scoring_demo.py
+├── tests/
 └── web/
-    ├── index.html
-    ├── styles.css
-    └── app.js
 ```
 
-## Skills Demonstrated
+## Limitations
 
-- AI governance and risk management;
-- Synthetic media and deepfake compliance analysis;
-- Consent and licensing control design;
-- AI content labeling and provenance policy design;
-- Incident response planning;
-- Framework mapping across EU, China, SAG-AFTRA, and NIST AI RMF;
-- Translating compliance rules into executable review logic;
-- Designing a product-style compliance intake and generated report workflow.
+- This is a prototype and not legal advice.
+- The rules do not cover every jurisdiction or platform policy.
+- Scoring thresholds are transparent but require further validation.
+- The API does not implement production authentication, encryption, or media storage.
+- GitHub Pages and FastAPI are not deployed as one connected system.
+
+## Future Work
+
+- Connect the static intake UI to the FastAPI service in a local development mode.
+- Add encrypted evidence storage and field-level access controls.
+- Add complaint intake and affected-person notification APIs.
+- Add rule version migration and policy regression tests.
+- Add C2PA/content credential verification and export hash registry checks.
+
+## Disclaimer and Contribution Note
+
+This project is fictional and educational. It is designed as a portfolio case study for AI governance, privacy engineering, and synthetic media compliance. It is not legal advice.
+
+The project author designed the scope, risk model, control architecture, rules, tests, and documentation direction. Codex assisted with drafting, implementation, refactoring, and test scaffolding. Final responsibility for the project framing, architecture, rules, documentation, and submitted portfolio artifacts remains with the project author.

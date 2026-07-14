@@ -1,0 +1,65 @@
+{
+  "schema_version": "2026-07-14",
+  "case_id": "CASE-PUBLIC-FIGURE-AD-001",
+  "title": "Unauthorized celebrity endorsement advertisement",
+  "requester": {
+    "requester_type": "brand_advertiser",
+    "organization_name": "Example Brand",
+    "role": "requester"
+  },
+  "represented_person": {
+    "person_type": "public_figure",
+    "identity_verification": "unverified",
+    "is_public_figure": "yes",
+    "is_minor": "no",
+    "relationship_to_requester": "none"
+  },
+  "source_media": {
+    "media_types": ["facial_image", "voice_sample"],
+    "source_owner": "unknown",
+    "collection_context": "public internet upload",
+    "pii_categories": ["face", "voice"],
+    "evidence_status": "unverified"
+  },
+  "intended_use": {
+    "use_case": "advertisement",
+    "commercial_use": "yes",
+    "sensitive_context": "none",
+    "distribution_regions": ["eu", "china", "us"],
+    "publication_channel": "paid ad campaign"
+  },
+  "consent": {
+    "consent_status": "not_provided",
+    "likeness_scope": "not_provided",
+    "voice_scope": "not_provided",
+    "motion_scope": "not_provided",
+    "performance_scope": "not_provided",
+    "commercial_use_authorized": "no",
+    "training_use_authorized": "no",
+    "secondary_use_authorized": "no",
+    "territory": [],
+    "prohibited_uses": [],
+    "evidence_reference": null
+  },
+  "disclosure_plan": {
+    "visible_label": "not_provided",
+    "machine_readable_metadata": "not_provided",
+    "watermark": "not_provided",
+    "platform_disclosure": "not_provided",
+    "c2pa_content_credentials": "not_provided"
+  },
+  "provenance_controls": {
+    "source_media_hashing": "unknown",
+    "output_hash_registry": "unknown",
+    "model_version_logged": "unknown",
+    "export_event_logged": "unknown",
+    "vendor_lineage_logged": "unknown"
+  },
+  "evidence_attachments": [],
+  "reviewer_status": "pending",
+  "timestamps": {
+    "created_at": "2026-07-14T00:00:00Z",
+    "updated_at": "2026-07-14T00:00:00Z",
+    "retention_until": "2027-07-14"
+  }
+}

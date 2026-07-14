@@ -1,0 +1,61 @@
+{
+  "schema_version": "2026-07-14",
+  "case_id": "CASE-INCOMPLETE-001",
+  "title": "Incomplete intake with unknown consent status",
+  "requester": {
+    "requester_type": "individual_creator",
+    "role": "requester"
+  },
+  "represented_person": {
+    "person_type": "ordinary_person",
+    "identity_verification": "unknown",
+    "is_public_figure": "unknown",
+    "is_minor": "unknown"
+  },
+  "source_media": {
+    "media_types": ["facial_image"],
+    "source_owner": "unknown",
+    "collection_context": "not provided",
+    "pii_categories": ["face"],
+    "evidence_status": "unknown"
+  },
+  "intended_use": {
+    "use_case": "short_drama",
+    "commercial_use": "unknown",
+    "sensitive_context": "not_provided",
+    "distribution_regions": ["not_provided"]
+  },
+  "consent": {
+    "consent_status": "unknown",
+    "likeness_scope": "unknown",
+    "voice_scope": "not_provided",
+    "motion_scope": "not_provided",
+    "performance_scope": "not_provided",
+    "commercial_use_authorized": "unknown",
+    "training_use_authorized": "unknown",
+    "secondary_use_authorized": "unknown",
+    "territory": [],
+    "prohibited_uses": []
+  },
+  "disclosure_plan": {
+    "visible_label": "unknown",
+    "machine_readable_metadata": "unknown",
+    "watermark": "unknown",
+    "platform_disclosure": "unknown",
+    "c2pa_content_credentials": "unknown"
+  },
+  "provenance_controls": {
+    "source_media_hashing": "unknown",
+    "output_hash_registry": "unknown",
+    "model_version_logged": "unknown",
+    "export_event_logged": "unknown",
+    "vendor_lineage_logged": "unknown"
+  },
+  "evidence_attachments": [],
+  "reviewer_status": "pending",
+  "timestamps": {
+    "created_at": "2026-07-14T00:00:00Z",
+    "updated_at": "2026-07-14T00:00:00Z",
+    "retention_until": "2027-07-14"
+  }
+}

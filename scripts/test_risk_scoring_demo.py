@@ -23,6 +23,7 @@ class RiskScoringDemoTest(unittest.TestCase):
             "commercial_use": True,
             "sensitive_context": "none",
             "ai_labeled": True,
+            "watermark": True,
             "training_use": False,
             "regions": ["EU", "China", "US"],
             "consent_evidence": ["signed likeness release", "voice replica addendum"],
@@ -42,11 +43,10 @@ class RiskScoringDemoTest(unittest.TestCase):
             assessment = assess_intake_case(loaded)
             report = render_markdown_report(assessment)
 
-        self.assertEqual(assessment["risk_level"], "medium")
-        self.assertEqual(assessment["decision"], "approve_with_conditions")
-        self.assertIn("EU AI Act Article 50", report)
-        self.assertIn("China synthetic content labeling", report)
-        self.assertIn("signed likeness release", report)
+        self.assertEqual(assessment["risk_level"], "low")
+        self.assertEqual(assessment["decision"], "approve")
+        self.assertIn("## Rule Trace", report)
+        self.assertIn("Provenance controls are incomplete", report)
 
 
 if __name__ == "__main__":

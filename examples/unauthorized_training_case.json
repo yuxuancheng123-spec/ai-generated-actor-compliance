@@ -1,0 +1,71 @@
+{
+  "schema_version": "2026-07-14",
+  "case_id": "CASE-TRAINING-UNAUTH-001",
+  "title": "Training use without separate authorization",
+  "requester": {
+    "requester_type": "platform_operator",
+    "organization_name": "Example Platform",
+    "role": "requester"
+  },
+  "represented_person": {
+    "person_type": "performer",
+    "identity_verification": "verified",
+    "is_public_figure": "no",
+    "is_minor": "no"
+  },
+  "source_media": {
+    "media_types": ["facial_image", "voice_sample", "prior_performance"],
+    "source_owner": "performer",
+    "collection_context": "licensed only for one campaign",
+    "pii_categories": ["face", "voice", "performance"],
+    "evidence_status": "verified"
+  },
+  "intended_use": {
+    "use_case": "model_training",
+    "commercial_use": "unknown",
+    "sensitive_context": "none",
+    "distribution_regions": ["global"],
+    "publication_channel": "model improvement"
+  },
+  "consent": {
+    "consent_status": "verified",
+    "authorizing_party": "Kenny Performer",
+    "authorized_party": "Example Platform",
+    "purpose": "campaign output only",
+    "likeness_scope": "verified",
+    "voice_scope": "verified",
+    "motion_scope": "unknown",
+    "performance_scope": "verified",
+    "commercial_use_authorized": "yes",
+    "training_use_authorized": "no",
+    "secondary_use_authorized": "no",
+    "territory": ["global"],
+    "duration_start": "2026-01-01",
+    "duration_end": "2026-12-31",
+    "revocation_path": "performer portal",
+    "compensation_terms": "campaign fee only",
+    "prohibited_uses": ["model training"],
+    "evidence_reference": "CONSENT-NO-TRAINING-001"
+  },
+  "disclosure_plan": {
+    "visible_label": "verified",
+    "machine_readable_metadata": "verified",
+    "watermark": "verified",
+    "platform_disclosure": "verified",
+    "c2pa_content_credentials": "verified"
+  },
+  "provenance_controls": {
+    "source_media_hashing": "verified",
+    "output_hash_registry": "verified",
+    "model_version_logged": "verified",
+    "export_event_logged": "verified",
+    "vendor_lineage_logged": "verified"
+  },
+  "evidence_attachments": [],
+  "reviewer_status": "pending",
+  "timestamps": {
+    "created_at": "2026-07-14T00:00:00Z",
+    "updated_at": "2026-07-14T00:00:00Z",
+    "retention_until": "2028-01-01"
+  }
+}

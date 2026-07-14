@@ -1,57 +1,30 @@
 # Risk Scoring Demo
 
-`risk_scoring_demo.py` is a small rule-based demo that shows how platform compliance requirements can be translated into repeatable content review logic.
+`risk_scoring_demo.py` is now a CLI wrapper around the backend rules engine in `backend/app/rules.py`. It exists so reviewers can run the same core assessment logic without starting FastAPI.
 
-It is intentionally simple. It is not an ML model, not a legal determination engine, and not a replacement for human review. Its purpose is to demonstrate how a synthetic media platform could encode baseline controls such as authorization, public figure review, child-safety escalation, sensitive-context review, AI labeling, training-data restrictions, and jurisdiction-specific transparency notes.
+The demo is deterministic and rule-based. It is not an ML model, not legal advice, and not a replacement for human review.
 
-## How to Run
+## Relationship to the Web Demo
 
-From the project root:
+The deployed GitHub Pages demo runs client-side. The FastAPI service and this CLI are separate engineering implementations. They use the same case concepts, but the deployed web page does not call Python.
 
-```bash
-python3 scripts/risk_scoring_demo.py
-```
-
-The default scenario is intentionally strict: it assumes real-person content without verified authorization and returns `prohibited`.
-
-## JSON Intake Case to Compliance Report
-
-The demo can also read a structured JSON intake case and produce a Markdown compliance report:
+## Run a Canonical JSON Case
 
 ```bash
 python3 scripts/risk_scoring_demo.py \
-  --input scripts/example_intake_case.json \
-  --output scripts/generated_compliance_report.md
-```
-
-To print the structured assessment as JSON:
-
-```bash
-python3 scripts/risk_scoring_demo.py \
-  --input scripts/example_intake_case.json \
+  --input examples/unauthorized_public_figure_ad.json \
   --json-output
 ```
 
-The JSON intake format supports:
+Generate a Markdown report:
 
-- `case_id`, `title`, `requester_type`, and `content_type`;
-- `person_depicted`, `authorization_status`, `public_figure`, `minor`, and `commercial_use`;
-- `sensitive_context`, `ai_labeled`, and `training_use`;
-- `regions` such as `EU`, `China`, `US`, or `global`;
-- `consent_evidence`;
-- `license_scope` fields such as purpose, duration, territory, revocation, and secondary use.
+```bash
+python3 scripts/risk_scoring_demo.py \
+  --input examples/unauthorized_public_figure_ad.json \
+  --output scripts/generated_compliance_report.md
+```
 
-The generated report includes:
-
-- risk level and decision;
-- risk drivers;
-- consent and license evidence;
-- framework notes for EU AI Act Article 50, China synthetic content labeling, SAG-AFTRA AI principles, and NIST AI RMF;
-- recommended controls and reviewer next steps.
-
-## Scenario 1: Prohibited
-
-Unauthorized public figure commercial content:
+## Run With Flags
 
 ```bash
 python3 scripts/risk_scoring_demo.py \
@@ -64,80 +37,43 @@ python3 scripts/risk_scoring_demo.py \
   --ai-labeled false
 ```
 
-Expected result:
+Expected trace:
 
 ```text
 Risk level: prohibited
-Reasons:
-- uses or imitates a real person
-- no verified authorization for real-person likeness or voice
+Decision: reject
+Rule trace:
+- R-01 Real-person commercial use without verified authorization +5 HARD STOP
 ```
 
-## Scenario 2: Medium
+## Example Scenarios
 
-Authorized commercial real-person content:
+| Scenario | Example file | Expected decision |
+|---|---|---|
+| Authorized performer workflow | `examples/authorized_performer_case.json` | `approve` |
+| Unauthorized public figure ad | `examples/unauthorized_public_figure_ad.json` | `reject` |
+| Minor in sensitive context | `examples/minor_sensitive_case.json` | `reject` |
+| Training use without authorization | `examples/unauthorized_training_case.json` | `reject` |
+| Unknown / incomplete evidence | `examples/incomplete_unknown_case.json` | `manual_review` |
 
-```bash
-python3 scripts/risk_scoring_demo.py \
-  --content-type video \
-  --real-person true \
-  --authorized true \
-  --public-figure false \
-  --minor false \
-  --commercial true \
-  --sensitive-context none \
-  --ai-labeled true \
-  --training-use false
-```
+## Output Fields
 
-Expected result:
+The structured output includes:
 
-```text
-Risk level: medium
-Reasons:
-- uses or imitates a real person
-- commercial or endorsement use
-```
+- `total_score`
+- `risk_level`
+- `decision`
+- `triggered_rules`
+- `hard_stops`
+- `recommended_controls`
+- `missing_information`
+- `reviewer_path`
+- `report_markdown`
 
-## Scenario 3: Low
-
-Fully synthetic labeled non-commercial content:
-
-```bash
-python3 scripts/risk_scoring_demo.py \
-  --content-type video \
-  --real-person false \
-  --authorized false \
-  --public-figure false \
-  --minor false \
-  --commercial false \
-  --sensitive-context none \
-  --ai-labeled true \
-  --training-use false
-```
-
-Expected result:
-
-```text
-Risk level: low
-Reasons:
-```
-
-## Compliance Logic Covered
-
-The demo reflects the project controls in a simplified way:
-
-- Real-person likeness or voice without verified authorization is prohibited.
-- Real-person sexual or defamatory synthetic portrayals are prohibited.
-- Minor plus sensitive context is prohibited.
-- Public figure, commercial, training, and missing-label factors increase risk.
-- Authorized real-person content can still require medium or high review depending on context.
-- JSON intake cases produce both a structured assessment and a Markdown compliance report.
+Each triggered rule includes `rule_id`, title, description, severity, score, hard-stop flag, affected domain, recommended control, source reference, and rule version.
 
 ## Test
 
-Run the lightweight unit test from the project root:
-
 ```bash
-python3 -m unittest scripts/test_risk_scoring_demo.py
+pytest scripts/test_risk_scoring_demo.py
 ```
