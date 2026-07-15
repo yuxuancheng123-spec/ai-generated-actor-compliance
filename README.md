@@ -13,6 +13,30 @@ This project evaluates a fictional AI actor / synthetic media platform that allo
 
 The deployed GitHub Pages demo runs client-side. The FastAPI service is a separate engineering implementation using the same case concepts and stricter schema/rule definitions. The deployed web demo does not call the Python backend.
 
+## Static Workflow Prototype
+
+The GitHub Pages experience is an **AI-generated actor and synthetic media compliance case management prototype**, rather than a standalone self-assessment questionnaire. It starts with a review queue and models the operational objects a compliance team would use:
+
+- **Dashboard / Review Queue:** review open cases, due dates, evidence readiness, ownership, and items needing attention.
+- **Case Detail:** work through `Overview`, `Intake`, `Risks`, `Evidence`, `Tasks`, `Approvals`, `Activity`, and `Report` without leaving the selected case.
+- **Evidence and remediation workflow:** request, submit, review, accept, reject, and track evidence-linked findings and tasks.
+- **Approval workflow:** demonstrate business, privacy, legal, brand safety, and final-approval gates.
+- **Audit-style activity:** retain a readable, time-ordered record of assessments, evidence actions, tasks, approvals, and report activity.
+
+The page uses four in-memory demo cases maintained in [web/data/demo-data.js](web/data/demo-data.js): an approved authorized performer, an unverified celebrity campaign, an incomplete voice-model training request, and an escalated minor-sensitive-context request. Hash routes such as `#/cases/FM-2026-014/overview` keep direct links compatible with GitHub Pages.
+
+Prototype boundary:
+
+- Demo records are static browser data and reset when the page reloads.
+- Evidence upload, identity authentication, role enforcement, notifications, and multi-user collaboration are represented as workflow states only.
+- The FastAPI reference backend, canonical Pydantic schema, SQLite records, rules engine, and audit model remain the implementation path for replacing the static data layer in a future integration.
+
+Static workflow prototype using demo data. The FastAPI reference backend is not connected to this GitHub Pages deployment.
+
+## Screenshot and Demo
+
+The live static workflow is available at [GitHub Pages](https://yuxuancheng123-spec.github.io/ai-generated-actor-compliance/web/). A current interface screenshot can be added here when a stable product capture is available; no placeholder image is included so the README does not misrepresent the prototype.
+
 ## Quick Links
 
 | Link | URL |
@@ -26,6 +50,7 @@ The deployed GitHub Pages demo runs client-side. The FastAPI service is a separa
 | FastAPI backend | [backend/](backend/) |
 | Canonical examples | [examples/](examples/) |
 | Static web demo | [web/](web/) |
+| Static workflow demo data | [web/data/demo-data.js](web/data/demo-data.js) |
 
 ## Why This Problem Matters
 
@@ -148,7 +173,26 @@ Implemented endpoints:
 | `POST` | `/api/v1/assessments/{case_id}/review` | Reviewer/admin updates review status and notes |
 | `DELETE` | `/api/v1/assessments/{case_id}` | Compliance admin soft-deletes a case and records deletion event |
 
-## Local Setup
+## Run the Static Workflow Prototype
+
+The GitHub Pages frontend has no build step or API dependency. Serve the repository root locally, then open the `/web/` path:
+
+```bash
+cd ai-generated-actor-compliance
+python3 -m http.server 8032
+```
+
+```text
+http://127.0.0.1:8032/web/
+```
+
+The dashboard is the default entry point. Case links use hash routes, for example:
+
+```text
+http://127.0.0.1:8032/web/#/cases/FM-2026-014/overview
+```
+
+## Run the FastAPI Reference Backend
 
 ```bash
 cd ai-generated-actor-compliance
@@ -164,7 +208,7 @@ Open the API docs:
 http://127.0.0.1:8000/docs
 ```
 
-## Tests
+## Run Backend Tests
 
 Run the backend and script tests:
 
@@ -186,6 +230,17 @@ The tests cover:
 - Assessment audit log;
 - Review role checks;
 - Retention and soft deletion.
+
+## Current Prototype Limitations
+
+The deployed GitHub Pages workflow intentionally does not yet include:
+
+- Authentication or production identity verification;
+- Persistent frontend data storage;
+- Real file upload or file retention;
+- Notifications or workflow messaging;
+- Production access control;
+- Live FastAPI/API integration.
 
 ## Example Assessment
 
@@ -253,11 +308,16 @@ ai-generated-actor-compliance/
 ├── scripts/
 ├── tests/
 └── web/
+    ├── data/demo-data.js
+    ├── index.html
+    ├── app.js
+    └── styles.css
 ```
 
 ## Limitations
 
 - This is a prototype and not legal advice.
+- The GitHub Pages interface is a static workflow demonstration, not a production case-management service.
 - The rules do not cover every jurisdiction or platform policy.
 - Scoring thresholds are transparent but require further validation.
 - The API does not implement production authentication, encryption, or media storage.

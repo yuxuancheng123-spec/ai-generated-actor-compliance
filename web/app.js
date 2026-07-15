@@ -998,6 +998,7 @@ function nextSteps(memo) {
 
 function displayRiskLevel(value) {
   if (!value || value === "Not assessed") return value;
+  if (value === "prohibited") return "Critical (prohibited)";
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
@@ -1234,3 +1235,526 @@ document.querySelectorAll("[data-workspace-tab]").forEach((button) => {
 setWorkspaceTab("intake");
 setWorkflowStep(0);
 render();
+
+// Static case-management layer. It deliberately uses demo data and does not call
+// the FastAPI reference backend. Field concepts match the canonical case schema.
+const demoData = window.COMPLIANCE_DEMO_DATA;
+const cases = demoData.cases;
+let activeCase = cases[0];
+let activeCaseTab = "overview";
+let activeEvidence = null;
+let lastEvidenceTrigger = null;
+
+const appViews = {
+  dashboard: document.querySelector("#dashboard-view"),
+  cases: document.querySelector("#cases-view"),
+  evidence: document.querySelector("#cross-evidence-view"),
+  tasks: document.querySelector("#cross-tasks-view"),
+  reports: document.querySelector("#reports-view"),
+  case: document.querySelector("#case-view"),
+};
+
+const caseUi = {
+  id: document.querySelector("#case-id"),
+  title: document.querySelector("#case-title"),
+  description: document.querySelector("#case-description"),
+  breadcrumb: document.querySelector("#breadcrumb-case"),
+  stage: document.querySelector("#case-stage"),
+  risk: document.querySelector("#case-risk"),
+  owner: document.querySelector("#case-owner"),
+  privacy: document.querySelector("#case-privacy-reviewer"),
+  legal: document.querySelector("#case-legal-reviewer"),
+  due: document.querySelector("#case-due-date"),
+  updated: document.querySelector("#case-updated"),
+  intakeCompletion: document.querySelector("#intake-completion"),
+  lastSaved: document.querySelector("#last-saved"),
+  assessmentState: document.querySelector("#assessment-state"),
+  reportCaseId: document.querySelector("#report-case-id"),
+  reportVersion: document.querySelector("#report-version"),
+};
+
+function dateLabel(value) {
+  if (!value || value === "-") return "-";
+  const normalized = value.includes("T") ? value : value.replace(" ", "T");
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(date);
+}
+
+function nowLabel() {
+  return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date());
+}
+
+function titleCase(value) {
+  return String(value || "").replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function statusClass(value) {
+  const normalized = String(value || "").toLowerCase();
+  if (/critical|rejected|blocked|missing/.test(normalized)) return "critical";
+  if (/high|pending|requested|under review|escalated/.test(normalized)) return "high";
+  if (/medium|conditions|waiting|submitted|in progress/.test(normalized)) return "medium";
+  if (/approved|accepted|low|not applicable/.test(normalized)) return "low";
+  return "neutral";
+}
+
+function statusBadge(value) {
+  const badge = document.createElement("span");
+  badge.className = `status-badge ${statusClass(value)}`;
+  badge.textContent = value;
+  return badge;
+}
+
+function clearAndAppend(target, children) {
+  if (!target) return;
+  target.replaceChildren(...children);
+}
+
+function buttonCell(label, action, value) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "table-action";
+  button.dataset[action] = value;
+  button.setAttribute("aria-label", `${label} ${value}`);
+  button.textContent = label;
+  return button;
+}
+
+function makeCell(value) {
+  const cell = document.createElement("td");
+  if (value instanceof Node) cell.append(value);
+  else cell.textContent = value;
+  return cell;
+}
+
+function caseRow(caseRecord, detailed = true) {
+  const row = document.createElement("tr");
+  row.tabIndex = 0;
+  row.className = "clickable-row";
+  row.dataset.openCase = caseRecord.id;
+  row.append(
+    makeCell(caseRecord.id),
+    makeCell(caseRecord.title),
+    makeCell(caseRecord.representedPerson),
+    makeCell(statusBadge(`${titleCase(caseRecord.riskLevel)} risk`)),
+    makeCell(statusBadge(caseRecord.stage)),
+    makeCell(`${caseRecord.evidenceReadiness}%`),
+    makeCell(caseRecord.owner),
+    makeCell(dateLabel(caseRecord.dueDate)),
+    makeCell(caseRecord.updated)
+  );
+  if (!detailed) {
+    row.replaceChildren(makeCell(caseRecord.id), makeCell(caseRecord.title), makeCell(statusBadge(`${titleCase(caseRecord.riskLevel)} risk`)), makeCell(statusBadge(caseRecord.stage)), makeCell(`${caseRecord.evidenceReadiness}%`), makeCell(caseRecord.owner), makeCell(dateLabel(caseRecord.dueDate)));
+  }
+  return row;
+}
+
+function renderDashboard() {
+  const open = cases.filter((entry) => entry.stage !== "Approved").length;
+  const awaiting = cases.filter((entry) => entry.evidenceReadiness < 70).length;
+  const high = cases.filter((entry) => ["high", "critical"].includes(entry.riskLevel)).length;
+  const pending = cases.filter((entry) => entry.approvals.some((approval) => ["Pending", "Blocked", "Not Started"].includes(approval[2]))).length;
+  document.querySelector("#metric-open-cases").textContent = open;
+  document.querySelector("#metric-awaiting-evidence").textContent = awaiting;
+  document.querySelector("#metric-high-risk").textContent = high;
+  document.querySelector("#metric-pending-approval").textContent = pending;
+  document.querySelector("#metric-overdue-tasks").textContent = "1";
+  filterQueue();
+
+  const attention = cases
+    .filter((entry) => entry.stage !== "Approved")
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
+    .map((entry) => {
+      const item = document.createElement("li");
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.dataset.openCase = entry.id;
+      openButton.innerHTML = `<span class="attention-title">${entry.id} - ${entry.title}</span><span>${entry.nextAction}</span>`;
+      item.append(openButton);
+      return item;
+    });
+  clearAndAppend(document.querySelector("#attention-list"), attention);
+
+  const recent = cases
+    .flatMap((entry) => entry.activity.map((activity) => ({ caseId: entry.id, activity })))
+    .sort((a, b) => b.activity[0].localeCompare(a.activity[0]))
+    .slice(0, 5)
+    .map(({ caseId, activity }) => createActivityItem(activity, caseId));
+  clearAndAppend(document.querySelector("#dashboard-activity"), recent);
+}
+
+function filterQueue() {
+  const search = document.querySelector("#case-search").value.trim().toLowerCase();
+  const stage = document.querySelector("#filter-stage").value;
+  const risk = document.querySelector("#filter-risk").value;
+  const owner = document.querySelector("#filter-owner").value;
+  const evidence = document.querySelector("#filter-evidence").value;
+  const sort = document.querySelector("#sort-cases").value;
+  const visible = cases
+    .filter((entry) => !search || `${entry.id} ${entry.title} ${entry.owner}`.toLowerCase().includes(search))
+    .filter((entry) => !stage || entry.stage === stage)
+    .filter((entry) => !risk || entry.riskLevel === risk)
+    .filter((entry) => !owner || entry.owner === owner)
+    .filter((entry) => !evidence || (evidence === "ready" ? entry.evidenceReadiness === 100 : entry.evidenceReadiness < 70))
+    .sort((a, b) => (sort === "due" ? a.dueDate.localeCompare(b.dueDate) : b.updated.localeCompare(a.updated)));
+  clearAndAppend(document.querySelector("#review-queue-body"), visible.map((entry) => caseRow(entry)));
+}
+
+function renderCrossCaseViews() {
+  clearAndAppend(document.querySelector("#all-cases-body"), cases.map((entry) => caseRow(entry, false)));
+
+  const evidenceRows = cases.flatMap((entry) => entry.evidence.map((item) => ({ entry, item }))).map(({ entry, item }) => {
+    const row = document.createElement("tr");
+    row.append(makeCell(item[1]), makeCell(entry.id), makeCell(item[2]), makeCell(statusBadge(item[3])), makeCell(item[4]), makeCell(item[5]), makeCell(item[7]));
+    row.dataset.openCase = entry.id;
+    return row;
+  });
+  clearAndAppend(document.querySelector("#cross-evidence-body"), evidenceRows);
+
+  const taskRows = cases.flatMap((entry) => entry.findings.map((finding) => ({ entry, finding }))).map(({ entry, finding }) => {
+    const row = document.createElement("tr");
+    row.append(makeCell(finding[1]), makeCell(entry.id), makeCell(statusBadge(finding[3])), makeCell(finding[5]), makeCell(dateLabel(finding[6])), makeCell(statusBadge(finding[7])));
+    row.dataset.openCase = entry.id;
+    return row;
+  });
+  clearAndAppend(document.querySelector("#cross-tasks-body"), taskRows);
+
+  const reportRows = cases.map((entry) => {
+    const row = document.createElement("tr");
+    row.append(makeCell(entry.id), makeCell(entry.decision), makeCell(statusBadge(`${titleCase(entry.riskLevel)} risk`)), makeCell("Generated"), makeCell(entry.updated), makeCell(buttonCell("Open", "openCase", entry.id)));
+    return row;
+  });
+  clearAndAppend(document.querySelector("#reports-body"), reportRows);
+}
+
+function hydrateForm(intake) {
+  ["requesterType", "subjectType", "useCase", "monetization", "sensitiveContext", "consentEvidence"].forEach((field) => {
+    form.elements[field].value = intake[field] || "";
+  });
+  ["mediaFace", "mediaVoice", "mediaMotion", "mediaPerformance", "regionEu", "regionChina", "regionUs", "regionGlobal", "scopeCommercial", "scopeTraining", "scopeTerritory", "scopeDuration", "scopeSecondaryUse", "scopeRevocation", "scopeCompensation", "visibleLabel", "machineLabel", "watermark", "trainingUse"].forEach((field) => {
+    form.elements[field].checked = Boolean(intake[field]);
+  });
+}
+
+function syncCaseIntake() {
+  if (!activeCase) return;
+  activeCase.intake = getScenario();
+  activeCase.updated = nowLabel();
+  activeCase.evidenceReadiness = evidenceReadinessPercent(activeCase.intake);
+  activeCase.decision = assessScenario(activeCase.intake).title;
+  updateCaseSummary();
+}
+
+function renderCaseHeader() {
+  caseUi.id.textContent = activeCase.id;
+  caseUi.title.textContent = activeCase.title;
+  caseUi.description.textContent = activeCase.description;
+  caseUi.breadcrumb.textContent = activeCase.id;
+  caseUi.stage.textContent = activeCase.stage;
+  caseUi.stage.className = `status-badge ${statusClass(activeCase.stage)}`;
+  caseUi.risk.textContent = `${titleCase(activeCase.riskLevel)} risk`;
+  caseUi.risk.className = `risk-badge ${statusClass(activeCase.riskLevel)}`;
+  caseUi.owner.textContent = activeCase.owner;
+  caseUi.privacy.textContent = activeCase.privacyReviewer;
+  caseUi.legal.textContent = activeCase.legalReviewer;
+  caseUi.due.textContent = dateLabel(activeCase.dueDate);
+  caseUi.updated.textContent = activeCase.updated;
+  caseUi.reportCaseId.textContent = activeCase.id;
+}
+
+function renderRuleTrace(memo) {
+  const ruleRows = memo.riskDrivers.slice(0, 6).map((driver, index) => {
+    const isHardStop = memo.decision === "reject" && index < 2;
+    return [`R-${String(index + 1).padStart(2, "0")}`, driver.replace(/\.$/, ""), isHardStop ? "Critical" : memo.riskLevel === "high" ? "High" : "Medium", isHardStop ? "7" : index === 0 ? "3" : "2", isHardStop ? "Yes" : "No", isHardStop ? "Open" : "Open"];
+  });
+  const rows = ruleRows.map((rule) => {
+    const row = document.createElement("tr");
+    row.append(makeCell(rule[0]), makeCell(rule[1]), makeCell(statusBadge(rule[2])), makeCell(rule[3]), makeCell(rule[4]), makeCell(statusBadge(rule[5])));
+    return row;
+  });
+  clearAndAppend(document.querySelector("#rule-trace-body"), rows);
+}
+
+function updateCaseSummary() {
+  const risk = getScenario();
+  const memo = assessScenario(risk);
+  const completion = intakeCompletion(risk);
+  const acceptedEvidence = activeCase.evidence.filter((item) => ["Accepted", "Under Review"].includes(item[3])).length;
+  const completedApprovals = activeCase.approvals.filter((item) => ["Approved", "Approved with Conditions", "Submitted", "Rejected"].includes(item[2])).length;
+  const openFindings = activeCase.findings.filter((item) => !["Resolved", "Closed", "Risk Accepted"].includes(item[7]));
+
+  document.querySelector("#overview-decision").textContent = memo.title;
+  document.querySelector("#overview-summary").textContent = memo.summary;
+  const overviewRisk = document.querySelector("#overview-risk");
+  overviewRisk.textContent = displayRiskLevel(memo.riskLevel);
+  overviewRisk.className = `risk-badge ${statusClass(memo.riskLevel)}`;
+  clearAndAppend(document.querySelector("#overview-risk-drivers"), prioritize(memo.riskDrivers, "No material risk driver has been assessed.").map((item) => { const li = document.createElement("li"); li.textContent = item; return li; }));
+  clearAndAppend(document.querySelector("#overview-findings"), openFindings.length ? openFindings.map((finding) => createFindingRow(finding, true)) : [createEmptyState("No open findings", "The selected evidence and approval controls are ready for release.")]);
+  document.querySelector("#overview-next-action").textContent = activeCase.nextAction;
+  document.querySelector("#overview-evidence-percent").textContent = `${activeCase.evidenceReadiness}%`;
+  document.querySelector("#overview-evidence-copy").textContent = `${acceptedEvidence} of ${activeCase.evidence.length} evidence items are accepted or under review.`;
+  document.querySelector("#overview-approval-count").textContent = `${completedApprovals} of ${activeCase.approvals.length} completed`;
+  const finalApproval = activeCase.approvals.find((item) => item[0] === "Final Approver");
+  document.querySelector("#overview-approval-copy").textContent = `Current gate: ${activeCase.stage}. Release blocked: ${finalApproval && finalApproval[2] === "Approved" ? "No" : "Yes"}.`;
+  const metadata = [{ label: "Represented person", value: activeCase.representedPerson }, { label: "Assessment version", value: "Rules 2026-07-14" }, { label: "Submitted by", value: activeCase.owner }, { label: "Case status", value: activeCase.stage }];
+  const metadataEls = metadata.map(({ label, value }) => { const group = document.createElement("div"); const term = document.createElement("dt"); const definition = document.createElement("dd"); term.textContent = label; definition.textContent = value; group.append(term, definition); return group; });
+  clearAndAppend(document.querySelector("#overview-metadata"), metadataEls);
+  caseUi.intakeCompletion.textContent = `${completion.ready ? "Ready to assess" : "Draft"} - ${completion.percent}% complete`;
+  caseUi.lastSaved.textContent = `Last saved: ${activeCase.updated}`;
+  caseUi.assessmentState.textContent = reportGenerated ? "Assessment completed" : completion.ready ? "Ready to assess" : "Draft intake";
+  caseUi.reportVersion.textContent = "Report v1";
+  renderRuleTrace(memo);
+}
+
+function createEmptyState(title, copy) {
+  const item = document.createElement("div");
+  item.className = "empty-state";
+  item.innerHTML = `<strong>${title}</strong><span>${copy}</span>`;
+  return item;
+}
+
+function createFindingRow(finding, compact = false) {
+  const article = document.createElement(compact ? "article" : "tr");
+  if (compact) {
+    article.className = "finding-summary";
+    article.innerHTML = `<div><strong>${finding[0]} - ${finding[1]}</strong><span>${finding[8]}</span></div>`;
+    article.append(statusBadge(finding[7]));
+    return article;
+  }
+  article.append(makeCell(finding[0]), makeCell(finding[1]), makeCell(finding[2]), makeCell(statusBadge(finding[3])), makeCell(finding[4] ? "Yes" : "No"), makeCell(finding[5]), makeCell(dateLabel(finding[6])), makeCell(statusBadge(finding[7])), makeCell(finding[8]), makeCell(buttonCell("Update", "updateFinding", finding[0])));
+  return article;
+}
+
+function renderEvidenceTable() {
+  const rows = activeCase.evidence.map((item) => {
+    const row = document.createElement("tr");
+    row.append(makeCell(item[1]), makeCell(item[1].includes("authorization") ? "Rights clearance" : item[1].includes("Disclosure") ? "Transparency" : "Provenance and retention"), makeCell(item[2]), makeCell(statusBadge(item[3])), makeCell(item[4]), makeCell(item[5]), makeCell(item[6]), makeCell(item[7]), makeCell(item[8]), makeCell(buttonCell("Review", "openEvidence", item[0])));
+    return row;
+  });
+  clearAndAppend(document.querySelector("#case-evidence-body"), rows);
+}
+
+function renderTasks() {
+  const rows = activeCase.findings.length ? activeCase.findings.map((finding) => createFindingRow(finding)) : [(() => { const row = document.createElement("tr"); const cell = document.createElement("td"); cell.colSpan = 9; cell.append(createEmptyState("No remediation tasks", "This case has no open findings.")); row.append(cell); return row; })()];
+  clearAndAppend(document.querySelector("#case-tasks-body"), rows);
+}
+
+function renderApprovals() {
+  const rows = activeCase.approvals.map((approval) => {
+    const row = document.createElement("tr");
+    row.append(makeCell(approval[0]), makeCell(approval[1]), makeCell(statusBadge(approval[2])), makeCell(approval[3]), makeCell(dateLabel(approval[4])), makeCell(approval[5]), makeCell(buttonCell(approval[2] === "Pending" ? "Review" : "Update", "updateApproval", approval[0])));
+    return row;
+  });
+  clearAndAppend(document.querySelector("#approvals-body"), rows);
+  const completed = activeCase.approvals.filter((item) => ["Approved", "Approved with Conditions", "Submitted", "Rejected"].includes(item[2])).length;
+  document.querySelector("#approval-summary").textContent = `${completed} of ${activeCase.approvals.length} completed`;
+  const final = activeCase.approvals.find((item) => item[0] === "Final Approver");
+  document.querySelector("#approval-progress-copy").textContent = `Current gate: ${activeCase.stage}. Release blocked: ${final && final[2] === "Approved" ? "No" : "Yes"}.`;
+}
+
+function createActivityItem(activity, caseId) {
+  const item = document.createElement("li");
+  item.innerHTML = `<time>${activity[0]}</time><div><strong>${activity[2]}</strong><span>${caseId ? `${caseId} - ` : ""}${activity[3]}: ${activity[4]}</span><small>${activity[1]}</small></div>`;
+  return item;
+}
+
+function renderActivity() {
+  const filter = document.querySelector("#activity-filter").value;
+  const entries = activeCase.activity.filter((activity) => !filter || activity[3].toLowerCase().includes(filter.toLowerCase()) || activity[2].toLowerCase().includes(filter.toLowerCase()));
+  clearAndAppend(document.querySelector("#case-activity-list"), entries.map((activity) => createActivityItem(activity)));
+}
+
+function renderCase() {
+  hydrateForm(activeCase.intake);
+  reportGenerated = true;
+  renderCaseHeader();
+  render();
+  updateCaseSummary();
+  renderEvidenceTable();
+  renderTasks();
+  renderApprovals();
+  renderActivity();
+}
+
+function setCaseTab(tab, replace = false) {
+  const validTabs = new Set([...document.querySelectorAll("[data-case-tab]")].map((button) => button.dataset.caseTab));
+  if (!validTabs.has(tab)) tab = "overview";
+  activeCaseTab = tab;
+  document.querySelectorAll("[data-case-tab]").forEach((button) => {
+    const active = button.dataset.caseTab === tab;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+  document.querySelectorAll("[data-case-panel]").forEach((panel) => {
+    panel.hidden = panel.dataset.casePanel !== tab;
+  });
+  if (!replace && activeCase) window.location.hash = `#/cases/${activeCase.id}/${tab}`;
+}
+
+function openCase(caseId, tab = "overview") {
+  const nextCase = cases.find((entry) => entry.id === caseId);
+  if (!nextCase) return false;
+  activeCase = nextCase;
+  currentStep = 0;
+  Object.values(appViews).forEach((view) => { view.hidden = view !== appViews.case; });
+  renderCase();
+  setCaseTab(tab, true);
+  window.scrollTo({ top: 0, behavior: "auto" });
+  return true;
+}
+
+function setView(view) {
+  Object.values(appViews).forEach((item) => { item.hidden = item !== appViews[view]; });
+  document.querySelectorAll("[data-nav]").forEach((link) => link.classList.toggle("active", link.dataset.nav === view));
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function route() {
+  const value = window.location.hash.replace(/^#\/?/, "");
+  const segments = value.split("/").filter(Boolean);
+  if (segments[0] === "cases" && segments[1]) {
+    const validTabs = new Set([...document.querySelectorAll("[data-case-tab]")].map((button) => button.dataset.caseTab));
+    const requestedTab = segments[2] || "overview";
+    if (!cases.some((entry) => entry.id === segments[1]) || !validTabs.has(requestedTab)) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#/dashboard`);
+      setView("dashboard");
+      return;
+    }
+    if (!document.querySelector("#evidence-drawer").hidden) closeDrawer({ restoreFocus: false });
+    openCase(segments[1], requestedTab);
+    return;
+  }
+  const isKnownView = ["dashboard", "cases", "evidence", "tasks", "reports"].includes(segments[0]);
+  if (segments.length && !isKnownView) window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#/dashboard`);
+  if (!document.querySelector("#evidence-drawer").hidden) closeDrawer({ restoreFocus: false });
+  const view = isKnownView ? segments[0] : "dashboard";
+  setView(view);
+}
+
+function addActivity(action, object, detail) {
+  activeCase.activity.unshift([new Date().toISOString().slice(0, 16).replace("T", " "), demoData.currentUser, action, object, detail]);
+  activeCase.updated = nowLabel();
+  renderActivity();
+  renderDashboard();
+}
+
+function showToast(message) {
+  const toast = document.querySelector("#toast");
+  toast.textContent = message;
+  toast.hidden = false;
+  window.setTimeout(() => { toast.hidden = true; }, 2600);
+}
+
+function openEvidence(evidenceId, trigger) {
+  activeEvidence = activeCase.evidence.find((item) => item[0] === evidenceId);
+  if (!activeEvidence) return;
+  lastEvidenceTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const fields = [
+    ["Evidence", activeEvidence[1]], ["Linked requirement", activeEvidence[1].includes("authorization") ? "Rights clearance" : "Release and provenance control"], ["Owner", activeEvidence[4]], ["Reviewer", activeEvidence[5]], ["Status", activeEvidence[3]], ["File", "Upload placeholder - no file storage in static prototype"], ["Evidence hash", "Hash placeholder"], ["Retention date", activeEvidence[7]], ["Status history", "Requested -> submitted -> review"],
+  ];
+  const nodes = fields.map(([label, value]) => { const group = document.createElement("div"); const term = document.createElement("dt"); const definition = document.createElement("dd"); term.textContent = label; definition.textContent = value; group.append(term, definition); return group; });
+  document.querySelector("#drawer-title").textContent = activeEvidence[1];
+  clearAndAppend(document.querySelector("#drawer-metadata"), nodes);
+  document.querySelector("#modal-backdrop").hidden = false;
+  document.querySelector("#evidence-drawer").hidden = false;
+  document.querySelector("#close-drawer").focus();
+}
+
+function closeDrawer({ restoreFocus = true } = {}) {
+  document.querySelector("#modal-backdrop").hidden = true;
+  document.querySelector("#evidence-drawer").hidden = true;
+  activeEvidence = null;
+  if (restoreFocus && lastEvidenceTrigger && lastEvidenceTrigger.isConnected) lastEvidenceTrigger.focus();
+  lastEvidenceTrigger = null;
+}
+
+function createCase() {
+  const number = String(cases.length + 18).padStart(3, "0");
+  const freshCase = {
+    ...cases[0],
+    id: `FM-2026-${number}`,
+    title: "New synthetic media request",
+    description: "Draft case created in the static workflow prototype.",
+    representedPerson: "Not selected",
+    riskLevel: "medium",
+    stage: "Draft Intake",
+    evidenceReadiness: 0,
+    owner: demoData.currentUser,
+    dueDate: "2026-07-29",
+    updated: nowLabel(),
+    decision: "Draft intake",
+    nextAction: "Complete the intake and select a case template or provide request facts.",
+    intake: { requesterType: "", subjectType: "", mediaFace: false, mediaVoice: false, mediaMotion: false, mediaPerformance: false, useCase: "", monetization: "", sensitiveContext: "", regionEu: false, regionChina: false, regionUs: false, regionGlobal: false, consentEvidence: "", scopeCommercial: false, scopeTraining: false, scopeTerritory: false, scopeDuration: false, scopeSecondaryUse: false, scopeRevocation: false, scopeCompensation: false, visibleLabel: false, machineLabel: false, watermark: false, trainingUse: false },
+    evidence: [], findings: [], approvals: [["Business Owner", demoData.currentUser, "Not Started", "-", "-", "-"], ["Privacy Review", "Mei Lin", "Not Started", "-", "-", "-"], ["Legal Review", "Alex Wu", "Not Started", "-", "-", "-"], ["Brand / Content Safety", "Nora Li", "Not Started", "-", "-", "-"], ["Final Approver", demoData.currentUser, "Not Started", "-", "-", "-"]], activity: [[new Date().toISOString().slice(0, 16).replace("T", " "), demoData.currentUser, "Case created", "Case", "New draft created"]],
+  };
+  cases.unshift(freshCase);
+  renderDashboard();
+  renderCrossCaseViews();
+  window.location.hash = `#/cases/${freshCase.id}/intake`;
+}
+
+document.querySelectorAll("#case-search, #filter-stage, #filter-risk, #filter-owner, #filter-evidence, #sort-cases").forEach((control) => {
+  control.addEventListener("input", filterQueue);
+  control.addEventListener("change", filterQueue);
+});
+document.querySelector("#activity-filter").addEventListener("change", renderActivity);
+document.querySelectorAll("[data-case-tab]").forEach((button) => button.addEventListener("click", () => setCaseTab(button.dataset.caseTab)));
+document.querySelector(".case-tabs").addEventListener("keydown", (event) => {
+  if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+  const tabs = [...document.querySelectorAll("[data-case-tab]")];
+  const current = tabs.indexOf(document.activeElement);
+  if (current < 0) return;
+  event.preventDefault();
+  const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+  tabs[next].focus();
+  setCaseTab(tabs[next].dataset.caseTab);
+});
+document.querySelectorAll("[data-route]").forEach((button) => button.addEventListener("click", () => { window.location.hash = button.dataset.route; }));
+document.querySelectorAll("#create-case, #create-case-secondary").forEach((button) => button.addEventListener("click", createCase));
+document.querySelector("#save-draft").addEventListener("click", () => { syncCaseIntake(); addActivity("Draft saved", "Intake", "Case intake saved by reviewer"); showToast("Draft saved to the static case workspace."); });
+document.querySelector("#run-assessment").addEventListener("click", () => { syncCaseIntake(); reportGenerated = true; render(); updateCaseSummary(); addActivity("Assessment completed", "Assessment", "Rule-based assessment re-run"); setCaseTab("risks"); showToast("Assessment completed and rule trace updated."); });
+document.querySelector("#generate-report").addEventListener("click", () => { window.setTimeout(() => { syncCaseIntake(); addActivity("Assessment completed", "Assessment", "Assessment generated from intake"); setCaseTab("risks"); }, 0); });
+document.querySelector("#view-full-report").addEventListener("click", () => { window.setTimeout(() => { syncCaseIntake(); setCaseTab("report"); }, 0); });
+document.querySelector("#edit-intake").addEventListener("click", () => { window.setTimeout(() => setCaseTab("intake"), 0); });
+document.querySelector("#export-case-report").addEventListener("click", () => { setCaseTab("report"); showToast("Report is ready to print or copy."); });
+document.querySelector("#copy-report").addEventListener("click", async () => { const reportText = document.querySelector("#report-view").innerText; try { await navigator.clipboard.writeText(reportText); showToast("Report copied to clipboard."); } catch { showToast("Copy is unavailable in this browser context."); } });
+document.querySelector("#print-report").addEventListener("click", () => window.print());
+document.querySelectorAll("#request-evidence, #request-evidence-tab").forEach((button) => button.addEventListener("click", () => { addActivity("Evidence requested", "Evidence", "Project owner notified of open evidence requirements"); showToast("Evidence request logged in the activity timeline."); }));
+document.querySelector("#assign-reviewer").addEventListener("click", () => { addActivity("Reviewer assigned", "Approval", "Privacy and legal reviewers assigned"); showToast("Reviewers assigned in prototype workflow."); });
+document.querySelector("#create-task").addEventListener("click", () => { const id = `F-${activeCase.id.slice(-3)}-${String(activeCase.findings.length + 1).padStart(2, "0")}`; activeCase.findings.push([id, "New remediation task", "Manual follow-up", "Medium", false, demoData.currentUser, activeCase.dueDate, "Open", "Document the corrective action and attach evidence."]); renderTasks(); updateCaseSummary(); addActivity("Task created", "Task", id); showToast("New task created."); });
+document.querySelector("#compare-assessment").addEventListener("click", () => showToast("Comparison placeholder: previous assessment version will appear here when API history is connected."));
+document.querySelector("#more-actions").addEventListener("click", () => showToast("More actions: archive, transfer owner, or duplicate case are prototype placeholders."));
+document.querySelector("#close-drawer").addEventListener("click", closeDrawer);
+document.querySelector("#modal-backdrop").addEventListener("click", closeDrawer);
+document.querySelectorAll("[data-open-case-tab]").forEach((button) => button.addEventListener("click", () => setCaseTab(button.dataset.openCaseTab)));
+document.addEventListener("click", (event) => {
+  const caseTarget = event.target.closest("[data-open-case]");
+  if (caseTarget) { window.location.hash = `#/cases/${caseTarget.dataset.openCase}/overview`; return; }
+  const evidenceTarget = event.target.closest("[data-open-evidence]");
+  if (evidenceTarget) { openEvidence(evidenceTarget.dataset.openEvidence, evidenceTarget); return; }
+  const actionTarget = event.target.closest("[data-evidence-action]");
+  if (actionTarget && activeEvidence) { activeEvidence[3] = titleCase(actionTarget.dataset.evidenceAction); renderEvidenceTable(); updateCaseSummary(); addActivity("Evidence status updated", activeEvidence[0], activeEvidence[3]); closeDrawer(); showToast(`Evidence marked ${activeEvidence[3].toLowerCase()}.`); }
+  const findingTarget = event.target.closest("[data-update-finding]");
+  if (findingTarget) { const finding = activeCase.findings.find((item) => item[0] === findingTarget.dataset.updateFinding); if (finding) { finding[7] = finding[7] === "Resolved" ? "Open" : "Resolved"; renderTasks(); updateCaseSummary(); addActivity("Finding updated", finding[0], `Status changed to ${finding[7]}`); } }
+  const approvalTarget = event.target.closest("[data-update-approval]");
+  if (approvalTarget) { const approval = activeCase.approvals.find((item) => item[0] === approvalTarget.dataset.updateApproval); if (approval) { approval[2] = approval[2] === "Pending" ? "Approved with Conditions" : "Approved"; approval[4] = new Date().toISOString().slice(0, 10); renderApprovals(); updateCaseSummary(); addActivity("Approval updated", approval[0], approval[2]); } }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !document.querySelector("#evidence-drawer").hidden) {
+    event.preventDefault();
+    closeDrawer();
+    return;
+  }
+  const row = event.target.closest("tr[data-open-case]");
+  if (row && (event.key === "Enter" || event.key === " ")) {
+    event.preventDefault();
+    window.location.hash = `#/cases/${row.dataset.openCase}/overview`;
+  }
+});
+
+form.addEventListener("change", () => { if (activeCase) { activeCase.intake = getScenario(); updateCaseSummary(); } });
+window.addEventListener("hashchange", route);
+renderDashboard();
+renderCrossCaseViews();
+route();
