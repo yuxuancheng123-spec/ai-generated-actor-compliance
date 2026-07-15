@@ -23,7 +23,7 @@ The GitHub Pages experience is an **AI-generated actor and synthetic media compl
 - **Approval workflow:** demonstrate business, privacy, legal, brand safety, and final-approval gates.
 - **Audit-style activity:** retain a readable, time-ordered record of assessments, evidence actions, tasks, approvals, and report activity.
 
-The page uses four in-memory demo cases maintained in [web/data/demo-data.js](web/data/demo-data.js): an approved authorized performer, an unverified celebrity campaign, an incomplete voice-model training request, and an escalated minor-sensitive-context request. Hash routes such as `#/cases/FM-2026-014/overview` keep direct links compatible with GitHub Pages.
+The page uses four in-memory demo cases maintained in [web/case-records.js](web/case-records.js): an approved authorized performer, an unverified celebrity campaign, an incomplete voice-model training request, and an escalated minor-sensitive-context request. Hash routes such as `#/cases/FM-2026-014/overview` keep direct links compatible with GitHub Pages.
 
 Prototype boundary:
 
@@ -50,7 +50,7 @@ The live static workflow is available at [GitHub Pages](https://yuxuancheng123-s
 | FastAPI backend | [backend/](backend/) |
 | Canonical examples | [examples/](examples/) |
 | Static web demo | [web/](web/) |
-| Static workflow demo data | [web/data/demo-data.js](web/data/demo-data.js) |
+| Static workflow demo data | [web/case-records.js](web/case-records.js) |
 
 ## Why This Problem Matters
 
@@ -308,7 +308,7 @@ ai-generated-actor-compliance/
 ├── scripts/
 ├── tests/
 └── web/
-    ├── data/demo-data.js
+    ├── case-records.js
     ├── index.html
     ├── app.js
     └── styles.css
