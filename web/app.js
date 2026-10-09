@@ -1327,25 +1327,40 @@ function makeCell(value) {
   return cell;
 }
 
+function stackCell(primary, secondary, secondaryFirst = false) {
+  const cell = document.createElement("td");
+  cell.className = "stack-cell";
+  const main = document.createElement("strong");
+  main.textContent = primary;
+  const sub = document.createElement("small");
+  sub.textContent = secondary;
+  if (secondaryFirst) cell.append(sub, main);
+  else cell.append(main, sub);
+  return cell;
+}
+
+function evidenceMeter(percent) {
+  const wrap = document.createElement("span");
+  wrap.className = "evidence-meter";
+  wrap.innerHTML = `<span class="meter-track" aria-hidden="true"><span style="width:${Math.max(0, Math.min(100, Number(percent) || 0))}%"></span></span><span>${percent}%</span>`;
+  return wrap;
+}
+
 function caseRow(caseRecord, detailed = true) {
   const row = document.createElement("tr");
   row.tabIndex = 0;
   row.className = "clickable-row";
   row.dataset.openCase = caseRecord.id;
-  row.append(
-    makeCell(caseRecord.id),
-    makeCell(caseRecord.title),
-    makeCell(caseRecord.representedPerson),
+  row.title = `${caseRecord.representedPerson} · owner: ${caseRecord.owner} · updated ${caseRecord.updated}`;
+  const cells = [
+    stackCell(caseRecord.title, caseRecord.id, true),
     makeCell(statusBadge(`${titleCase(caseRecord.riskLevel)} risk`)),
     makeCell(statusBadge(caseRecord.stage)),
-    makeCell(`${caseRecord.evidenceReadiness}%`),
-    makeCell(caseRecord.owner),
-    makeCell(dateLabel(caseRecord.dueDate)),
-    makeCell(caseRecord.updated)
-  );
-  if (!detailed) {
-    row.replaceChildren(makeCell(caseRecord.id), makeCell(caseRecord.title), makeCell(statusBadge(`${titleCase(caseRecord.riskLevel)} risk`)), makeCell(statusBadge(caseRecord.stage)), makeCell(`${caseRecord.evidenceReadiness}%`), makeCell(caseRecord.owner), makeCell(dateLabel(caseRecord.dueDate)));
-  }
+    makeCell(evidenceMeter(caseRecord.evidenceReadiness)),
+  ];
+  if (!detailed) cells.push(makeCell(caseRecord.owner));
+  cells.push(makeCell(dateLabel(caseRecord.dueDate)));
+  row.append(...cells);
   return row;
 }
 
@@ -1359,6 +1374,7 @@ function renderDashboard() {
   document.querySelector("#metric-high-risk").textContent = high;
   document.querySelector("#metric-pending-approval").textContent = pending;
   document.querySelector("#metric-overdue-tasks").textContent = "1";
+  document.querySelector("#metric-all-cases").textContent = cases.length;
   filterQueue();
 
   const attention = cases
@@ -1383,6 +1399,16 @@ function renderDashboard() {
   clearAndAppend(document.querySelector("#dashboard-activity"), recent);
 }
 
+let quickFilter = "";
+function isPendingApproval(entry) { return entry.approvals.some((approval) => ["Pending", "Blocked", "Not Started"].includes(approval[2])); }
+function matchesQuickFilter(entry, filter) {
+  if (filter === "open") return entry.stage !== "Approved";
+  if (filter === "high") return ["high", "critical"].includes(entry.riskLevel);
+  if (filter === "gap") return entry.evidenceReadiness < 70;
+  if (filter === "pending") return isPendingApproval(entry);
+  return true;
+}
+
 function filterQueue() {
   const search = document.querySelector("#case-search").value.trim().toLowerCase();
   const stage = document.querySelector("#filter-stage").value;
@@ -1396,16 +1422,19 @@ function filterQueue() {
     .filter((entry) => !risk || entry.riskLevel === risk)
     .filter((entry) => !owner || entry.owner === owner)
     .filter((entry) => !evidence || (evidence === "ready" ? entry.evidenceReadiness === 100 : entry.evidenceReadiness < 70))
+    .filter((entry) => matchesQuickFilter(entry, quickFilter))
     .sort((a, b) => (sort === "due" ? a.dueDate.localeCompare(b.dueDate) : b.updated.localeCompare(a.updated)));
-  clearAndAppend(document.querySelector("#review-queue-body"), visible.map((entry) => caseRow(entry)));
+  clearAndAppend(document.querySelector("#review-queue-body"), visible.length ? visible.map((entry) => inboxRow(entry)) : [createEmptyState("No matching cases", "Clear a filter to see more cases.")]);
 }
 
 function renderCrossCaseViews() {
-  clearAndAppend(document.querySelector("#all-cases-body"), cases.map((entry) => caseRow(entry, false)));
+  clearAndAppend(document.querySelector("#all-cases-body"), cases.map((entry) => inboxRow(entry)));
 
   const evidenceRows = cases.flatMap((entry) => entry.evidence.map((item) => ({ entry, item }))).map(({ entry, item }) => {
     const row = document.createElement("tr");
-    row.append(makeCell(item[1]), makeCell(entry.id), makeCell(item[2]), makeCell(statusBadge(item[3])), makeCell(item[4]), makeCell(item[5]), makeCell(item[7]));
+    row.append(stackCell(item[1], item[2]), makeCell(entry.id), makeCell(statusBadge(item[3])), makeCell(item[5]), makeCell(dateLabel(item[7])));
+    row.className = "clickable-row";
+    row.tabIndex = 0;
     row.dataset.openCase = entry.id;
     return row;
   });
@@ -1413,7 +1442,9 @@ function renderCrossCaseViews() {
 
   const taskRows = cases.flatMap((entry) => entry.findings.map((finding) => ({ entry, finding }))).map(({ entry, finding }) => {
     const row = document.createElement("tr");
-    row.append(makeCell(finding[1]), makeCell(entry.id), makeCell(statusBadge(finding[3])), makeCell(finding[5]), makeCell(dateLabel(finding[6])), makeCell(statusBadge(finding[7])));
+    row.append(stackCell(finding[1], finding[8]), makeCell(entry.id), makeCell(statusBadge(finding[3])), makeCell(finding[5]), makeCell(dateLabel(finding[6])), makeCell(statusBadge(finding[7])));
+    row.className = "clickable-row";
+    row.tabIndex = 0;
     row.dataset.openCase = entry.id;
     return row;
   });
@@ -1504,6 +1535,7 @@ function updateCaseSummary() {
   caseUi.assessmentState.textContent = reportGenerated ? "Assessment completed" : completion.ready ? "Ready to assess" : "Draft intake";
   caseUi.reportVersion.textContent = "Report v1";
   renderRuleTrace(memo);
+  renderProvenanceChain();
 }
 
 function createEmptyState(title, copy) {
@@ -1521,21 +1553,28 @@ function createFindingRow(finding, compact = false) {
     article.append(statusBadge(finding[7]));
     return article;
   }
-  article.append(makeCell(finding[0]), makeCell(finding[1]), makeCell(finding[2]), makeCell(statusBadge(finding[3])), makeCell(finding[4] ? "Yes" : "No"), makeCell(finding[5]), makeCell(dateLabel(finding[6])), makeCell(statusBadge(finding[7])), makeCell(finding[8]), makeCell(buttonCell("Update", "updateFinding", finding[0])));
+  const main = document.createElement("td");
+  main.className = "stack-cell";
+  main.innerHTML = `<small>${finding[0]} · ${finding[2]} · ${finding[5]}</small><strong>${finding[1]}</strong><span>${finding[8]}</span>`;
+  article.append(main, makeCell(statusBadge(finding[3])), makeCell(finding[4] ? "Yes" : "No"), makeCell(dateLabel(finding[6])), makeCell(statusBadge(finding[7])), makeCell(buttonCell("Update", "updateFinding", finding[0])));
   return article;
+}
+
+function linkedRequirement(item) {
+  return item[1].includes("authorization") ? "Rights clearance" : item[1].includes("Disclosure") ? "Transparency" : "Provenance and retention";
 }
 
 function renderEvidenceTable() {
   const rows = activeCase.evidence.map((item) => {
     const row = document.createElement("tr");
-    row.append(makeCell(item[1]), makeCell(item[1].includes("authorization") ? "Rights clearance" : item[1].includes("Disclosure") ? "Transparency" : "Provenance and retention"), makeCell(item[2]), makeCell(statusBadge(item[3])), makeCell(item[4]), makeCell(item[5]), makeCell(item[6]), makeCell(item[7]), makeCell(item[8]), makeCell(buttonCell("Review", "openEvidence", item[0])));
+    row.append(stackCell(item[1], [item[2], linkedRequirement(item), item[8]].filter((part) => part && part !== "-").join(" · ")), makeCell(statusBadge(item[3])), makeCell(item[5]), makeCell(dateLabel(item[7])), makeCell(buttonCell("Review", "openEvidence", item[0])));
     return row;
   });
   clearAndAppend(document.querySelector("#case-evidence-body"), rows);
 }
 
 function renderTasks() {
-  const rows = activeCase.findings.length ? activeCase.findings.map((finding) => createFindingRow(finding)) : [(() => { const row = document.createElement("tr"); const cell = document.createElement("td"); cell.colSpan = 9; cell.append(createEmptyState("No remediation tasks", "This case has no open findings.")); row.append(cell); return row; })()];
+  const rows = activeCase.findings.length ? activeCase.findings.map((finding) => createFindingRow(finding)) : [(() => { const row = document.createElement("tr"); const cell = document.createElement("td"); cell.colSpan = 6; cell.append(createEmptyState("No remediation tasks", "This case has no open findings.")); row.append(cell); return row; })()];
   clearAndAppend(document.querySelector("#case-tasks-body"), rows);
 }
 
@@ -1650,7 +1689,7 @@ function openEvidence(evidenceId, trigger) {
   if (!activeEvidence) return;
   lastEvidenceTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement instanceof HTMLElement ? document.activeElement : null;
   const fields = [
-    ["Evidence", activeEvidence[1]], ["Linked requirement", activeEvidence[1].includes("authorization") ? "Rights clearance" : "Release and provenance control"], ["Owner", activeEvidence[4]], ["Reviewer", activeEvidence[5]], ["Status", activeEvidence[3]], ["File", "Upload placeholder - no file storage in static prototype"], ["Evidence hash", "Hash placeholder"], ["Retention date", activeEvidence[7]], ["Status history", "Requested -> submitted -> review"],
+    ["Evidence", activeEvidence[1]], ["Evidence type", activeEvidence[2]], ["Linked requirement", linkedRequirement(activeEvidence)], ["Owner", activeEvidence[4]], ["Reviewer", activeEvidence[5]], ["Status", activeEvidence[3]], ["Collected", activeEvidence[6]], ["Expiry / retention date", activeEvidence[7]], ["Version", activeEvidence[8]], ["File", "Upload placeholder - no file storage in static prototype"], ["Evidence hash", "Hash placeholder"], ["Status history", "Requested -> submitted -> review"],
   ];
   const nodes = fields.map(([label, value]) => { const group = document.createElement("div"); const term = document.createElement("dt"); const definition = document.createElement("dd"); term.textContent = label; definition.textContent = value; group.append(term, definition); return group; });
   document.querySelector("#drawer-title").textContent = activeEvidence[1];
@@ -1717,8 +1756,64 @@ document.querySelector("#generate-report").addEventListener("click", () => { win
 document.querySelector("#view-full-report").addEventListener("click", () => { window.setTimeout(() => { syncCaseIntake(); setCaseTab("report"); }, 0); });
 document.querySelector("#edit-intake").addEventListener("click", () => { window.setTimeout(() => setCaseTab("intake"), 0); });
 document.querySelector("#export-case-report").addEventListener("click", () => { setCaseTab("report"); showToast("Report is ready to print or copy."); });
-document.querySelector("#copy-report").addEventListener("click", async () => { const reportText = document.querySelector("#report-view").innerText; try { await navigator.clipboard.writeText(reportText); showToast("Report copied to clipboard."); } catch { showToast("Copy is unavailable in this browser context."); } });
-document.querySelector("#print-report").addEventListener("click", () => window.print());
+function expandReport(open = true) { document.querySelectorAll("#report-view details.report-module").forEach((item) => { item.open = open; }); }
+document.querySelector("#copy-report").addEventListener("click", async () => { expandReport(); const reportText = document.querySelector("#report-view").innerText; try { await navigator.clipboard.writeText(reportText); showToast("Report copied to clipboard."); } catch { showToast("Copy is unavailable in this browser context."); } });
+document.querySelector("#print-report").addEventListener("click", () => { expandReport(); window.print(); });
+window.addEventListener("beforeprint", () => expandReport());
+document.querySelector("#expand-report").addEventListener("click", (event) => {
+  const modules = [...document.querySelectorAll("#report-view details.report-module")];
+  const open = !modules.every((item) => item.open);
+  expandReport(open);
+  event.currentTarget.textContent = open ? "Collapse all" : "Expand all";
+});
+
+// Dashboard: tabs, collapsible filters, action menu
+function setDashTab(tab) {
+  document.querySelectorAll("[data-dash-tab]").forEach((button) => {
+    const active = button.dataset.dashTab === tab;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+  document.querySelectorAll("[data-dash-panel]").forEach((panel) => { panel.hidden = panel.dataset.dashPanel !== tab; });
+}
+document.querySelectorAll("[data-dash-tab]").forEach((button) => button.addEventListener("click", () => setDashTab(button.dataset.dashTab)));
+document.querySelector(".dash-tabs").addEventListener("keydown", (event) => {
+  if (!["ArrowRight", "ArrowLeft"].includes(event.key)) return;
+  const tabs = [...document.querySelectorAll("[data-dash-tab]")];
+  const current = tabs.indexOf(document.activeElement);
+  if (current < 0) return;
+  const next = tabs[(current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+  next.focus();
+  setDashTab(next.dataset.dashTab);
+});
+document.querySelectorAll("[data-quick]").forEach((chip) => chip.addEventListener("click", () => {
+  quickFilter = chip.dataset.quick;
+  document.querySelectorAll("[data-quick]").forEach((item) => { item.classList.toggle("active", item === chip); item.setAttribute("aria-pressed", String(item === chip)); });
+  filterQueue();
+}));
+document.querySelector("#publish-banner-link").addEventListener("click", (event) => {
+  const target = document.querySelector(event.currentTarget.getAttribute("href"));
+  if (!target) return;
+  event.preventDefault();
+  target.scrollIntoView({ block: "center", behavior: "smooth" });
+  target.classList.add("flash");
+  window.setTimeout(() => target.classList.remove("flash"), 1200);
+});
+const filterToggle = document.querySelector("#toggle-filters");
+filterToggle.addEventListener("click", () => {
+  const panel = document.querySelector("#queue-filters");
+  panel.hidden = !panel.hidden;
+  filterToggle.setAttribute("aria-expanded", String(!panel.hidden));
+});
+function updateFilterCount() {
+  const active = ["#filter-stage", "#filter-risk", "#filter-owner", "#filter-evidence"].filter((id) => document.querySelector(id).value).length;
+  const badge = document.querySelector("#filter-count");
+  badge.textContent = active;
+  badge.hidden = active === 0;
+}
+document.querySelectorAll("#queue-filters select").forEach((control) => control.addEventListener("change", updateFilterCount));
+document.querySelectorAll(".action-menu-list button").forEach((button) => button.addEventListener("click", () => { button.closest("details").open = false; }));
+document.addEventListener("click", (event) => { document.querySelectorAll(".action-menu[open]").forEach((menu) => { if (!menu.contains(event.target)) menu.open = false; }); });
 document.querySelectorAll("#request-evidence, #request-evidence-tab").forEach((button) => button.addEventListener("click", () => { addActivity("Evidence requested", "Evidence", "Project owner notified of open evidence requirements"); showToast("Evidence request logged in the activity timeline."); }));
 document.querySelector("#assign-reviewer").addEventListener("click", () => { addActivity("Reviewer assigned", "Approval", "Privacy and legal reviewers assigned"); showToast("Reviewers assigned in prototype workflow."); });
 document.querySelector("#create-task").addEventListener("click", () => { const id = `F-${activeCase.id.slice(-3)}-${String(activeCase.findings.length + 1).padStart(2, "0")}`; activeCase.findings.push([id, "New remediation task", "Manual follow-up", "Medium", false, demoData.currentUser, activeCase.dueDate, "Open", "Document the corrective action and attach evidence."]); renderTasks(); updateCaseSummary(); addActivity("Task created", "Task", id); showToast("New task created."); });
@@ -1733,7 +1828,7 @@ document.addEventListener("click", (event) => {
   const evidenceTarget = event.target.closest("[data-open-evidence]");
   if (evidenceTarget) { openEvidence(evidenceTarget.dataset.openEvidence, evidenceTarget); return; }
   const actionTarget = event.target.closest("[data-evidence-action]");
-  if (actionTarget && activeEvidence) { activeEvidence[3] = titleCase(actionTarget.dataset.evidenceAction); renderEvidenceTable(); updateCaseSummary(); addActivity("Evidence status updated", activeEvidence[0], activeEvidence[3]); closeDrawer(); showToast(`Evidence marked ${activeEvidence[3].toLowerCase()}.`); }
+  if (actionTarget && activeEvidence) { activeEvidence[3] = titleCase(actionTarget.dataset.evidenceAction); renderEvidenceTable(); updateCaseSummary(); addActivity("Evidence status updated", activeEvidence[0], activeEvidence[3]); const newStatus = activeEvidence[3]; closeDrawer(); showToast(`Evidence marked ${newStatus.toLowerCase()}.`); }
   const findingTarget = event.target.closest("[data-update-finding]");
   if (findingTarget) { const finding = activeCase.findings.find((item) => item[0] === findingTarget.dataset.updateFinding); if (finding) { finding[7] = finding[7] === "Resolved" ? "Open" : "Resolved"; renderTasks(); updateCaseSummary(); addActivity("Finding updated", finding[0], `Status changed to ${finding[7]}`); } }
   const approvalTarget = event.target.closest("[data-update-approval]");

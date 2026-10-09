@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Synthetic Media Compliance Case Management</title>
     <meta name="description" content="Static workflow prototype for AI-generated actor and synthetic media compliance case management." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./compact.css" />
   </head>
   <body class="app-body">
     <header class="app-topbar">
@@ -14,99 +18,117 @@
         <span>Synthetic Media Compliance</span>
       </a>
       <nav class="app-nav" aria-label="Primary navigation">
-        <a href="#/dashboard" data-nav="dashboard">Dashboard</a>
+        <a href="#/dashboard" data-nav="dashboard">Queue</a>
         <a href="#/cases" data-nav="cases">Cases</a>
         <a href="#/evidence" data-nav="evidence">Evidence</a>
         <a href="#/tasks" data-nav="tasks">Tasks</a>
         <a href="#/reports" data-nav="reports">Reports</a>
-        <a href="../README.md">Documentation</a>
       </nav>
-      <div class="app-user"><span class="user-avatar">YC</span><span>Yuxuan Cheng</span></div>
+      <div class="app-links"><a href="../README.md">Docs</a><a href="./demo.zh.html" lang="zh-CN">中文</a></div>
     </header>
 
     <main class="app-main">
       <section class="app-view dashboard-view" id="dashboard-view" aria-labelledby="dashboard-title">
         <div class="page-heading">
           <div>
-            <p class="eyebrow">Compliance operations</p>
-            <h1 id="dashboard-title">Review queue</h1>
-            <p>Prioritize release decisions, evidence gaps, and approval gates for synthetic media cases.</p>
+            <p class="eyebrow">AI actor &amp; synthetic media</p>
+            <h1 id="dashboard-title">Compliance review queue</h1>
+            <p>Check consent, labeling, and release gates before an AI actor or cloned voice ships.</p>
           </div>
-          <button class="button primary" type="button" id="create-case">Create new case</button>
+          <button class="button primary" type="button" id="create-case">New case</button>
         </div>
 
-        <section class="metric-grid" aria-label="Case overview metrics">
-          <article class="metric"><span>Open cases</span><strong id="metric-open-cases">4</strong><small>All active review stages</small></article>
-          <article class="metric"><span>Awaiting evidence</span><strong id="metric-awaiting-evidence">2</strong><small>Evidence gates not complete</small></article>
-          <article class="metric"><span>High-risk cases</span><strong id="metric-high-risk">2</strong><small>High and critical cases</small></article>
-          <article class="metric"><span>Pending approval</span><strong id="metric-pending-approval">3</strong><small>Final gate not complete</small></article>
-          <article class="metric"><span>Overdue tasks</span><strong id="metric-overdue-tasks">1</strong><small>Due before the next review</small></article>
-        </section>
 
-        <section class="dashboard-grid">
-          <article class="work-surface queue-surface">
-            <div class="surface-heading">
-              <div><h2>Review queue</h2><p>Cases requiring compliance action or release decisions.</p></div>
-              <button class="text-action" type="button" data-route="#/cases">View all cases</button>
+        <article class="work-surface queue-surface">
+          <div class="dash-tabs" role="tablist" aria-label="Dashboard sections">
+            <button class="dash-tab active" type="button" role="tab" id="dash-tab-queue" data-dash-tab="queue" aria-controls="dash-panel-queue" aria-selected="true">Cases</button>
+            <button class="dash-tab" type="button" role="tab" id="dash-tab-attention" data-dash-tab="attention" aria-controls="dash-panel-attention" aria-selected="false">Needs attention</button>
+            <button class="dash-tab" type="button" role="tab" id="dash-tab-activity" data-dash-tab="activity" aria-controls="dash-panel-activity" aria-selected="false">Recent activity</button>
+          </div>
+
+          <div class="dash-panel" id="dash-panel-queue" role="tabpanel" aria-labelledby="dash-tab-queue" data-dash-panel="queue">
+            <div class="filter-chips" role="group" aria-label="Quick filters">
+              <button class="chip active" type="button" data-quick="">All <span id="metric-all-cases">4</span></button>
+              <button class="chip" type="button" data-quick="open">Open <span id="metric-open-cases">3</span></button>
+              <button class="chip" type="button" data-quick="high">High risk <span id="metric-high-risk">2</span></button>
+              <button class="chip" type="button" data-quick="gap">Evidence gaps <span id="metric-awaiting-evidence">2</span></button>
+              <button class="chip" type="button" data-quick="pending">Pending approval <span id="metric-pending-approval">3</span></button>
             </div>
-            <div class="queue-controls" aria-label="Review queue filters">
+            <div class="queue-toolbar">
               <label class="search-field"><span class="sr-only">Search cases</span><input id="case-search" type="search" placeholder="Search case ID, project, owner" /></label>
+              <button class="button secondary small" type="button" id="toggle-filters" aria-expanded="false" aria-controls="queue-filters">Filters<span class="filter-count" id="filter-count" hidden></span></button>
+            </div>
+            <div class="queue-controls" id="queue-filters" aria-label="Review queue filters" hidden>
               <select id="filter-stage" aria-label="Filter by stage"><option value="">All stages</option><option>Legal Review</option><option>Approved</option><option>Awaiting Evidence</option><option>Escalated</option></select>
               <select id="filter-risk" aria-label="Filter by risk"><option value="">All risks</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select>
               <select id="filter-owner" aria-label="Filter by owner"><option value="">All owners</option><option>Yuxuan Cheng</option><option>Production Operations</option><option>Model Operations</option><option>Trust and Safety</option></select>
               <select id="filter-evidence" aria-label="Filter by evidence status"><option value="">All evidence states</option><option value="ready">Evidence 100%</option><option value="gap">Evidence below 70%</option></select>
-              <select id="sort-cases" aria-label="Sort cases"><option value="updated">Last updated</option><option value="due">Due date</option></select>
+              <select id="sort-cases" aria-label="Sort cases"><option value="updated">Sort: last updated</option><option value="due">Sort: due date</option></select>
             </div>
-            <div class="table-wrap queue-table-wrap">
-              <table class="data-table review-queue-table">
-                <thead><tr><th>Case ID</th><th>Project / use case</th><th>Represented person</th><th>Risk</th><th>Stage</th><th>Evidence</th><th>Owner</th><th>Due date</th><th>Last updated</th></tr></thead>
-                <tbody id="review-queue-body"></tbody>
-              </table>
-            </div>
-          </article>
-          <aside class="dashboard-side">
-            <article class="work-surface attention-surface">
-              <div class="surface-heading"><div><h2>Requires attention</h2><p>Blocking items across the queue.</p></div></div>
-              <ul class="attention-list" id="attention-list"></ul>
-            </article>
-            <article class="work-surface activity-surface">
-              <div class="surface-heading"><div><h2>Recent activity</h2><p>Latest review events.</p></div></div>
-              <ol class="activity-list compact" id="dashboard-activity"></ol>
-            </article>
-          </aside>
-        </section>
+            <ul class="inbox" id="review-queue-body" aria-label="Cases"></ul>
+            <p class="queue-hint">Thumbnails are generated placeholders (demo). The cr mark summarises each case&rsquo;s provenance chain.</p>
+          </div>
+
+          <div class="dash-panel" id="dash-panel-attention" role="tabpanel" aria-labelledby="dash-tab-attention" data-dash-panel="attention" hidden>
+            <p class="panel-note">Blocking items across the queue &middot; <strong id="metric-overdue-tasks">1</strong> overdue task</p>
+            <ul class="attention-list" id="attention-list"></ul>
+          </div>
+
+          <div class="dash-panel" id="dash-panel-activity" role="tabpanel" aria-labelledby="dash-tab-activity" data-dash-panel="activity" hidden>
+            <ol class="activity-list compact" id="dashboard-activity"></ol>
+          </div>
+        </article>
       </section>
 
       <section class="app-view list-view" id="cases-view" hidden aria-labelledby="cases-title">
-        <div class="page-heading"><div><p class="eyebrow">Case register</p><h1 id="cases-title">All cases</h1><p>Static demo data for reviewing different consent, training, and content-risk paths.</p></div><button class="button primary" type="button" id="create-case-secondary">Create new case</button></div>
-        <div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Case</th><th>Risk</th><th>Stage</th><th>Evidence</th><th>Owner</th><th>Due</th></tr></thead><tbody id="all-cases-body"></tbody></table></div></div>
+        <div class="page-heading"><div><p class="eyebrow">Case register</p><h1 id="cases-title">All cases</h1><p>Demo cases covering consent, training, and content-risk paths.</p></div><button class="button primary" type="button" id="create-case-secondary">New case</button></div>
+        <div class="work-surface inbox-surface"><ul class="inbox" id="all-cases-body" aria-label="All cases"></ul></div>
       </section>
 
       <section class="app-view list-view" id="cross-evidence-view" hidden aria-labelledby="cross-evidence-title">
-        <div class="page-heading"><div><p class="eyebrow">Evidence register</p><h1 id="cross-evidence-title">Evidence across cases</h1><p>Artifact status and reviewer ownership in the static workflow prototype.</p></div></div>
-        <div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Evidence</th><th>Case</th><th>Type</th><th>Status</th><th>Owner</th><th>Reviewer</th><th>Expiry</th></tr></thead><tbody id="cross-evidence-body"></tbody></table></div></div>
+        <div class="page-heading"><div><p class="eyebrow">Evidence register</p><h1 id="cross-evidence-title">Evidence across cases</h1><p>Artifact status and reviewer ownership.</p></div></div>
+        <div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Evidence</th><th>Case</th><th>Status</th><th>Reviewer</th><th>Expiry</th></tr></thead><tbody id="cross-evidence-body"></tbody></table></div></div>
       </section>
 
       <section class="app-view list-view" id="cross-tasks-view" hidden aria-labelledby="cross-tasks-title">
-        <div class="page-heading"><div><p class="eyebrow">Remediation</p><h1 id="cross-tasks-title">Open tasks</h1><p>Findings and remediation actions that are currently blocking or awaiting work.</p></div></div>
+        <div class="page-heading"><div><p class="eyebrow">Remediation</p><h1 id="cross-tasks-title">Open tasks</h1><p>Findings and remediation actions awaiting work.</p></div></div>
         <div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Finding</th><th>Case</th><th>Severity</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody id="cross-tasks-body"></tbody></table></div></div>
       </section>
 
       <section class="app-view list-view" id="reports-view" hidden aria-labelledby="reports-title">
-        <div class="page-heading"><div><p class="eyebrow">Decision records</p><h1 id="reports-title">Reports</h1><p>Exportable review artifacts generated from each case intake and rule assessment.</p></div></div>
+        <div class="page-heading"><div><p class="eyebrow">Decision records</p><h1 id="reports-title">Reports</h1><p>Review artifacts generated from each case assessment.</p></div></div>
         <div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Case</th><th>Decision</th><th>Risk level</th><th>Report status</th><th>Last updated</th><th></th></tr></thead><tbody id="reports-body"></tbody></table></div></div>
       </section>
 
       <section class="app-view case-view" id="case-view" hidden aria-labelledby="case-title">
         <div class="breadcrumb"><a href="#/dashboard">Dashboard</a><span>/</span><a href="#/cases">Cases</a><span>/</span><strong id="breadcrumb-case">FM-2026-014</strong></div>
         <header class="case-header">
-          <div class="case-title-block"><span class="case-id" id="case-id">FM-2026-014</span><h1 id="case-title">Celebrity Campaign</h1><p id="case-description">Paid campaign concept using a celebrity likeness and voice for regional launch assets.</p><div class="case-statuses"><span class="status-badge" id="case-stage">Legal Review</span><span class="risk-badge" id="case-risk">High risk</span></div></div>
-          <dl class="case-meta"><div><dt>Owner</dt><dd id="case-owner">Yuxuan Cheng</dd></div><div><dt>Privacy reviewer</dt><dd id="case-privacy-reviewer">Mei Lin</dd></div><div><dt>Legal reviewer</dt><dd id="case-legal-reviewer">Alex Wu</dd></div><div><dt>Due date</dt><dd id="case-due-date">18 Jul 2026</dd></div><div><dt>Last updated</dt><dd id="case-updated">15 Jul 2026</dd></div></dl>
-          <div class="case-actions"><button class="button primary" type="button" id="run-assessment">Run assessment</button><button class="button secondary" type="button" id="request-evidence">Request evidence</button><button class="button secondary" type="button" id="assign-reviewer">Assign reviewer</button><button class="button secondary" type="button" id="export-case-report">Export report</button><button class="icon-button" type="button" id="more-actions" aria-label="More case actions">...</button></div>
+          <div class="case-title-block">
+            <span class="case-id" id="case-id">FM-2026-014</span>
+            <h1 id="case-title">Celebrity Campaign</h1>
+            <p id="case-description">Paid campaign concept using a celebrity likeness and voice for regional launch assets.</p>
+            <div class="case-statuses"><span class="status-badge" id="case-stage">Legal Review</span><span class="risk-badge" id="case-risk">High risk</span></div>
+          </div>
+          <div class="case-actions">
+            <button class="button primary" type="button" id="run-assessment">Run assessment</button>
+            <button class="button secondary" type="button" id="export-case-report">Export report</button>
+            <details class="action-menu">
+              <summary class="button secondary" aria-label="More case actions">More</summary>
+              <div class="action-menu-list">
+                <button type="button" id="request-evidence">Request evidence</button>
+                <button type="button" id="assign-reviewer">Assign reviewer</button>
+                <button type="button" id="more-actions">Archive, transfer, duplicate…</button>
+              </div>
+            </details>
+          </div>
+          <details class="case-meta-toggle">
+            <summary>Owner <strong id="case-owner">Yuxuan Cheng</strong> &middot; Due <strong id="case-due-date">18 Jul 2026</strong></summary>
+            <dl class="case-meta"><div><dt>Privacy reviewer</dt><dd id="case-privacy-reviewer">Mei Lin</dd></div><div><dt>Legal reviewer</dt><dd id="case-legal-reviewer">Alex Wu</dd></div><div><dt>Last updated</dt><dd id="case-updated">15 Jul 2026</dd></div></dl>
+          </details>
         </header>
 
         <nav class="case-tabs" role="tablist" aria-label="Case detail sections">
-          <button class="case-tab active" type="button" role="tab" id="tab-overview" data-case-tab="overview" aria-controls="panel-overview" aria-selected="true">Overview</button>
+          <button class="case-tab active" type="button" role="tab" id="tab-overview" data-case-tab="overview" aria-controls="panel-overview" aria-selected="true">Provenance</button>
           <button class="case-tab" type="button" role="tab" id="tab-intake" data-case-tab="intake" aria-controls="panel-intake" aria-selected="false">Intake</button>
           <button class="case-tab" type="button" role="tab" id="tab-risks" data-case-tab="risks" aria-controls="panel-risks" aria-selected="false">Risks</button>
           <button class="case-tab" type="button" role="tab" id="tab-evidence" data-case-tab="evidence" aria-controls="panel-evidence" aria-selected="false">Evidence</button>
@@ -117,15 +139,36 @@
         </nav>
 
         <section class="case-tab-panel" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" data-case-panel="overview">
-          <div class="overview-layout"><div class="overview-primary"><article class="work-surface decision-summary"><div class="section-label">Current decision</div><div class="decision-summary-row"><div><strong id="overview-decision">Manual review</strong><p id="overview-summary">The request requires legal review before generation or release.</p></div><span class="risk-badge" id="overview-risk">High risk</span></div></article><article class="work-surface"><div class="surface-heading"><div><h2>Key risk drivers</h2><p>Facts that currently determine the review route.</p></div></div><ul class="plain-list" id="overview-risk-drivers"></ul></article><article class="work-surface"><div class="surface-heading"><div><h2>Open findings</h2><p>Remediation items that affect release readiness.</p></div><button class="text-action" type="button" data-open-case-tab="tasks">View tasks</button></div><div id="overview-findings"></div></article><article class="work-surface next-action"><div class="section-label">Next required action</div><strong id="overview-next-action">Request verified likeness authorization.</strong><button class="button primary" type="button" data-open-case-tab="evidence">Review evidence</button></article></div><aside class="overview-aside"><article class="work-surface"><div class="section-label">Evidence readiness</div><strong class="readiness-value" id="overview-evidence-percent">60%</strong><p id="overview-evidence-copy">2 of 4 evidence items are accepted or under review.</p></article><article class="work-surface"><div class="section-label">Approval progress</div><strong class="approval-count" id="overview-approval-count">2 of 5 completed</strong><p id="overview-approval-copy">Current gate: Legal Review. Release blocked: Yes.</p></article><article class="work-surface"><div class="section-label">Case metadata</div><dl class="metadata-list" id="overview-metadata"></dl></article></aside></div>
+          <div class="decision-line">
+            <div><span class="section-label">Current decision</span><strong id="overview-decision">Manual review</strong><p id="overview-summary">The request requires legal review before generation or release.</p></div>
+            <span class="risk-badge" id="overview-risk">High risk</span>
+          </div>
+          <div class="publish-banner" id="publish-banner" role="status">
+            <div>
+              <strong id="publish-banner-title">Publish blocked</strong>
+              <p id="overview-next-action">Request verified likeness authorization.</p>
+            </div>
+            <div class="publish-banner-side"><span id="publish-banner-count"></span><a class="text-action" id="publish-banner-link" href="#prov-consent">Jump to blocker</a></div>
+          </div>
+          <ol class="prov-chain" id="prov-chain" aria-label="Provenance chain"></ol>
+          <details class="work-surface disclosure-card summary-details">
+            <summary>Readiness, findings &amp; metadata</summary>
+            <div class="stat-row">
+              <article class="stat"><span class="section-label">Evidence readiness</span><strong class="readiness-value" id="overview-evidence-percent">60%</strong><p id="overview-evidence-copy">2 of 4 evidence items are accepted or under review.</p></article>
+              <article class="stat"><span class="section-label">Approvals</span><strong class="approval-count" id="overview-approval-count">2 of 5 completed</strong><p id="overview-approval-copy">Current gate: Legal Review. Release blocked: Yes.</p></article>
+            </div>
+            <div class="summary-block"><div class="surface-heading"><h2>Open findings</h2><button class="text-action" type="button" data-open-case-tab="tasks">All tasks</button></div><div id="overview-findings"></div></div>
+            <div class="summary-block"><h2 class="mini-heading">Key risk drivers</h2><ul class="plain-list" id="overview-risk-drivers"></ul></div>
+            <div class="summary-block"><h2 class="mini-heading">Case metadata</h2><dl class="metadata-list" id="overview-metadata"></dl></div>
+          </details>
         </section>
 
         <section class="case-tab-panel" id="panel-intake" role="tabpanel" aria-labelledby="tab-intake" data-case-panel="intake" hidden>
-          <div class="tab-heading"><div><h2>Case intake</h2><p>Draft facts that support the assessment and create the evidence request list.</p></div><div class="tab-heading-meta"><span class="status-badge" id="intake-completion">Draft - 0% complete</span><span id="last-saved">Last saved: not yet saved</span></div></div>
-          <div class="template-row"><span>New case template</span><button class="template-button preset" type="button" data-preset="unauthorizedCelebrityAd">Commercial celebrity</button><button class="template-button preset" type="button" data-preset="licensedPerformer">Authorized performer</button><button class="template-button preset" type="button" data-preset="fanParody">Fan parody</button><button class="template-button preset" type="button" data-preset="syntheticLow">Synthetic draft</button></div>
+          <div class="tab-heading"><div><h2>Case intake</h2><p>Five short steps. Start from a template or edit the facts.</p></div><div class="tab-heading-meta"><span class="status-badge" id="intake-completion">Draft - 0% complete</span><span id="last-saved">Last saved: not yet saved</span></div></div>
+          <div class="template-row"><span>Start from</span><button class="template-button preset" type="button" data-preset="unauthorizedCelebrityAd">Commercial celebrity</button><button class="template-button preset" type="button" data-preset="licensedPerformer">Authorized performer</button><button class="template-button preset" type="button" data-preset="fanParody">Fan parody</button><button class="template-button preset" type="button" data-preset="syntheticLow">Synthetic draft</button></div>
           <section id="review-system" class="intake-workspace">
             <article class="work-surface intake-panel">
-              <div class="panel-heading"><span>Case submission</span><h3>Structured intake</h3><p>Required facts are grouped by project, person, authorization, disclosure, distribution, and supporting evidence.</p></div>
+              
               <ol class="workflow-steps" aria-label="Review workflow steps"><li data-step-index="0" class="active"><span>1</span>Project</li><li data-step-index="1"><span>2</span>Person</li><li data-step-index="2"><span>3</span>Use</li><li data-step-index="3"><span>4</span>Authorization</li><li data-step-index="4"><span>5</span>Controls</li></ol>
               <form class="risk-form" id="risk-form">
                 <div class="form-heading"><div><p class="micro-label">Current section</p><h3 id="step-title">Project information</h3><p id="step-copy">Identify who is requesting the review and whose identity is represented.</p></div><span class="live-dot" id="workflow-mode">Draft intake</span></div>
@@ -141,21 +184,33 @@
         </section>
 
         <section class="case-tab-panel" id="panel-risks" role="tabpanel" aria-labelledby="tab-risks" data-case-panel="risks" hidden>
-          <div class="tab-heading"><div><h2>Risk assessment</h2><p>Rule-based assessment output. A formal decision is created only after an assessment run.</p></div><div class="tab-heading-actions"><span class="status-badge" id="assessment-state">Assessment completed</span><button class="button primary" type="button" id="view-full-report">Re-run assessment</button><button class="button secondary" type="button" id="compare-assessment">Compare previous</button></div></div>
-          <div class="risks-layout"><aside class="work-surface evaluation-panel" aria-labelledby="evaluation-title"><div class="panel-heading"><span>Current assessment</span><h3 id="evaluation-title">Decision summary</h3><p>Traceable rule-based evaluation. This is not an ML model.</p></div><section class="risk-summary-card"><div class="decision-row"><span>Decision</span><strong id="live-decision">Awaiting intake</strong></div><div class="risk-meter"><span id="live-score">-</span><div><strong id="live-risk-level">Not assessed</strong><p id="live-main-blocker">Complete the core case facts.</p></div></div><dl class="summary-metrics"><div><dt>Reviewer path</dt><dd id="live-reviewer-path">Complete intake fields</dd></div><div><dt>Evidence readiness</dt><dd id="evidence-readiness">0%</dd></div></dl></section><section class="summary-card priority-summary"><h4>Triggered rules</h4><ul class="triggered-rule-list" id="triggered-rule-list"></ul></section><section class="summary-card priority-summary"><h4>Missing evidence</h4><ul class="evidence-gap-list compact-evidence-list" id="live-missing-evidence-list"></ul></section></aside><div class="risk-detail-stack"><article class="work-surface"><div class="surface-heading"><div><h2>Rule trace</h2><p>Rules triggered by the current case facts.</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Rule ID</th><th>Rule title</th><th>Severity</th><th>Score</th><th>Hard stop</th><th>Status</th></tr></thead><tbody id="rule-trace-body"></tbody></table></div></article><details class="work-surface disclosure-card" open><summary>Evidence gap checklist</summary><ul class="evidence-gap-list" id="evidence-gap-list"></ul></details><details class="work-surface disclosure-card"><summary>Step-level review results</summary><ul class="step-result-list" id="step-result-list"></ul></details><details class="work-surface disclosure-card"><summary>Risk register preview</summary><div class="table-wrap"><table class="risk-register-table"><thead><tr><th>Risk</th><th>Severity</th><th>Control</th></tr></thead><tbody id="risk-register-preview"></tbody></table></div></details><details class="work-surface disclosure-card"><summary>Regulatory context</summary><div class="regulatory-context" id="regulatory-context"></div></details></div></div>
+          <div class="tab-heading"><div><h2>Risk assessment</h2><p>Traceable rule-based evaluation, not an ML model.</p></div><div class="tab-heading-actions"><span class="status-badge" id="assessment-state">Assessment completed</span><button class="button primary small" type="button" id="view-full-report">Re-run assessment</button><button class="button secondary small" type="button" id="compare-assessment">Compare previous</button></div></div>
+          <div class="risk-detail-stack">
+            <article class="work-surface evaluation-panel" aria-labelledby="evaluation-title">
+              <h3 class="sr-only" id="evaluation-title">Decision summary</h3>
+              <section class="risk-summary-card"><div class="decision-row"><span>Decision</span><strong id="live-decision">Awaiting intake</strong></div><div class="risk-meter"><span id="live-score">-</span><div><strong id="live-risk-level">Not assessed</strong><p id="live-main-blocker">Complete the core case facts.</p></div></div><dl class="summary-metrics"><div><dt>Reviewer path</dt><dd id="live-reviewer-path">Complete intake fields</dd></div><div><dt>Evidence readiness</dt><dd id="evidence-readiness">0%</dd></div></dl></section>
+            </article>
+            <article class="work-surface"><div class="surface-heading"><h2>Rule trace</h2></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Rule</th><th>Title</th><th>Severity</th><th>Score</th><th>Hard stop</th><th>Status</th></tr></thead><tbody id="rule-trace-body"></tbody></table></div></article>
+            <details class="work-surface disclosure-card"><summary>Missing evidence</summary><ul class="evidence-gap-list compact-evidence-list" id="live-missing-evidence-list"></ul></details>
+            <details class="work-surface disclosure-card"><summary>Triggered rules</summary><ul class="triggered-rule-list" id="triggered-rule-list"></ul></details>
+            <details class="work-surface disclosure-card"><summary>Evidence gap checklist</summary><ul class="evidence-gap-list" id="evidence-gap-list"></ul></details>
+            <details class="work-surface disclosure-card"><summary>Step-level review results</summary><ul class="step-result-list" id="step-result-list"></ul></details>
+            <details class="work-surface disclosure-card"><summary>Risk register preview</summary><div class="table-wrap"><table class="risk-register-table"><thead><tr><th>Risk</th><th>Severity</th><th>Control</th></tr></thead><tbody id="risk-register-preview"></tbody></table></div></details>
+            <details class="work-surface disclosure-card"><summary>Regulatory context</summary><div class="regulatory-context" id="regulatory-context"></div></details>
+          </div>
         </section>
 
-        <section class="case-tab-panel" id="panel-evidence" role="tabpanel" aria-labelledby="tab-evidence" data-case-panel="evidence" hidden><div class="tab-heading"><div><h2>Evidence review</h2><p>Evidence artifacts are linked to requirements and reviewed against the case release gate.</p></div><button class="button primary" type="button" id="request-evidence-tab">Request evidence</button></div><div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Evidence</th><th>Linked requirement</th><th>Evidence type</th><th>Status</th><th>Owner</th><th>Reviewer</th><th>Collected</th><th>Expiry</th><th>Version</th><th></th></tr></thead><tbody id="case-evidence-body"></tbody></table></div></div></section>
+        <section class="case-tab-panel" id="panel-evidence" role="tabpanel" aria-labelledby="tab-evidence" data-case-panel="evidence" hidden><div class="tab-heading"><div><h2>Evidence review</h2><p>Open an item to review details and change its status.</p></div><button class="button primary" type="button" id="request-evidence-tab">Request evidence</button></div><div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Evidence</th><th>Status</th><th>Reviewer</th><th>Expiry</th><th></th></tr></thead><tbody id="case-evidence-body"></tbody></table></div></div></section>
 
-        <section class="case-tab-panel" id="panel-tasks" role="tabpanel" aria-labelledby="tab-tasks" data-case-panel="tasks" hidden><div class="tab-heading"><div><h2>Findings and tasks</h2><p>Open findings and remediation actions are separate from the risk score and can block release.</p></div><button class="button primary" type="button" id="create-task">Create task</button></div><div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Finding</th><th>Linked risk / rule</th><th>Severity</th><th>Blocking release</th><th>Owner</th><th>Due date</th><th>Status</th><th>Recommended action</th><th></th></tr></thead><tbody id="case-tasks-body"></tbody></table></div></div></section>
+        <section class="case-tab-panel" id="panel-tasks" role="tabpanel" aria-labelledby="tab-tasks" data-case-panel="tasks" hidden><div class="tab-heading"><div><h2>Findings and tasks</h2><p>Remediation items that can block release.</p></div><button class="button primary" type="button" id="create-task">Create task</button></div><div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Finding</th><th>Severity</th><th>Blocks release</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody id="case-tasks-body"></tbody></table></div></div></section>
 
-        <section class="case-tab-panel" id="panel-approvals" role="tabpanel" aria-labelledby="tab-approvals" data-case-panel="approvals" hidden><div class="tab-heading"><div><h2>Approvals</h2><p>Role-based workflow prototype. The static demo does not provide identity verification.</p></div><span class="status-badge" id="approval-summary">2 of 5 completed</span></div><div class="approval-layout"><div class="work-surface approval-progress"><strong id="approval-progress-copy">Current gate: Legal Review. Release blocked: Yes.</strong></div><div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Review step</th><th>Reviewer</th><th>Status</th><th>Conditions</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody id="approvals-body"></tbody></table></div></div></div></section>
+        <section class="case-tab-panel" id="panel-approvals" role="tabpanel" aria-labelledby="tab-approvals" data-case-panel="approvals" hidden><div class="tab-heading"><div><h2>Approvals</h2><p>Release gates in order. Prototype only, no identity verification.</p></div><span class="status-badge" id="approval-summary">2 of 5 completed</span></div><div class="approval-layout"><div class="work-surface approval-progress"><strong id="approval-progress-copy">Current gate: Legal Review. Release blocked: Yes.</strong></div><div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Review step</th><th>Reviewer</th><th>Status</th><th>Conditions</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody id="approvals-body"></tbody></table></div></div></div></section>
 
-        <section class="case-tab-panel" id="panel-activity" role="tabpanel" aria-labelledby="tab-activity" data-case-panel="activity" hidden><div class="tab-heading"><div><h2>Activity log</h2><p>Audit-style history for case, assessment, evidence, task, approval, report, and system events.</p></div><select id="activity-filter" aria-label="Filter activity"><option value="">All activity</option><option>Assessment</option><option>Evidence</option><option>Task</option><option>Approval</option><option>Report</option><option>System</option></select></div><article class="work-surface"><ol class="activity-list" id="case-activity-list"></ol></article></section>
+        <section class="case-tab-panel" id="panel-activity" role="tabpanel" aria-labelledby="tab-activity" data-case-panel="activity" hidden><div class="tab-heading"><div><h2>Activity log</h2><p>Audit-style history for this case.</p></div><select id="activity-filter" aria-label="Filter activity"><option value="">All activity</option><option>Assessment</option><option>Evidence</option><option>Task</option><option>Approval</option><option>Report</option><option>System</option></select></div><article class="work-surface"><ol class="activity-list" id="case-activity-list"></ol></article></section>
 
         <section class="case-tab-panel" id="panel-report" role="tabpanel" aria-labelledby="tab-report" data-case-panel="report" hidden>
-          <div class="tab-heading"><div><h2>Compliance report</h2><p>Case summary, decision record, and exportable review artifact.</p></div><div class="tab-heading-actions"><span class="status-badge" id="report-version">Report v1</span><button class="button secondary" type="button" id="copy-report">Copy report</button><button class="button secondary" type="button" id="print-report">Print / Save PDF</button></div></div>
-          <section id="full-report" class="full-report-section" aria-label="Generated compliance report"><div class="report-shell"><article class="work-surface report-panel"><div class="panel-heading"><span>Generated report</span><h3 id="report-title">AI Actor Review Report</h3><p id="report-state-copy">Generated from the current case intake and assessment.</p></div><article class="result-panel memo-panel report-view" id="report-view" aria-live="polite"><section class="report-cover"><div><span class="micro-label">Synthetic media compliance memo</span><h2>AI Actor Review Report</h2><p>Structured output generated from the case intake and rule-based risk assessment.</p></div><dl><div><dt>Prepared for</dt><dd>Product compliance review</dd></div><div><dt>Case ID</dt><dd id="report-case-id">FM-2026-014</dd></div><div><dt>Status</dt><dd id="memo-status">Draft</dd></div></dl></section><div class="result-header"><span class="micro-label">Executive decision</span><span class="risk-pill" id="decision-pill">Intake incomplete</span></div><section class="report-module executive-snapshot"><div class="module-heading"><span>1</span><h3>Executive decision</h3></div><div class="snapshot-grid"><div class="snapshot-card primary"><span>Decision</span><strong id="result-title">Scenario intake incomplete</strong></div><div class="snapshot-card score-card"><span>Risk score</span><strong id="score-value">-</strong></div><div class="snapshot-card"><span>Risk level</span><strong id="risk-level-text">Not assessed</strong></div><div class="snapshot-card"><span>Reviewer path</span><strong id="reviewer-path">Complete intake fields</strong></div></div><p id="result-copy">The memo will update as intake facts are selected.</p></section><section class="report-module"><div class="module-heading"><span>2</span><h3>Scenario classification</h3></div><dl class="profile-grid" id="scenario-profile"></dl></section><section class="report-module"><div class="module-heading"><span>3</span><h3>Risk drivers</h3></div><ul class="finding-list" id="risk-driver-list"></ul></section><section class="report-module"><div class="module-heading"><span>4</span><h3>Missing evidence</h3></div><ul class="finding-list evidence-findings" id="missing-evidence-list"></ul></section><section class="report-module"><div class="module-heading"><span>5</span><h3>Control recommendations</h3></div><div class="control-recommendation-grid"><div><h4>Consent controls</h4><ul id="consent-control-list"></ul></div><div><h4>Labeling controls</h4><ul id="label-control-list"></ul></div><div><h4>Release controls</h4><ul id="release-control-list"></ul></div><div><h4>Incident controls</h4><ul id="incident-control-list"></ul></div></div></section><section class="report-module"><div class="module-heading"><span>6</span><h3>Jurisdiction notes</h3></div><div class="jurisdiction-matrix" id="jurisdiction-matrix"></div></section><section class="report-module"><div class="module-heading"><span>7</span><h3>Reviewer next steps</h3></div><div class="evidence-grid"><div><h4>Evidence artifacts</h4><ul id="evidence-list"></ul></div><div><h4>Next steps</h4><ul id="next-step-list"></ul></div></div></section><section class="report-module framework-module"><div class="module-heading"><span>8</span><h3>Framework mapping</h3></div><ul id="framework-list"></ul></section><div class="next-actions"><button class="button secondary" type="button" id="edit-intake">Return to intake</button><a href="../docs/09_final_compliance_assessment_report.md">Read final report</a><a href="../scripts/risk_scoring_demo.py">View Python rules</a></div></article></article></div></section>
+          <div class="tab-heading"><div><h2>Compliance report</h2><p>Decision record you can copy or print.</p></div><div class="tab-heading-actions"><span class="status-badge" id="report-version">Report v1</span><button class="button secondary small" type="button" id="expand-report">Expand all</button><button class="button secondary small" type="button" id="copy-report">Copy</button><button class="button secondary small" type="button" id="print-report">Print / PDF</button></div></div>
+          <section id="full-report" class="full-report-section" aria-label="Generated compliance report"><div class="report-shell"><article class="work-surface report-panel"><div class="panel-heading"><span>Generated report</span><h3 id="report-title">AI Actor Review Report</h3><p id="report-state-copy">Generated from the current case intake and assessment.</p></div><article class="result-panel memo-panel report-view" id="report-view" aria-live="polite"><section class="report-cover"><div><span class="micro-label">Synthetic media compliance memo</span><h2>AI Actor Review Report</h2><p>Structured output generated from the case intake and rule-based risk assessment.</p></div><dl><div><dt>Prepared for</dt><dd>Product compliance review</dd></div><div><dt>Case ID</dt><dd id="report-case-id">FM-2026-014</dd></div><div><dt>Status</dt><dd id="memo-status">Draft</dd></div></dl></section><div class="result-header"><span class="micro-label">Executive decision</span><span class="risk-pill" id="decision-pill">Intake incomplete</span></div><section class="report-module executive-snapshot"><div class="module-heading"><span>1</span><h3>Executive decision</h3></div><div class="snapshot-grid"><div class="snapshot-card primary"><span>Decision</span><strong id="result-title">Scenario intake incomplete</strong></div><div class="snapshot-card score-card"><span>Risk score</span><strong id="score-value">-</strong></div><div class="snapshot-card"><span>Risk level</span><strong id="risk-level-text">Not assessed</strong></div><div class="snapshot-card"><span>Reviewer path</span><strong id="reviewer-path">Complete intake fields</strong></div></div><p id="result-copy">The memo will update as intake facts are selected.</p></section><details class="report-module"><summary class="module-heading"><span>2</span><h3>Scenario classification</h3></summary><dl class="profile-grid" id="scenario-profile"></dl></details><details class="report-module" open><summary class="module-heading"><span>3</span><h3>Risk drivers</h3></summary><ul class="finding-list" id="risk-driver-list"></ul></details><details class="report-module"><summary class="module-heading"><span>4</span><h3>Missing evidence</h3></summary><ul class="finding-list evidence-findings" id="missing-evidence-list"></ul></details><details class="report-module"><summary class="module-heading"><span>5</span><h3>Control recommendations</h3></summary><div class="control-recommendation-grid"><div><h4>Consent controls</h4><ul id="consent-control-list"></ul></div><div><h4>Labeling controls</h4><ul id="label-control-list"></ul></div><div><h4>Release controls</h4><ul id="release-control-list"></ul></div><div><h4>Incident controls</h4><ul id="incident-control-list"></ul></div></div></details><details class="report-module"><summary class="module-heading"><span>6</span><h3>Jurisdiction notes</h3></summary><div class="jurisdiction-matrix" id="jurisdiction-matrix"></div></details><details class="report-module"><summary class="module-heading"><span>7</span><h3>Reviewer next steps</h3></summary><div class="evidence-grid"><div><h4>Evidence artifacts</h4><ul id="evidence-list"></ul></div><div><h4>Next steps</h4><ul id="next-step-list"></ul></div></div></details><details class="report-module framework-module"><summary class="module-heading"><span>8</span><h3>Framework mapping</h3></summary><ul id="framework-list"></ul></details><div class="next-actions"><button class="button secondary" type="button" id="edit-intake">Return to intake</button><a href="../docs/09_final_compliance_assessment_report.md">Read final report</a><a href="../scripts/risk_scoring_demo.py">View Python rules</a></div></article></article></div></section>
         </section>
       </section>
     </main>
@@ -163,8 +218,9 @@
     <div class="modal-backdrop" id="modal-backdrop" hidden></div>
     <aside class="detail-drawer" id="evidence-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1" hidden><div class="drawer-header"><div><span class="eyebrow">Evidence detail</span><h2 id="drawer-title">Evidence item</h2></div><button class="icon-button" type="button" id="close-drawer" aria-label="Close evidence detail">x</button></div><dl class="drawer-metadata" id="drawer-metadata"></dl><div class="drawer-actions"><button class="button secondary" type="button" data-evidence-action="requested">Request evidence</button><button class="button secondary" type="button" data-evidence-action="submitted">Mark submitted</button><button class="button primary" type="button" data-evidence-action="accepted">Accept</button><button class="button danger" type="button" data-evidence-action="rejected">Reject</button></div></aside>
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-    <footer class="site-footer"><p>Fictional educational portfolio project. Static workflow prototype using demo data. The FastAPI reference backend is not connected to this GitHub Pages deployment. It does not replace jurisdiction-specific legal review.</p></footer>
+    <footer class="site-footer"><p>Fictional portfolio project with demo data. Static prototype; the FastAPI backend is not connected here. Not legal advice.</p></footer>
     <script src="./case-records.js"></script>
+    <script src="./provenance.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
