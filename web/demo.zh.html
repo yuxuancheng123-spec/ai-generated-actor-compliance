@@ -12,7 +12,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./compact.css" />
   </head>
   <body class="zh-body">
     <header class="site-header" aria-label="Primary navigation">
@@ -42,7 +41,7 @@
         <div class="workflow-topbar">
           <div>
             <h2>合规审核</h2>
-            <p>填写五步信息，或直接选一个示例场景。报告会把结果画成一条来源链：素材 → 授权 → 生成 → 标识 → 风险评估 → 审核 → 发布。</p>
+            <p>填写五步信息，或直接选一个示例场景。报告包含一行结论、关键原因、来源链和必须完成的动作。</p>
           </div>
           <span class="status-badge neutral" id="workflow-mode">信息录入台</span>
         </div>
@@ -275,40 +274,26 @@
 
         <aside class="result-panel memo-panel report-view" id="report-view" aria-live="polite" aria-label="合规审核报告" hidden>
           <div class="memo-toolbar">
-            <span>已生成评估</span>
+            <span>合规审核报告 · 已生成</span>
             <span>案例编号 SYN-0428</span>
           </div>
-          <div class="result-header">
-            <span class="micro-label">合规审核报告</span>
-            <span class="risk-pill" id="decision-pill">拒绝</span>
-          </div>
 
-          <section class="report-module executive-snapshot" aria-label="执行摘要">
-            <div class="module-heading">
-              <span>01</span>
-              <h3>执行摘要</h3>
+          <section class="verdict-bar" aria-label="审核结论">
+            <div class="verdict-main">
+              <span class="risk-pill" id="decision-pill">拒绝</span>
+              <strong id="result-title">生成前拒绝</strong>
             </div>
-            <div class="snapshot-grid">
-              <div class="snapshot-card primary">
-                <span>审核结论</span>
-                <strong id="result-title">生成前拒绝</strong>
-              </div>
-              <div class="snapshot-card score-card">
-                <span>风险分数</span>
-                <strong id="score-value">12</strong>
-              </div>
-              <div class="snapshot-card">
-                <span>风险等级</span>
-                <strong id="risk-level-text">禁止</strong>
-              </div>
-              <div class="snapshot-card">
-                <span>审核路径</span>
-                <strong id="reviewer-path">阻止并保全证据</strong>
-              </div>
-            </div>
-            <p id="result-copy">
-              请求缺少真实人物商业化AI演员流程所需的已验证授权。
-            </p>
+            <dl class="verdict-meta">
+              <div><dt>风险</dt><dd id="risk-level-text">禁止</dd></div>
+              <div><dt>分数</dt><dd id="score-value">-</dd></div>
+              <div><dt>路径</dt><dd id="reviewer-path">-</dd></div>
+            </dl>
+            <p id="result-copy"></p>
+          </section>
+
+          <section class="report-module" aria-label="关键原因">
+            <div class="module-heading"><span>01</span><h3>关键原因</h3></div>
+            <ul class="reason-list" id="risk-driver-list"></ul>
           </section>
 
           <section class="report-module chain-module" aria-label="来源链">
@@ -317,67 +302,21 @@
             <ol class="prov-chain" id="zh-prov-chain" aria-label="来源链"></ol>
           </section>
 
-          <details class="report-module" aria-label="场景分类">
-            <summary class="module-heading"><span>03</span>
-              <h3>场景分类</h3></summary>
-            <dl class="profile-grid" id="scenario-profile"></dl>
-          </details>
+          <section class="report-module" aria-label="必须完成的动作">
+            <div class="module-heading"><span>03</span><h3>必须完成的动作</h3></div>
+            <div class="action-groups" id="action-groups"></div>
+          </section>
 
-          <details class="report-module" aria-label="关键发现" open>
-            <summary class="module-heading"><span>04</span>
-              <h3>关键发现</h3></summary>
-            <ul class="finding-list" id="risk-driver-list"></ul>
-          </details>
-
-          <details class="report-module" aria-label="控制建议">
-            <summary class="module-heading"><span>05</span>
-              <h3>控制建议</h3></summary>
-            <div class="control-recommendation-grid">
-              <div>
-                <h4>授权控制</h4>
-                <ul id="consent-control-list"></ul>
-              </div>
-              <div>
-                <h4>标识控制</h4>
-                <ul id="label-control-list"></ul>
-              </div>
-              <div>
-                <h4>发布控制</h4>
-                <ul id="release-control-list"></ul>
-              </div>
-              <div>
-                <h4>事件控制</h4>
-                <ul id="incident-control-list"></ul>
-              </div>
+          <details class="report-module appendix" aria-label="附录">
+            <summary class="module-heading"><span>附</span><h3>附录：需留存证据 · 依据框架</h3></summary>
+            <div class="appendix-body">
+              <h4>需留存证据</h4>
+              <ul id="evidence-list"></ul>
+              <h4>依据框架</h4>
+              <ul id="framework-list"></ul>
             </div>
           </details>
 
-          <details class="report-module" aria-label="地区矩阵">
-            <summary class="module-heading"><span>06</span>
-              <h3>地区矩阵</h3></summary>
-            <div class="jurisdiction-matrix" id="jurisdiction-matrix"></div>
-          </details>
-
-          <details class="report-module" aria-label="证据与下一步">
-            <summary class="module-heading"><span>07</span>
-              <h3>证据与下一步</h3></summary>
-            <div class="evidence-grid">
-              <div>
-                <h4>证据材料</h4>
-                <ul id="evidence-list"></ul>
-              </div>
-              <div>
-                <h4>审核下一步</h4>
-                <ul id="next-step-list"></ul>
-              </div>
-            </div>
-          </details>
-
-          <details class="report-module framework-module" aria-label="框架映射">
-            <summary class="module-heading"><span>08</span>
-              <h3>框架映射</h3></summary>
-            <ul id="framework-list"></ul>
-          </details>
           <div class="next-actions">
             <button class="button secondary" type="button" id="edit-intake">返回修改</button>
             <a href="../docs/09_final_compliance_assessment_report.md">查看英文报告</a>

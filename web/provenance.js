@@ -196,9 +196,10 @@ function evidenceChip(item) {
   return chip;
 }
 
-function provenanceCard(node, index, downstream) {
-  const li = provEl("li", `prov-node ${node.state}${downstream ? " downstream" : ""}`);
-  li.id = `prov-${node.key}`;
+function provenanceCard(node, index, downstream, condensed = false) {
+  const compact = condensed && (node.state === "ok" || node.state === "info");
+  const li = provEl("li", `prov-node ${node.state}${downstream ? " downstream" : ""}${compact ? " compact" : ""}`);
+  if (!condensed) li.id = `prov-${node.key}`;
   const rail = provEl("div", "prov-rail");
   const dot = provEl("span", "prov-dot");
   dot.innerHTML = provIcon(node.icon, 15);
@@ -218,9 +219,11 @@ function provenanceCard(node, index, downstream) {
   titleWrap.append(provEl("h3", "", node.title));
   const meta = provEl("p", "prov-meta");
   meta.append(`${node.by || "By"} `, provEl("strong", "", node.who));
-  titleWrap.append(meta);
+  if (compact) titleWrap.append(provEl("span", "prov-oneline", nodeSummary(node)));
+  else titleWrap.append(meta);
   head.append(titleWrap, provEl("span", `prov-state ${node.state}`, STATE_LABEL[node.state]));
   card.append(head);
+  if (compact) { li.append(side, rail, card); return li; }
 
   if (node.rows) {
     const dl = provEl("dl", "prov-rows");
@@ -251,12 +254,111 @@ function provenanceCard(node, index, downstream) {
   return li;
 }
 
+function nodeSummary(node) {
+  if (node.gates) return `${node.gates.length} gates · last sign-off ${node.who}`;
+  if (node.key === "labeling") {
+    const planned = (node.rows || []).filter(([, value]) => value === "Yes").map(([label]) => label);
+    return planned.length ? `${planned.join(" · ")} planned` : "No label planned";
+  }
+  return (node.rows || []).slice(0, 2).map(([, value]) => value).join(" · ");
+}
+
+/* ---------- Condensed report (shared shape with the ZH report) ---------- */
+const INTAKE_RESTATEMENT_EN = /^(Requester|Subject|Use case|Source media|Distribution region)[: ]/i;
+
+function reportReasons(chain, memo) {
+  const blockers = ["fail", "warn"].flatMap((state) => chain.nodes
+    .filter((node) => node.state === state && ["source", "consent", "generation", "labeling"].includes(node.key) && node.blocker)
+    .map((node) => `${node.title}: ${node.blocker}`));
+  const consentBlocked = chain.nodes.some((node) => node.key === "consent" && node.state === "fail");
+  const drivers = memo.riskDrivers.filter((item) => !INTAKE_RESTATEMENT_EN.test(item) && !(consentBlocked && /verified authori[sz]ation/i.test(item)));
+  let reasons = unique([...blockers, ...drivers]);
+  if (reasons.length < 2) {
+    const positives = chain.nodes.filter((node) => node.state === "ok" && ["consent", "labeling"].includes(node.key))
+      .map((node) => (node.key === "consent" ? `Authorization verified: ${node.rows[0][1]}.` : "Visible label, machine-readable metadata, and watermark are all planned."));
+    reasons = unique([...reasons, ...positives, ...memo.reviews.filter((item) => !/^No enhanced/i.test(item))]);
+  }
+  return reasons.slice(0, 4);
+}
+
+const ACTION_STAGES_EN = ["Consent", "Generation", "Labeling", "Release", "Review"];
+const CANONICAL_ACTIONS_EN = [
+  { key: "global", stage: "Release", test: /^Global[: ]|global distribution/i, text: () => "Apply the strictest selected-region consent and labeling controls for global release.", blocking: () => false },
+  { key: "visible", stage: "Labeling", test: /visible label|disclos|explicit visible/i, text: (r) => (r.visibleLabel ? "Confirm the visible AI label (AI-generated / digital replica / synthetic voice) ships with the release." : "Add a visible AI label (not planned yet)."), blocking: (r) => !r.visibleLabel },
+  { key: "machine", stage: "Labeling", test: /implicit|machine-readable/i, text: (r) => (r.machineLabel ? "Confirm machine-readable labeling (metadata or platform signal) stays attached." : "Add machine-readable labeling (not planned yet)."), blocking: (r) => !r.machineLabel },
+  { key: "provenance", stage: "Labeling", test: /watermark|provenance|content credentials|hash|persist/i, text: (r) => (r.watermark ? "Confirm watermark / provenance stays detectable after export and repost." : "Add a persistent watermark or content credentials (not planned yet)."), blocking: (r) => !r.watermark },
+  { key: "records", stage: "Release", test: /service-provider records/i, text: () => "Keep records linking generated content, label state, and publication/export events.", blocking: () => false },
+  { key: "publicity", stage: "Review", test: /right of publicity|state and sector/i, text: () => "Assess right-of-publicity, deceptive-endorsement, and sensitive-context risk.", blocking: () => false },
+];
+const REGION_PREFIX_EN = /^(EU|China|US|Global)(?: release path)?:?\s*/;
+const REGION_NAME_EN = { EU: "EU", China: "China", US: "US", Global: "Global" };
+
+function reportActions(intake, memo) {
+  const actions = new Map();
+  const add = (key, stage, text, priority, region) => {
+    const existing = actions.get(key);
+    if (existing) { existing.priority = Math.min(existing.priority, priority); if (region) existing.regions.add(region); return; }
+    actions.set(key, { stage, text, priority, regions: new Set(region ? [region] : []) });
+  };
+  const regionOf = (item) => { const match = item.match(/^(EU|China|US|Global)\b/); return match ? REGION_NAME_EN[match[1]] : ""; };
+  const canonical = (item, basePriority) => {
+    const rule = CANONICAL_ACTIONS_EN.find((entry) => entry.test.test(item));
+    if (!rule) return false;
+    add(rule.key, rule.stage, rule.text(intake), rule.blocking(intake) ? 2 : basePriority, regionOf(item));
+    return true;
+  };
+  const hardStop = /^(Block generation|Reject)/i;
+  memo.controls.forEach((item) => { if (hardStop.test(item)) add(item, "Generation", item, 0); });
+  memo.gaps.filter((item) => !/^No material/i.test(item)).forEach((item) => add(item, /guardian|child/i.test(item) ? "Review" : "Consent", item, 1));
+  [...memo.jurisdictions, ...memo.labels].forEach((item) => { if (!canonical(item, 5)) add(item, "Release", item.replace(REGION_PREFIX_EN, ""), 5, regionOf(item)); });
+  memo.reviews.filter((item) => !/^No enhanced/i.test(item)).forEach((item) => add(item, "Review", item, 3));
+  memo.controls.forEach((item) => {
+    if (hardStop.test(item) || canonical(item, 5)) return;
+    const stage = /training/i.test(item) ? "Generation" : /license|commercial use|authori[sz]ation/i.test(item) ? "Consent" : /monetization|endorsement|parody|political/i.test(item) ? "Release" : "Review";
+    add(item, stage, item, 4);
+  });
+  return [...actions.values()].sort((a, b) => a.priority - b.priority).slice(0, 6);
+}
+
+function renderActionGroups(target, actions, stages, emptyText) {
+  if (!target) return;
+  target.replaceChildren();
+  if (!actions.length) { target.append(provEl("p", "empty-note", emptyText)); return; }
+  stages.forEach((stage) => {
+    const items = actions.filter((action) => action.stage === stage);
+    if (!items.length) return;
+    const group = provEl("div", "action-group");
+    group.append(provEl("h4", "", stage));
+    const list = provEl("ul", "action-list");
+    items.forEach((action) => {
+      const li = provEl("li", action.priority <= 2 ? "blocking" : "");
+      li.append(provEl("span", "action-text", action.text));
+      if (action.regions.size) {
+        const chips = provEl("span", "region-chips");
+        action.regions.forEach((region) => chips.append(provEl("span", "region-chip", region)));
+        li.append(chips);
+      }
+      list.append(li);
+    });
+    group.append(list);
+    target.append(group);
+  });
+}
+
 function renderProvenanceChain() {
   const list = document.querySelector("#prov-chain");
   if (!list || !activeCase) return;
   const chain = buildProvenanceChain(activeCase, getScenario());
   const failIndex = chain.nodes.findIndex((node) => node.state === "fail");
   list.replaceChildren(...chain.nodes.map((node, index) => provenanceCard(node, index, failIndex >= 0 && index > failIndex)));
+  const reportChain = document.querySelector("#report-prov-chain");
+  if (reportChain) reportChain.replaceChildren(...chain.nodes.map((node, index) => provenanceCard(node, index, failIndex >= 0 && index > failIndex, true)));
+  const reasonList = document.querySelector("#risk-driver-list");
+  if (reasonList) {
+    const reasons = chain.memo.decision === "intake" ? [chain.memo.summary] : reportReasons(chain, chain.memo);
+    reasonList.replaceChildren(...reasons.map((text) => provEl("li", "", text)));
+  }
+  renderActionGroups(document.querySelector("#action-groups"), reportActions(getScenario(), chain.memo), ACTION_STAGES_EN, "Continue with standard labeling, audit logging, and release review.");
 
   const banner = document.querySelector("#publish-banner");
   if (banner) {

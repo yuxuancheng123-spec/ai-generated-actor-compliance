@@ -12,6 +12,14 @@ const commercialUses = new Set(["advertisement", "virtualInfluencer"]);
 const commercialMonetization = new Set(["paidAd", "resale"]);
 
 const labels = {
+  sensitiveContext: {
+    none: "无",
+    sexual: "性相关",
+    political: "政治",
+    medical: "医疗",
+    financial: "金融",
+    defamatory: "诽谤",
+  },
   requesterType: {
     creator: "个人创作者",
     brand: "品牌或广告主",
@@ -188,13 +196,7 @@ const resultPanel = document.querySelector(".result-panel");
 
 const sections = {
   riskDrivers: document.querySelector("#risk-driver-list"),
-  scenarioProfile: document.querySelector("#scenario-profile"),
-  consentControls: document.querySelector("#consent-control-list"),
-  labelControls: document.querySelector("#label-control-list"),
-  releaseControls: document.querySelector("#release-control-list"),
-  incidentControls: document.querySelector("#incident-control-list"),
-  jurisdictionMatrix: document.querySelector("#jurisdiction-matrix"),
-  nextSteps: document.querySelector("#next-step-list"),
+  actions: document.querySelector("#action-groups"),
   frameworks: document.querySelector("#framework-list"),
   evidence: document.querySelector("#evidence-list"),
 };
@@ -480,7 +482,7 @@ function assessScenario(risk) {
 
   if (risk.sensitiveContext && risk.sensitiveContext !== "none") {
     score += 4;
-    riskDrivers.push(`选择了敏感语境: ${risk.sensitiveContext}。`);
+    riskDrivers.push(`选择了敏感语境：${labels.sensitiveContext[risk.sensitiveContext] || risk.sensitiveContext}。`);
     reviews.push("敏感语境需要在生成或发布前进行人工审核。");
   }
 
@@ -593,7 +595,7 @@ function assessScenario(risk) {
     controls: unique(controls.length ? controls : ["应用标准发布前审核、标签验证和审计日志。"]),
     labels: unique(labelsOut.length ? labelsOut : ["保持可见 AI 披露和内部内容来源记录。"]),
     jurisdictions: unique(jurisdictionRequirements),
-    gaps: unique(gaps.length ? gaps : ["No material authorization gaps detected from the selected fields."]),
+    gaps: unique(gaps.length ? gaps : ["未发现明显授权缺口。"]),
     reviews: unique(reviews.length ? reviews : ["未触发强化人工审核条件。"]),
     frameworks: unique(frameworks),
     evidence: unique(evidence),
@@ -633,96 +635,102 @@ function scenarioProfile(risk) {
     { label: "源素材", value: media.length ? media.join(", ") : "未选择" },
     { label: "发布地区", value: regions.length ? displayRegions(regions) : "未选择" },
     { label: "授权证据", value: labels.consentEvidence[risk.consentEvidence] || "未选择" },
-    { label: "敏感语境", value: risk.sensitiveContext || "未选择" },
+    { label: "敏感语境", value: labels.sensitiveContext[risk.sensitiveContext] || "未选择" },
   ];
 }
 
-function prioritize(items, fallback) {
-  const uniqueItems = unique(items);
-  return uniqueItems.length ? uniqueItems.slice(0, 5) : [fallback];
-}
+/* ---------- 精简报告：关键原因 + 必须完成的动作 ---------- */
+const INTAKE_RESTATEMENT = /^(请求方|被描绘的人|使用场景|源素材包括|发布地区)[:：]/;
 
-function controlGroups(memo) {
-  return {
-    consent: prioritize(
-      [
-        ...memo.gaps.filter((item) => /authorization|consent|license|commercial|territory|duration|secondary|revocation|compensation|training/i.test(item)),
-        ...memo.controls.filter((item) => /authorization|license|consent|commercial|territory|duration|secondary|training/i.test(item)),
-      ],
-      "当前场景未触发单独的授权控制动作。"
-    ),
-    labeling: prioritize(
-      [
-        ...memo.labels,
-        ...memo.controls.filter((item) => /label|watermark|metadata|provenance|disclosure|export|repost/i.test(item)),
-      ],
-      "保持可见披露和内部来源记录。"
-    ),
-    release: prioritize(
-      [
-        ...memo.jurisdictions,
-        ...memo.controls.filter((item) => /release|distribution|publication|global|political|parody|endorsement/i.test(item)),
-      ],
-      "当前尚未选择地区性发布条件。"
-    ),
-    incident: prioritize(
-      [
-        ...memo.controls.filter((item) => /block|preserve|incident|safety|takedown|complaint|evidence/i.test(item)),
-        ...memo.reviews,
-      ],
-      "将标准投诉入口和下架 SLA 绑定到内容 ID。"
-    ),
-  };
-}
-
-function regionRequirementItems(region, memo) {
-  const items = memo.jurisdictions.filter((item) => item.startsWith(`${region}:`));
-  if (items.length) return items.map((item) => item.replace(`${region}: `, ""));
-  return ["该发布路径未选择此地区。"];
-}
-
-function renderJurisdictionMatrix(target, risk, memo) {
-  const regions = effectiveRegions(risk);
-  const cards = [
-    { key: "欧盟", title: "欧盟", sourceKey: "EU" },
-    { key: "中国", title: "中国", sourceKey: "China" },
-    { key: "美国", title: "美国", sourceKey: "US" },
-    { key: "全球发布", title: "全球发布", sourceKey: "Global release" },
-  ];
-
-  target.replaceChildren();
-  cards.forEach(({ key, title, sourceKey }) => {
-    const active = regions.includes(sourceKey || key);
-    const card = document.createElement("article");
-    card.className = active ? "jurisdiction-card active" : "jurisdiction-card";
-
-    const status = document.createElement("span");
-    status.textContent = active ? "适用" : "未选择";
-
-    const heading = document.createElement("h4");
-    heading.textContent = title;
-
-    const list = document.createElement("ul");
-    regionRequirementItems(key, memo).forEach((text) => {
-      const item = document.createElement("li");
-      item.textContent = text;
-      list.append(item);
+function keyReasons(risk, memo) {
+  const chain = buildZhChain(risk, memo);
+  const blockers = ["fail", "warn"].flatMap((state) => chain.nodes
+    .filter((node) => node.state === state && ["source", "consent", "generation", "labeling"].includes(node.key) && node.blocker)
+    .map((node) => `${node.title}：${node.blocker}`));
+  const consentBlocked = chain.nodes.some((node) => node.key === "consent" && node.state === "fail");
+  const drivers = memo.riskDrivers.filter((item) => !INTAKE_RESTATEMENT.test(item) && !(consentBlocked && /已验证授权/.test(item)));
+  let reasons = unique([...blockers, ...drivers]);
+  if (reasons.length < 2) {
+    const positives = chain.nodes.filter((node) => node.state === "ok" && ["consent", "labeling"].includes(node.key)).map((node) => {
+      if (node.key === "consent") return `授权已核验：${labels.consentEvidence[risk.consentEvidence]}。`;
+      return "可见标识、机器可读元数据和水印均已计划。";
     });
-
-    card.append(status, heading, list);
-    target.append(card);
-  });
+    reasons = unique([...reasons, ...positives, ...memo.reviews]);
+  }
+  return reasons.slice(0, 4);
 }
 
-function nextSteps(memo) {
-  return prioritize(
-    [
-      ...memo.gaps,
-      ...memo.reviews,
-      ...memo.controls.filter((item) => /block|confirm|restrict|run|require|allow|reject|route/i.test(item)),
-    ],
-    "按标准合成媒体标识、审计日志和发布审核流程继续。"
-  );
+const ACTION_STAGES = ["授权", "生成", "标识", "发布", "审核"];
+const CANONICAL_ACTIONS = [
+  { key: "global", stage: "发布", test: /^全球发布[:：]|全球分发/, text: () => "全球发布按所选地区中最严格的授权与标识标准执行。", blocking: () => false },
+  { key: "visible", stage: "标识", test: /可见|披露|显式标识/, text: (r) => (r.visibleLabel ? "确认可见 AI 标识（AI生成 / 数字分身 / 合成声音）在发布时生效。" : "补充可见 AI 标识（当前未计划）。"), blocking: (r) => !r.visibleLabel },
+  { key: "machine", stage: "标识", test: /隐式|机器可读/, text: (r) => (r.machineLabel ? "确认机器可读标识（元数据或平台来源信号）随内容保留。" : "补充机器可读标识（当前未计划）。"), blocking: (r) => !r.machineLabel },
+  { key: "provenance", stage: "标识", test: /水印|来源证明|内容凭证|哈希|可追踪/, text: (r) => (r.watermark ? "确认水印 / 来源证明在导出和转发后仍可检测。" : "补充持久水印或内容凭证（当前未计划）。"), blocking: (r) => !r.watermark },
+  { key: "records", stage: "发布", test: /服务提供者记录/, text: () => "留存生成内容、标识状态与发布 / 导出事件记录。", blocking: () => false },
+  { key: "publicity", stage: "审核", test: /公开权|州法/, text: () => "评估公开权、误导性代言与敏感场景风险。", blocking: () => false },
+];
+const REGION_PREFIX = /^(欧盟|中国|美国|全球发布)(?:发布路径)?[:：]?\s*/;
+
+function requiredActions(risk, memo) {
+  const actions = new Map();
+  const add = (key, stage, text, priority, region) => {
+    const existing = actions.get(key);
+    if (existing) {
+      existing.priority = Math.min(existing.priority, priority);
+      if (region) existing.regions.add(region);
+      return;
+    }
+    actions.set(key, { stage, text, priority, regions: new Set(region ? [region] : []) });
+  };
+  const regionOf = (item) => { const match = item.match(REGION_PREFIX); return match ? match[1] : ""; };
+  const canonical = (item, basePriority) => {
+    const rule = CANONICAL_ACTIONS.find((entry) => entry.test.test(item));
+    if (!rule) return false;
+    add(rule.key, rule.stage, rule.text(risk), rule.blocking(risk) ? 2 : basePriority, regionOf(item));
+    return true;
+  };
+
+  memo.controls.forEach((item) => {
+    if (/阻止生成|拒绝|转入事件/.test(item)) add(item, "生成", item, 0);
+  });
+  memo.gaps.filter((item) => item !== "未发现明显授权缺口。").forEach((item) => add(item, /监护人|儿童/.test(item) ? "审核" : "授权", item, 1));
+  [...memo.jurisdictions, ...memo.labels].forEach((item) => { if (!canonical(item, 5)) add(item, "发布", item.replace(REGION_PREFIX, ""), 5, regionOf(item)); });
+  memo.reviews.filter((item) => !/^未触发/.test(item)).forEach((item) => add(item, "审核", item, 3));
+  memo.controls.forEach((item) => {
+    if (/阻止生成|拒绝|转入事件/.test(item) || canonical(item, 5)) return;
+    const stage = /训练/.test(item) ? "生成" : /商业使用|许可范围|授权/.test(item) ? "授权" : /变现|代言|戏仿|政治/.test(item) ? "发布" : "审核";
+    add(item, stage, item, 4);
+  });
+
+  return [...actions.values()].sort((a, b) => a.priority - b.priority).slice(0, 6);
+}
+
+function renderActions(target, risk, memo) {
+  const actions = requiredActions(risk, memo);
+  target.replaceChildren();
+  if (!actions.length) {
+    target.append(zhEl("p", "empty-note", "按标准标识、审计日志和发布审核流程继续。"));
+    return;
+  }
+  ACTION_STAGES.forEach((stage) => {
+    const items = actions.filter((action) => action.stage === stage);
+    if (!items.length) return;
+    const group = zhEl("div", "action-group");
+    group.append(zhEl("h4", "", stage));
+    const list = zhEl("ul", "action-list");
+    items.forEach((action) => {
+      const li = zhEl("li", action.priority <= 2 ? "blocking" : "");
+      li.append(zhEl("span", "action-text", action.text));
+      if (action.regions.size) {
+        const chips = zhEl("span", "region-chips");
+        [...action.regions].forEach((region) => chips.append(zhEl("span", "region-chip", region === "全球发布" ? "全球" : region)));
+        li.append(chips);
+      }
+      list.append(li);
+    });
+    group.append(list);
+    target.append(group);
+  });
 }
 
 function displayRiskLevel(value) {
@@ -856,15 +864,8 @@ function render() {
   riskLevelText.textContent = displayRiskLevel(memo.riskLevel);
   reviewerPath.textContent = memo.reviewer;
 
-  renderDefinitionList(sections.scenarioProfile, scenarioProfile(risk));
-  renderList(sections.riskDrivers, prioritize(memo.riskDrivers, "尚未生成实质性风险发现。"));
-  const groups = controlGroups(memo);
-  renderList(sections.consentControls, groups.consent);
-  renderList(sections.labelControls, groups.labeling);
-  renderList(sections.releaseControls, groups.release);
-  renderList(sections.incidentControls, groups.incident);
-  renderJurisdictionMatrix(sections.jurisdictionMatrix, risk, memo);
-  renderList(sections.nextSteps, nextSteps(memo));
+  renderList(sections.riskDrivers, memo.decision === "intake" ? [memo.summary] : keyReasons(risk, memo));
+  renderActions(sections.actions, risk, memo);
   renderList(sections.frameworks, memo.frameworks);
   renderList(sections.evidence, memo.evidence);
   updateIntakeStatus(risk);
@@ -969,11 +970,11 @@ function buildZhChain(risk, memo) {
     { key: "consent", title: "授权与同意", rows: [["授权证据", labels.consentEvidence[risk.consentEvidence] || "未选择"], ["已覆盖", covered.join("、") || "无"], ["未覆盖", uncovered.join("、") || "无"]],
       state: !realPerson ? "ok" : !verified ? "fail" : (commercial && !risk.scopeCommercial) || (risk.trainingUse && !risk.scopeTraining) ? "warn" : "ok",
       blocker: realPerson && !verified ? "真实人物缺少已验证授权。" : commercial && !risk.scopeCommercial ? "授权未覆盖商业使用。" : risk.trainingUse && !risk.scopeTraining ? "授权未覆盖训练用途。" : "" },
-    { key: "generation", title: "AI演员生成", rows: [["使用场景", `${labels.useCase[risk.useCase] || "未选择"} · ${labels.monetization[risk.monetization] || "未选择"}`], ["敏感语境", risk.sensitiveContext && risk.sensitiveContext !== "none" ? risk.sensitiveContext : "无"], ["用于训练", yes(risk.trainingUse)], ["生成工具", "演示数据中未记录"]],
+    { key: "generation", title: "AI演员生成", summary: `${labels.useCase[risk.useCase] || "未选择"} · ${labels.monetization[risk.monetization] || "未选择"} · 训练用途：${yes(risk.trainingUse)} · 生成工具未记录`, rows: [["使用场景", `${labels.useCase[risk.useCase] || "未选择"} · ${labels.monetization[risk.monetization] || "未选择"}`], ["敏感语境", labels.sensitiveContext[risk.sensitiveContext] || "未选择"], ["用于训练", yes(risk.trainingUse)], ["生成工具", "演示数据中未记录"]],
       state: memo.decision === "reject" ? "fail" : "info", blocker: memo.decision === "reject" ? "触发硬性规则，生成前即被阻止。" : "" },
-    { key: "labeling", title: "标识与来源证明", rows: [["可见标识", yes(risk.visibleLabel)], ["机器可读元数据", yes(risk.machineLabel)], ["水印", yes(risk.watermark)]],
+    { key: "labeling", title: "标识与来源证明", summary: missingLabels.length ? `未计划：${missingLabels.join("、")}` : "可见标识、机器可读元数据和水印均已计划", rows: [["可见标识", yes(risk.visibleLabel)], ["机器可读元数据", yes(risk.machineLabel)], ["水印", yes(risk.watermark)]],
       state: !risk.visibleLabel ? "fail" : missingLabels.length ? "warn" : "ok", blocker: missingLabels.length ? `未计划：${missingLabels.join("、")}。` : "" },
-    { key: "review", title: "风险评估", rows: [["结论", memo.title], ["风险", `${displayRiskLevel(memo.riskLevel)} · 分数 ${memo.score}`], ["触发规则", String(memo.riskDrivers.length)]],
+    { key: "review", title: "风险评估", summary: `${memo.title} · 风险${displayRiskLevel(memo.riskLevel)} · 分数 ${memo.score}`, rows: [["结论", memo.title], ["风险", `${displayRiskLevel(memo.riskLevel)} · 分数 ${memo.score}`], ["触发规则", String(memo.riskDrivers.length)]],
       state: byDecision[memo.decision], blocker: memo.decision === "approve" ? "" : memo.summary },
     { key: "approval", title: "人工审核", rows: [["审核路径", memo.reviewer]], state: byDecision[memo.decision], blocker: memo.decision === "approve" ? "" : `需要：${memo.reviewer}。` },
     { key: "publish", title: "发布", rows: [["发布地区", regions.join("、") || "未选择"], ["发布方式", labels.monetization[risk.monetization] || "未选择"]],
@@ -999,12 +1000,18 @@ function renderZhChain() {
     const dot = zhEl("span", "prov-dot");
     dot.innerHTML = `<svg class="prov-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ZH_ICONS[node.key]}</svg>`;
     rail.append(dot);
+    const compact = node.state === "ok" || node.state === "info";
+    if (compact) li.classList.add("compact");
     const card = zhEl("article", "prov-card");
     const head = zhEl("header", "prov-head");
-    head.append(zhEl("h3", "", node.title), zhEl("span", `prov-state ${node.state}`, ZH_STATE[node.state]));
+    const titleWrap = zhEl("div", "prov-title");
+    titleWrap.append(zhEl("h3", "", node.title));
+    if (compact) titleWrap.append(zhEl("span", "prov-oneline", node.summary || node.rows.slice(0, 2).map(([, value]) => value).join(" · ")));
+    head.append(titleWrap, zhEl("span", `prov-state ${node.state}`, ZH_STATE[node.state]));
     const dl = zhEl("dl", "prov-rows");
     node.rows.forEach(([term, value]) => { const row = zhEl("div"); row.append(zhEl("dt", "", term), zhEl("dd", "", value)); dl.append(row); });
-    card.append(head, dl);
+    card.append(head);
+    if (!compact) card.append(dl);
     if (node.blocker && node.state !== "ok") {
       const blocker = zhEl("p", `prov-blocker ${node.state}`);
       blocker.append(zhEl("strong", "", node.state === "fail" ? "阻断" : "待处理"), zhEl("span", "", node.blocker));

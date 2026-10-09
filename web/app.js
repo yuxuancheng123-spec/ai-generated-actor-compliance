@@ -169,7 +169,6 @@ const workflowMode = document.querySelector("#workflow-mode");
 const fullReportSection = document.querySelector("#full-report");
 const stepTitle = document.querySelector("#step-title");
 const stepCopy = document.querySelector("#step-copy");
-const composerStepLabel = document.querySelector("#composer-step-label");
 const prevStepButton = document.querySelector("#prev-step");
 const nextStepButton = document.querySelector("#next-step");
 const generateReportButton = document.querySelector("#generate-report");
@@ -199,15 +198,6 @@ const reviewerPath = document.querySelector("#reviewer-path");
 const resultPanel = document.querySelector(".result-panel");
 
 const sections = {
-  riskDrivers: document.querySelector("#risk-driver-list"),
-  missingEvidence: document.querySelector("#missing-evidence-list"),
-  scenarioProfile: document.querySelector("#scenario-profile"),
-  consentControls: document.querySelector("#consent-control-list"),
-  labelControls: document.querySelector("#label-control-list"),
-  releaseControls: document.querySelector("#release-control-list"),
-  incidentControls: document.querySelector("#incident-control-list"),
-  jurisdictionMatrix: document.querySelector("#jurisdiction-matrix"),
-  nextSteps: document.querySelector("#next-step-list"),
   frameworks: document.querySelector("#framework-list"),
   evidence: document.querySelector("#evidence-list"),
 };
@@ -612,19 +602,6 @@ function renderList(target, items) {
   });
 }
 
-function renderDefinitionList(target, items) {
-  if (!target) return;
-  target.replaceChildren();
-  items.forEach(({ label, value }) => {
-    const item = document.createElement("div");
-    const term = document.createElement("dt");
-    const description = document.createElement("dd");
-    term.textContent = label;
-    description.textContent = value;
-    item.append(term, description);
-    target.append(item);
-  });
-}
 
 function decisionLabel(decision) {
   return {
@@ -893,108 +870,15 @@ function renderRegulatoryContext(risk) {
   });
 }
 
-function scenarioProfile(risk) {
-  const media = selectedMedia(risk);
-  const regions = effectiveRegions(risk);
-  return [
-    { label: "Requester", value: labels.requesterType[risk.requesterType] || "Not selected" },
-    { label: "Person depicted", value: labels.subjectType[risk.subjectType] || "Not selected" },
-    { label: "Use case", value: labels.useCase[risk.useCase] || "Not selected" },
-    { label: "Commercialization", value: labels.monetization[risk.monetization] || "Not selected" },
-    { label: "Source media", value: media.length ? media.join(", ") : "None selected" },
-    { label: "Release region", value: regions.length ? regions.join(", ") : "Not selected" },
-    { label: "Authorization", value: labels.consentEvidence[risk.consentEvidence] || "Not selected" },
-    { label: "Sensitive context", value: risk.sensitiveContext || "Not selected" },
-  ];
-}
 
 function prioritize(items, fallback) {
   const uniqueItems = unique(items);
   return uniqueItems.length ? uniqueItems.slice(0, 5) : [fallback];
 }
 
-function controlGroups(memo) {
-  return {
-    consent: prioritize(
-      [
-        ...memo.gaps.filter((item) => /authorization|consent|license|commercial|territory|duration|secondary|revocation|compensation|training/i.test(item)),
-        ...memo.controls.filter((item) => /authorization|license|consent|commercial|territory|duration|secondary|training/i.test(item)),
-      ],
-      "No consent-specific action has been triggered by the selected scenario."
-    ),
-    labeling: prioritize(
-      [
-        ...memo.labels,
-        ...memo.controls.filter((item) => /label|watermark|metadata|provenance|disclosure|export|repost/i.test(item)),
-      ],
-      "Maintain visible disclosure and internal provenance records."
-    ),
-    release: prioritize(
-      [
-        ...memo.jurisdictions,
-        ...memo.controls.filter((item) => /release|distribution|publication|global|political|parody|endorsement/i.test(item)),
-      ],
-      "No region-specific release condition has been selected yet."
-    ),
-    incident: prioritize(
-      [
-        ...memo.controls.filter((item) => /block|preserve|incident|safety|takedown|complaint|evidence/i.test(item)),
-        ...memo.reviews,
-      ],
-      "Attach the standard complaint intake route and takedown SLA to the content ID."
-    ),
-  };
-}
 
-function regionRequirementItems(region, memo) {
-  const items = memo.jurisdictions.filter((item) => item.startsWith(`${region}:`));
-  if (items.length) return items.map((item) => item.replace(`${region}: `, ""));
-  return ["Not selected for this release path."];
-}
 
-function renderJurisdictionMatrix(target, risk, memo) {
-  const regions = effectiveRegions(risk);
-  const cards = [
-    { key: "EU", title: "European Union" },
-    { key: "China", title: "China" },
-    { key: "US", title: "United States" },
-    { key: "Global", title: "Global release", sourceKey: "Global" },
-  ];
 
-  target.replaceChildren();
-  cards.forEach(({ key, title, sourceKey }) => {
-    const active = regions.includes(sourceKey || key) || (key === "Global" && regions.includes("Global release"));
-    const card = document.createElement("article");
-    card.className = active ? "jurisdiction-card active" : "jurisdiction-card";
-
-    const status = document.createElement("span");
-    status.textContent = active ? "In scope" : "Not selected";
-
-    const heading = document.createElement("h4");
-    heading.textContent = title;
-
-    const list = document.createElement("ul");
-    regionRequirementItems(key, memo).forEach((text) => {
-      const item = document.createElement("li");
-      item.textContent = text;
-      list.append(item);
-    });
-
-    card.append(status, heading, list);
-    target.append(card);
-  });
-}
-
-function nextSteps(memo) {
-  return prioritize(
-    [
-      ...memo.gaps,
-      ...memo.reviews,
-      ...memo.controls.filter((item) => /block|confirm|restrict|run|require|allow|reject|route/i.test(item)),
-    ],
-    "Proceed with standard synthetic-media labeling, audit logging, and release review."
-  );
-}
 
 function displayRiskLevel(value) {
   if (!value || value === "Not assessed") return value;
@@ -1054,7 +938,6 @@ function setWorkflowStep(step) {
 
   stepTitle.textContent = workflowSteps[currentStep].title;
   stepCopy.textContent = workflowSteps[currentStep].copy;
-  composerStepLabel.textContent = workflowSteps[currentStep].title;
   prevStepButton.disabled = currentStep === 0;
   nextStepButton.hidden = currentStep === workflowSteps.length - 1;
   generateReportButton.hidden = currentStep !== workflowSteps.length - 1;
@@ -1136,7 +1019,7 @@ function render() {
   updateWorkflowProgress(risk);
 
   decisionPill.textContent =
-    memo.decision === "conditional" ? "Approve with conditions" : memo.decision === "intake" ? "Intake incomplete" : memo.decision;
+    { approve: "Approved", conditional: "Conditional", escalate: "Escalated", reject: "Rejected", intake: "Intake incomplete" }[memo.decision] || memo.decision;
   decisionPill.className = `risk-pill ${memo.decision}`;
   resultPanel.dataset.decision = memo.decision;
   scoreValue.textContent = memo.score;
@@ -1145,16 +1028,6 @@ function render() {
   riskLevelText.textContent = displayRiskLevel(memo.riskLevel);
   reviewerPath.textContent = memo.reviewer;
 
-  renderDefinitionList(sections.scenarioProfile, scenarioProfile(risk));
-  renderList(sections.riskDrivers, prioritize(memo.riskDrivers, "No material risk finding has been generated yet."));
-  renderList(sections.missingEvidence, prioritize(memo.gaps, "No material evidence gap has been generated yet."));
-  const groups = controlGroups(memo);
-  renderList(sections.consentControls, groups.consent);
-  renderList(sections.labelControls, groups.labeling);
-  renderList(sections.releaseControls, groups.release);
-  renderList(sections.incidentControls, groups.incident);
-  renderJurisdictionMatrix(sections.jurisdictionMatrix, risk, memo);
-  renderList(sections.nextSteps, nextSteps(memo));
   renderList(sections.frameworks, memo.frameworks);
   renderList(sections.evidence, memo.evidence);
   updateLiveEvaluation(risk, memo);
