@@ -38,12 +38,6 @@
           <button class="button primary" type="button" id="create-case">New case</button>
         </div>
 
-        <section class="metric-grid" aria-label="Case overview metrics">
-          <article class="metric"><strong id="metric-open-cases">4</strong><span>Open cases</span></article>
-          <article class="metric"><strong id="metric-high-risk">2</strong><span>High or critical</span></article>
-          <article class="metric"><strong id="metric-awaiting-evidence">2</strong><span>Evidence below 70%</span></article>
-          <article class="metric"><strong id="metric-pending-approval">3</strong><span>Pending approval</span></article>
-        </section>
 
         <article class="work-surface queue-surface">
           <div class="dash-tabs" role="tablist" aria-label="Dashboard sections">
@@ -53,6 +47,13 @@
           </div>
 
           <div class="dash-panel" id="dash-panel-queue" role="tabpanel" aria-labelledby="dash-tab-queue" data-dash-panel="queue">
+            <div class="filter-chips" role="group" aria-label="Quick filters">
+              <button class="chip active" type="button" data-quick="">All <span id="metric-all-cases">4</span></button>
+              <button class="chip" type="button" data-quick="open">Open <span id="metric-open-cases">3</span></button>
+              <button class="chip" type="button" data-quick="high">High risk <span id="metric-high-risk">2</span></button>
+              <button class="chip" type="button" data-quick="gap">Evidence gaps <span id="metric-awaiting-evidence">2</span></button>
+              <button class="chip" type="button" data-quick="pending">Pending approval <span id="metric-pending-approval">3</span></button>
+            </div>
             <div class="queue-toolbar">
               <label class="search-field"><span class="sr-only">Search cases</span><input id="case-search" type="search" placeholder="Search case ID, project, owner" /></label>
               <button class="button secondary small" type="button" id="toggle-filters" aria-expanded="false" aria-controls="queue-filters">Filters<span class="filter-count" id="filter-count" hidden></span></button>
@@ -64,13 +65,8 @@
               <select id="filter-evidence" aria-label="Filter by evidence status"><option value="">All evidence states</option><option value="ready">Evidence 100%</option><option value="gap">Evidence below 70%</option></select>
               <select id="sort-cases" aria-label="Sort cases"><option value="updated">Sort: last updated</option><option value="due">Sort: due date</option></select>
             </div>
-            <div class="table-wrap queue-table-wrap">
-              <table class="data-table review-queue-table">
-                <thead><tr><th>Case</th><th>Risk</th><th>Stage</th><th>Evidence</th><th>Due</th></tr></thead>
-                <tbody id="review-queue-body"></tbody>
-              </table>
-            </div>
-            <p class="queue-hint">Select a case to see its decision, evidence, approvals, and report.</p>
+            <ul class="inbox" id="review-queue-body" aria-label="Cases"></ul>
+            <p class="queue-hint">Thumbnails are generated placeholders (demo). The cr mark summarises each case&rsquo;s provenance chain.</p>
           </div>
 
           <div class="dash-panel" id="dash-panel-attention" role="tabpanel" aria-labelledby="dash-tab-attention" data-dash-panel="attention" hidden>
@@ -86,7 +82,7 @@
 
       <section class="app-view list-view" id="cases-view" hidden aria-labelledby="cases-title">
         <div class="page-heading"><div><p class="eyebrow">Case register</p><h1 id="cases-title">All cases</h1><p>Demo cases covering consent, training, and content-risk paths.</p></div><button class="button primary" type="button" id="create-case-secondary">New case</button></div>
-        <div class="work-surface"><div class="table-wrap"><table class="data-table"><thead><tr><th>Case</th><th>Risk</th><th>Stage</th><th>Evidence</th><th>Owner</th><th>Due</th></tr></thead><tbody id="all-cases-body"></tbody></table></div></div>
+        <div class="work-surface inbox-surface"><ul class="inbox" id="all-cases-body" aria-label="All cases"></ul></div>
       </section>
 
       <section class="app-view list-view" id="cross-evidence-view" hidden aria-labelledby="cross-evidence-title">
@@ -132,7 +128,7 @@
         </header>
 
         <nav class="case-tabs" role="tablist" aria-label="Case detail sections">
-          <button class="case-tab active" type="button" role="tab" id="tab-overview" data-case-tab="overview" aria-controls="panel-overview" aria-selected="true">Overview</button>
+          <button class="case-tab active" type="button" role="tab" id="tab-overview" data-case-tab="overview" aria-controls="panel-overview" aria-selected="true">Provenance</button>
           <button class="case-tab" type="button" role="tab" id="tab-intake" data-case-tab="intake" aria-controls="panel-intake" aria-selected="false">Intake</button>
           <button class="case-tab" type="button" role="tab" id="tab-risks" data-case-tab="risks" aria-controls="panel-risks" aria-selected="false">Risks</button>
           <button class="case-tab" type="button" role="tab" id="tab-evidence" data-case-tab="evidence" aria-controls="panel-evidence" aria-selected="false">Evidence</button>
@@ -143,23 +139,28 @@
         </nav>
 
         <section class="case-tab-panel" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" data-case-panel="overview">
-          <div class="overview-stack">
-            <article class="work-surface decision-summary">
-              <div class="section-label">Current decision</div>
-              <div class="decision-summary-row"><div><strong id="overview-decision">Manual review</strong><p id="overview-summary">The request requires legal review before generation or release.</p></div><span class="risk-badge" id="overview-risk">High risk</span></div>
-              <div class="next-action"><span class="section-label">Next step</span><p id="overview-next-action">Request verified likeness authorization.</p><button class="button primary small" type="button" data-open-case-tab="evidence">Review evidence</button></div>
-            </article>
+          <div class="decision-line">
+            <div><span class="section-label">Current decision</span><strong id="overview-decision">Manual review</strong><p id="overview-summary">The request requires legal review before generation or release.</p></div>
+            <span class="risk-badge" id="overview-risk">High risk</span>
+          </div>
+          <div class="publish-banner" id="publish-banner" role="status">
+            <div>
+              <strong id="publish-banner-title">Publish blocked</strong>
+              <p id="overview-next-action">Request verified likeness authorization.</p>
+            </div>
+            <div class="publish-banner-side"><span id="publish-banner-count"></span><a class="text-action" id="publish-banner-link" href="#prov-consent">Jump to blocker</a></div>
+          </div>
+          <ol class="prov-chain" id="prov-chain" aria-label="Provenance chain"></ol>
+          <details class="work-surface disclosure-card summary-details">
+            <summary>Readiness, findings &amp; metadata</summary>
             <div class="stat-row">
               <article class="stat"><span class="section-label">Evidence readiness</span><strong class="readiness-value" id="overview-evidence-percent">60%</strong><p id="overview-evidence-copy">2 of 4 evidence items are accepted or under review.</p></article>
               <article class="stat"><span class="section-label">Approvals</span><strong class="approval-count" id="overview-approval-count">2 of 5 completed</strong><p id="overview-approval-copy">Current gate: Legal Review. Release blocked: Yes.</p></article>
             </div>
-            <article class="work-surface">
-              <div class="surface-heading"><h2>Open findings</h2><button class="text-action" type="button" data-open-case-tab="tasks">All tasks</button></div>
-              <div id="overview-findings"></div>
-            </article>
-            <details class="work-surface disclosure-card"><summary>Key risk drivers</summary><ul class="plain-list" id="overview-risk-drivers"></ul></details>
-            <details class="work-surface disclosure-card"><summary>Case metadata</summary><dl class="metadata-list" id="overview-metadata"></dl></details>
-          </div>
+            <div class="summary-block"><div class="surface-heading"><h2>Open findings</h2><button class="text-action" type="button" data-open-case-tab="tasks">All tasks</button></div><div id="overview-findings"></div></div>
+            <div class="summary-block"><h2 class="mini-heading">Key risk drivers</h2><ul class="plain-list" id="overview-risk-drivers"></ul></div>
+            <div class="summary-block"><h2 class="mini-heading">Case metadata</h2><dl class="metadata-list" id="overview-metadata"></dl></div>
+          </details>
         </section>
 
         <section class="case-tab-panel" id="panel-intake" role="tabpanel" aria-labelledby="tab-intake" data-case-panel="intake" hidden>
@@ -219,6 +220,7 @@
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
     <footer class="site-footer"><p>Fictional portfolio project with demo data. Static prototype; the FastAPI backend is not connected here. Not legal advice.</p></footer>
     <script src="./case-records.js"></script>
+    <script src="./provenance.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

@@ -930,3 +930,97 @@ editIntakeButton.addEventListener("click", showIntake);
 
 setWorkflowStep(0);
 render();
+
+/* 来源链：仅根据当前录入信息和规则评估结果推导，不新增任何事实。 */
+const ZH_ICONS = {
+  source: '<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" />',
+  consent: '<path d="M7 3h7l4 4v14H7z" /><path d="M14 3v4h4M10 13h5M10 17h3" />',
+  generation: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18" />',
+  labeling: '<path d="M3 12V4h8l10 10-8 8L3 12Z" /><circle cx="7.5" cy="8.5" r="1.3" />',
+  review: '<path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6l-8-3Z" /><path d="m9 12 2 2 4-4" />',
+  approval: '<path d="M4 7h16M4 12h16M4 17h10" /><path d="m16 17 2 2 3-4" />',
+  publish: '<path d="M4 12h12M12 6l6 6-6 6" /><path d="M20 4v16" />',
+};
+const ZH_STATE = { ok: "已核验", warn: "待处理", fail: "已阻断", info: "无记录" };
+
+function zhEl(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function buildZhChain(risk, memo) {
+  const yes = (value) => (value ? "是" : "否");
+  const realPerson = realPersonSubjects.has(risk.subjectType);
+  const verified = verifiedConsentEvidence.has(risk.consentEvidence);
+  const media = [["mediaFace", "脸部或肖像"], ["mediaVoice", "声音"], ["mediaMotion", "身体动作"], ["mediaPerformance", "既有表演"]].filter(([key]) => risk[key]).map(([, label]) => label);
+  const scopes = [["scopeCommercial", "商业使用"], ["scopeTraining", "训练用途"], ["scopeTerritory", "地域"], ["scopeDuration", "期限"], ["scopeSecondaryUse", "二次使用"], ["scopeRevocation", "撤回路径"], ["scopeCompensation", "补偿"]];
+  const covered = scopes.filter(([key]) => risk[key]).map(([, label]) => label);
+  const uncovered = scopes.filter(([key]) => !risk[key]).map(([, label]) => label);
+  const regions = [["regionEu", "欧盟"], ["regionChina", "中国"], ["regionUs", "美国"], ["regionGlobal", "全球"]].filter(([key]) => risk[key]).map(([, label]) => label);
+  const commercial = commercialUses.has(risk.useCase) || commercialMonetization.has(risk.monetization);
+  const byDecision = { reject: "fail", escalate: "warn", conditional: "warn", approve: "ok", intake: "info" };
+  const missingLabels = [["visibleLabel", "可见AI标识"], ["machineLabel", "机器可读元数据"], ["watermark", "水印/来源证明"]].filter(([key]) => !risk[key]).map(([, label]) => label);
+
+  const nodes = [
+    { key: "source", title: "源素材与被描绘的人", rows: [["被描绘的人", labels.subjectType[risk.subjectType] || "未选择"], ["源素材", media.join("、") || "未选择"], ["请求方", labels.requesterType[risk.requesterType] || "未选择"]],
+      state: risk.subjectType === "minor" ? "fail" : risk.subjectType ? "ok" : "info", blocker: risk.subjectType === "minor" ? "涉及未成年人，属于受保护对象。" : "" },
+    { key: "consent", title: "授权与同意", rows: [["授权证据", labels.consentEvidence[risk.consentEvidence] || "未选择"], ["已覆盖", covered.join("、") || "无"], ["未覆盖", uncovered.join("、") || "无"]],
+      state: !realPerson ? "ok" : !verified ? "fail" : (commercial && !risk.scopeCommercial) || (risk.trainingUse && !risk.scopeTraining) ? "warn" : "ok",
+      blocker: realPerson && !verified ? "真实人物缺少已验证授权。" : commercial && !risk.scopeCommercial ? "授权未覆盖商业使用。" : risk.trainingUse && !risk.scopeTraining ? "授权未覆盖训练用途。" : "" },
+    { key: "generation", title: "AI演员生成", rows: [["使用场景", `${labels.useCase[risk.useCase] || "未选择"} · ${labels.monetization[risk.monetization] || "未选择"}`], ["敏感语境", risk.sensitiveContext && risk.sensitiveContext !== "none" ? risk.sensitiveContext : "无"], ["用于训练", yes(risk.trainingUse)], ["生成工具", "演示数据中未记录"]],
+      state: memo.decision === "reject" ? "fail" : "info", blocker: memo.decision === "reject" ? "触发硬性规则，生成前即被阻止。" : "" },
+    { key: "labeling", title: "标识与来源证明", rows: [["可见标识", yes(risk.visibleLabel)], ["机器可读元数据", yes(risk.machineLabel)], ["水印", yes(risk.watermark)]],
+      state: !risk.visibleLabel ? "fail" : missingLabels.length ? "warn" : "ok", blocker: missingLabels.length ? `未计划：${missingLabels.join("、")}。` : "" },
+    { key: "review", title: "风险评估", rows: [["结论", memo.title], ["风险", `${displayRiskLevel(memo.riskLevel)} · 分数 ${memo.score}`], ["触发规则", String(memo.riskDrivers.length)]],
+      state: byDecision[memo.decision], blocker: memo.decision === "approve" ? "" : memo.summary },
+    { key: "approval", title: "人工审核", rows: [["审核路径", memo.reviewer]], state: byDecision[memo.decision], blocker: memo.decision === "approve" ? "" : `需要：${memo.reviewer}。` },
+    { key: "publish", title: "发布", rows: [["发布地区", regions.join("、") || "未选择"], ["发布方式", labels.monetization[risk.monetization] || "未选择"]],
+      state: memo.decision === "approve" ? "ok" : memo.decision === "conditional" ? "warn" : "fail",
+      blocker: memo.decision === "approve" ? "" : memo.decision === "conditional" ? "满足控制条件后方可发布。" : "发布被阻止。" },
+  ];
+  const blockedAt = nodes.slice(0, -1).find((node) => node.state === "fail") || nodes.slice(0, -1).find((node) => node.state === "warn");
+  return { nodes, blockedAt, cleared: memo.decision === "approve" };
+}
+
+function renderZhChain() {
+  const list = document.querySelector("#zh-prov-chain");
+  if (!list) return;
+  const risk = getScenario();
+  const memo = assessScenario(risk);
+  const chain = buildZhChain(risk, memo);
+  const failIndex = chain.nodes.findIndex((node) => node.state === "fail");
+  list.replaceChildren(...chain.nodes.map((node, index) => {
+    const li = zhEl("li", `prov-node ${node.state}${failIndex >= 0 && index > failIndex ? " downstream" : ""}`);
+    const side = zhEl("div", "prov-when");
+    side.append(zhEl("span", "prov-step", `步骤 ${String(index + 1).padStart(2, "0")}`));
+    const rail = zhEl("div", "prov-rail");
+    const dot = zhEl("span", "prov-dot");
+    dot.innerHTML = `<svg class="prov-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ZH_ICONS[node.key]}</svg>`;
+    rail.append(dot);
+    const card = zhEl("article", "prov-card");
+    const head = zhEl("header", "prov-head");
+    head.append(zhEl("h3", "", node.title), zhEl("span", `prov-state ${node.state}`, ZH_STATE[node.state]));
+    const dl = zhEl("dl", "prov-rows");
+    node.rows.forEach(([term, value]) => { const row = zhEl("div"); row.append(zhEl("dt", "", term), zhEl("dd", "", value)); dl.append(row); });
+    card.append(head, dl);
+    if (node.blocker && node.state !== "ok") {
+      const blocker = zhEl("p", `prov-blocker ${node.state}`);
+      blocker.append(zhEl("strong", "", node.state === "fail" ? "阻断" : "待处理"), zhEl("span", "", node.blocker));
+      card.append(blocker);
+    }
+    li.append(side, rail, card);
+    return li;
+  }));
+  const banner = document.querySelector("#zh-publish-banner");
+  banner.className = `publish-banner ${chain.cleared ? "ok" : "fail"}`;
+  document.querySelector("#zh-publish-title").textContent = chain.cleared ? "可以发布" : chain.blockedAt ? `发布阻断于第 ${chain.nodes.indexOf(chain.blockedAt) + 1} 步 · ${chain.blockedAt.title}` : "发布被阻止";
+  document.querySelector("#zh-publish-copy").textContent = chain.cleared ? memo.summary : chain.blockedAt ? chain.blockedAt.blocker : memo.summary;
+  document.querySelector("#zh-publish-count").textContent = `已核验 ${chain.nodes.filter((node) => node.state === "ok").length} / ${chain.nodes.length} 个环节`;
+}
+
+document.querySelector("#risk-form").addEventListener("change", renderZhChain);
+document.querySelectorAll("[data-preset]").forEach((button) => button.addEventListener("click", () => window.setTimeout(renderZhChain, 0)));
+document.querySelector("#generate-report").addEventListener("click", () => window.setTimeout(renderZhChain, 0));
+renderZhChain();

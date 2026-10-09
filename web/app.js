@@ -1374,6 +1374,7 @@ function renderDashboard() {
   document.querySelector("#metric-high-risk").textContent = high;
   document.querySelector("#metric-pending-approval").textContent = pending;
   document.querySelector("#metric-overdue-tasks").textContent = "1";
+  document.querySelector("#metric-all-cases").textContent = cases.length;
   filterQueue();
 
   const attention = cases
@@ -1398,6 +1399,16 @@ function renderDashboard() {
   clearAndAppend(document.querySelector("#dashboard-activity"), recent);
 }
 
+let quickFilter = "";
+function isPendingApproval(entry) { return entry.approvals.some((approval) => ["Pending", "Blocked", "Not Started"].includes(approval[2])); }
+function matchesQuickFilter(entry, filter) {
+  if (filter === "open") return entry.stage !== "Approved";
+  if (filter === "high") return ["high", "critical"].includes(entry.riskLevel);
+  if (filter === "gap") return entry.evidenceReadiness < 70;
+  if (filter === "pending") return isPendingApproval(entry);
+  return true;
+}
+
 function filterQueue() {
   const search = document.querySelector("#case-search").value.trim().toLowerCase();
   const stage = document.querySelector("#filter-stage").value;
@@ -1411,12 +1422,13 @@ function filterQueue() {
     .filter((entry) => !risk || entry.riskLevel === risk)
     .filter((entry) => !owner || entry.owner === owner)
     .filter((entry) => !evidence || (evidence === "ready" ? entry.evidenceReadiness === 100 : entry.evidenceReadiness < 70))
+    .filter((entry) => matchesQuickFilter(entry, quickFilter))
     .sort((a, b) => (sort === "due" ? a.dueDate.localeCompare(b.dueDate) : b.updated.localeCompare(a.updated)));
-  clearAndAppend(document.querySelector("#review-queue-body"), visible.map((entry) => caseRow(entry)));
+  clearAndAppend(document.querySelector("#review-queue-body"), visible.length ? visible.map((entry) => inboxRow(entry)) : [createEmptyState("No matching cases", "Clear a filter to see more cases.")]);
 }
 
 function renderCrossCaseViews() {
-  clearAndAppend(document.querySelector("#all-cases-body"), cases.map((entry) => caseRow(entry, false)));
+  clearAndAppend(document.querySelector("#all-cases-body"), cases.map((entry) => inboxRow(entry)));
 
   const evidenceRows = cases.flatMap((entry) => entry.evidence.map((item) => ({ entry, item }))).map(({ entry, item }) => {
     const row = document.createElement("tr");
@@ -1523,6 +1535,7 @@ function updateCaseSummary() {
   caseUi.assessmentState.textContent = reportGenerated ? "Assessment completed" : completion.ready ? "Ready to assess" : "Draft intake";
   caseUi.reportVersion.textContent = "Report v1";
   renderRuleTrace(memo);
+  renderProvenanceChain();
 }
 
 function createEmptyState(title, copy) {
@@ -1773,6 +1786,19 @@ document.querySelector(".dash-tabs").addEventListener("keydown", (event) => {
   next.focus();
   setDashTab(next.dataset.dashTab);
 });
+document.querySelectorAll("[data-quick]").forEach((chip) => chip.addEventListener("click", () => {
+  quickFilter = chip.dataset.quick;
+  document.querySelectorAll("[data-quick]").forEach((item) => { item.classList.toggle("active", item === chip); item.setAttribute("aria-pressed", String(item === chip)); });
+  filterQueue();
+}));
+document.querySelector("#publish-banner-link").addEventListener("click", (event) => {
+  const target = document.querySelector(event.currentTarget.getAttribute("href"));
+  if (!target) return;
+  event.preventDefault();
+  target.scrollIntoView({ block: "center", behavior: "smooth" });
+  target.classList.add("flash");
+  window.setTimeout(() => target.classList.remove("flash"), 1200);
+});
 const filterToggle = document.querySelector("#toggle-filters");
 filterToggle.addEventListener("click", () => {
   const panel = document.querySelector("#queue-filters");
@@ -1802,7 +1828,7 @@ document.addEventListener("click", (event) => {
   const evidenceTarget = event.target.closest("[data-open-evidence]");
   if (evidenceTarget) { openEvidence(evidenceTarget.dataset.openEvidence, evidenceTarget); return; }
   const actionTarget = event.target.closest("[data-evidence-action]");
-  if (actionTarget && activeEvidence) { activeEvidence[3] = titleCase(actionTarget.dataset.evidenceAction); renderEvidenceTable(); updateCaseSummary(); addActivity("Evidence status updated", activeEvidence[0], activeEvidence[3]); closeDrawer(); showToast(`Evidence marked ${activeEvidence[3].toLowerCase()}.`); }
+  if (actionTarget && activeEvidence) { activeEvidence[3] = titleCase(actionTarget.dataset.evidenceAction); renderEvidenceTable(); updateCaseSummary(); addActivity("Evidence status updated", activeEvidence[0], activeEvidence[3]); const newStatus = activeEvidence[3]; closeDrawer(); showToast(`Evidence marked ${newStatus.toLowerCase()}.`); }
   const findingTarget = event.target.closest("[data-update-finding]");
   if (findingTarget) { const finding = activeCase.findings.find((item) => item[0] === findingTarget.dataset.updateFinding); if (finding) { finding[7] = finding[7] === "Resolved" ? "Open" : "Resolved"; renderTasks(); updateCaseSummary(); addActivity("Finding updated", finding[0], `Status changed to ${finding[7]}`); } }
   const approvalTarget = event.target.closest("[data-update-approval]");
