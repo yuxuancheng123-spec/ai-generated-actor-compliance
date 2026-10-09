@@ -8,181 +8,83 @@
       name="description"
       content="AI生成演员与深度伪造内容合规评估中文交互Demo。"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./compact.css" />
   </head>
-  <body>
+  <body class="zh-body">
     <header class="site-header" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="AI演员合规评估 home">
+      <a class="brand" href="#top" aria-label="AI演员合规评估 首页">
         <span class="brand-mark" aria-hidden="true"></span>
         <span>AI演员合规评估</span>
       </a>
       <nav class="nav-links" aria-label="Project links">
-        <a href="#demo">审核Demo</a>
-        <a href="#controls">控制架构</a>
-        <a href="../docs/09_final_compliance_assessment_report.md">英文报告</a>
-        <a href="https://github.com/yuxuancheng123-spec/ai-generated-actor-compliance">GitHub</a>
+        <a href="#demo">审核</a>
+        <a href="#more">场景与控制</a>
+        <a href="#docs">项目文档</a>
       </nav>
+      <div class="app-links"><a href="https://github.com/yuxuancheng123-spec/ai-generated-actor-compliance">GitHub</a><a href="./index.html" lang="en">EN</a></div>
     </header>
 
-    <main id="top">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <p class="eyebrow">合成媒体合规案例</p>
-          <h1 id="hero-title">先授权，再生成AI演员。</h1>
-          <p class="hero-lede">
-            在AI短剧、虚拟代言和合成内容发布前，评估授权、标识和平台治理风险。
-          </p>
-          <div class="hero-actions" aria-label="Primary actions">
-            <a class="button primary" href="#demo">开始审核</a>
-            <a class="button secondary" href="../docs/09_final_compliance_assessment_report.md">查看英文报告</a>
-          </div>
+    <main id="top" class="zh-main">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">AI演员与合成媒体</p>
+          <h1 id="hero-title">先授权，再生成AI演员</h1>
+          <p>在AI短剧、虚拟代言和合成内容发布前，快速检查授权、标识和平台治理风险。</p>
         </div>
+        <a class="button secondary" href="./index.html">英文案例工作台</a>
+      </div>
 
-        <aside class="hero-device" aria-label="Compliance review preview">
-          <div class="device-topbar">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <div class="review-frame">
-            <div class="scan-stage">
-              <div class="face-grid" aria-hidden="true">
-                <span></span><span></span><span></span><span></span>
-              </div>
-              <div class="scan-line" aria-hidden="true"></div>
-            </div>
-            <div class="review-stack">
-              <div>
-                <span class="micro-label">内容请求</span>
-                <strong>名人脸用于商业短剧</strong>
-              </div>
-              <div class="signal-row">
-                <span>授权状态</span>
-                <strong class="signal-danger">缺失</strong>
-              </div>
-              <div class="signal-row">
-                <span>AI标识</span>
-                <strong class="signal-danger">缺失</strong>
-              </div>
-              <div class="risk-pill prohibited">禁止</div>
-            </div>
-          </div>
-        </aside>
+      <section class="metric-grid" aria-label="Demo 概览">
+        <article class="metric"><strong>5</strong><span>步信息录入</span></article>
+        <article class="metric"><strong>4</strong><span>个示例场景</span></article>
+        <article class="metric"><strong>4</strong><span>个发布地区</span></article>
+        <article class="metric"><strong>7</strong><span>节合规报告</span></article>
       </section>
 
-      <section class="artifact-strip" aria-label="Portfolio artifacts">
-        <a href="../docs/03_risk_register.md">
-          <span>01</span>
-          风险登记表
-        </a>
-        <a href="../docs/04_consent_checklist.md">
-          <span>02</span>
-          授权清单
-        </a>
-        <a href="../docs/05_labeling_policy.md">
-          <span>03</span>
-          标识政策
-        </a>
-        <a href="../docs/06_incident_response.md">
-          <span>04</span>
-          事件响应手册
-        </a>
-      </section>
-
-      <section class="case-gallery" aria-labelledby="case-gallery-title">
-        <div class="gallery-heading">
-          <h2 id="case-gallery-title">识别合成媒体风险出现的关键环节。</h2>
-          <div class="gallery-links">
-            <a href="#demo">开始审核</a>
-            <a href="../docs/09_final_compliance_assessment_report.md">查看英文报告</a>
-          </div>
-        </div>
-        <div class="case-rail" aria-label="Synthetic media compliance scenarios">
-          <article class="case-tile actor-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="face-orb"></span>
-              <span class="mesh-line one"></span>
-              <span class="mesh-line two"></span>
-              <span class="scan-beam"></span>
-            </div>
-            <h3>AI演员</h3>
-            <p>生成前检查脸部、肖像和动作数据。</p>
-          </article>
-          <article class="case-tile voice-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="wave one"></span>
-              <span class="wave two"></span>
-              <span class="wave three"></span>
-            </div>
-            <h3>声音克隆</h3>
-            <p>检查合成对白的授权和用途范围。</p>
-          </article>
-          <article class="case-tile drama-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="film-frame primary"></span>
-              <span class="film-frame secondary"></span>
-              <span class="play-mark"></span>
-            </div>
-            <h3>短剧生成</h3>
-            <p>发布和商业化前进行审核。</p>
-          </article>
-          <article class="case-tile label-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="label-card"></span>
-              <span class="label-chip"></span>
-              <span class="metadata-line one"></span>
-              <span class="metadata-line two"></span>
-            </div>
-            <h3>内容标识</h3>
-            <p>可见标签、元数据和来源证明。</p>
-          </article>
-          <article class="case-tile incident-tile">
-            <div class="case-visual" aria-hidden="true">
-              <span class="alert-ring"></span>
-              <span class="evidence-card"></span>
-              <span class="route-line"></span>
-            </div>
-            <h3>事件响应</h3>
-            <p>下架、证据保全和补救措施。</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section-intro" aria-labelledby="demo-title">
-        <p class="section-kicker">交互审核</p>
-        <h2 id="demo-title">生成一份中文合规审核报告。</h2>
-        <p>
-          这个交互Demo会把合成媒体审核表单转成一份产品合规报告：包括审核结论、风险原因、必要控制、标识要求、授权缺口和框架映射。
-        </p>
-      </section>
-
-      <section id="demo" class="workflow-shell" aria-label="Compliance review workflow">
+      <section id="demo" class="work-surface workflow-shell" aria-label="合规审核流程">
         <div class="workflow-topbar">
           <div>
-            <span class="micro-label">合成媒体审核流程</span>
-            <h3>先完成信息录入，再生成审核报告。</h3>
+            <h2>合规审核</h2>
+            <p>填写五步信息，或直接选一个示例场景，然后生成报告。</p>
           </div>
-          <span class="workflow-mode-pill" id="workflow-mode">信息录入台</span>
+          <span class="status-badge neutral" id="workflow-mode">信息录入台</span>
         </div>
 
-        <ol class="workflow-steps" aria-label="Review workflow steps">
-          <li data-step-index="0" class="active"><span>01</span>背景</li>
-          <li data-step-index="1"><span>02</span>素材</li>
-          <li data-step-index="2"><span>03</span>用途</li>
-          <li data-step-index="3"><span>04</span>授权</li>
-          <li data-step-index="4"><span>05</span>控制架构</li>
-          <li data-step-index="5"><span>06</span>英文报告</li>
+        <div class="preset-row template-row" aria-label="示例场景">
+          <span>示例场景</span>
+          <button class="template-button preset" type="button" data-preset="unauthorizedCelebrityAd">盗用名人广告</button>
+          <button class="template-button preset" type="button" data-preset="licensedPerformer">授权演员</button>
+          <button class="template-button preset" type="button" data-preset="fanParody">粉丝戏仿</button>
+          <button class="template-button preset" type="button" data-preset="syntheticLow">低风险合成角色</button>
+        </div>
+
+        <ol class="workflow-steps zh-steps" aria-label="审核步骤">
+          <li data-step-index="0" class="active"><span>1</span>背景</li>
+          <li data-step-index="1"><span>2</span>素材</li>
+          <li data-step-index="2"><span>3</span>用途</li>
+          <li data-step-index="3"><span>4</span>授权</li>
+          <li data-step-index="4"><span>5</span>控制</li>
+          <li data-step-index="5"><span>6</span>报告</li>
         </ol>
 
         <div class="intake-view" id="intake-view">
+          <div class="completion-row" aria-live="polite">
+            <span class="section-label">录入完成度</span>
+            <strong id="completion-score">0%</strong>
+            <div class="completion-track" aria-hidden="true"><span id="completion-bar"></span></div>
+            <p id="completion-copy">请先完成核心场景字段，再生成报告。</p>
+          </div>
+
           <form class="risk-form" id="risk-form">
             <div class="form-heading">
               <div>
-                <span class="micro-label">信息录入台</span>
                 <h3 id="step-title">请求背景</h3>
                 <p id="step-copy">确认谁在提交审核请求，以及内容中描绘的是谁。</p>
               </div>
-              <span class="live-dot">草稿录入</span>
             </div>
 
           <fieldset data-step="0">
@@ -260,6 +162,7 @@
                 </select>
               </div>
             </div>
+            <div class="field">
             <label for="sensitive-context">敏感语境</label>
             <select id="sensitive-context" name="sensitiveContext">
               <option value="" selected>请选择敏感语境</option>
@@ -270,6 +173,7 @@
               <option value="financial">金融</option>
               <option value="defamatory">诽谤</option>
             </select>
+            </div>
           </fieldset>
 
           <fieldset class="switch-grid" data-step="2">
@@ -294,7 +198,8 @@
 
           <fieldset data-step="3">
             <legend>5. 授权证据</legend>
-            <label for="consent-evidence">授权状态 evidence</label>
+            <div class="field">
+            <label for="consent-evidence">授权证据</label>
             <select id="consent-evidence" name="consentEvidence">
               <option value="" selected>请选择授权证据</option>
               <option value="none">无授权证据</option>
@@ -303,6 +208,7 @@
               <option value="verifiedPortal">已验证演员门户</option>
               <option value="performerAgreement">演员AI数字分身协议</option>
             </select>
+            </div>
             <div class="switch-grid compact-grid">
               <label class="switch">
                 <input type="checkbox" name="scopeCommercial" />
@@ -335,11 +241,11 @@
             </div>
           </fieldset>
 
-          <fieldset data-step="4">
+          <fieldset class="switch-grid" data-step="4">
             <legend>6. 平台控制</legend>
             <label class="switch">
               <input type="checkbox" name="visibleLabel" />
-              <span>Visible AI标识 planned</span>
+              <span>计划添加可见AI标识</span>
             </label>
             <label class="switch">
               <input type="checkbox" name="machineLabel" />
@@ -355,12 +261,6 @@
             </label>
           </fieldset>
 
-          <div class="preset-row" aria-label="Scenario presets">
-            <button class="preset" type="button" data-preset="unauthorizedCelebrityAd">盗用名人广告</button>
-            <button class="preset" type="button" data-preset="licensedPerformer">授权演员</button>
-            <button class="preset" type="button" data-preset="fanParody">粉丝戏仿</button>
-            <button class="preset" type="button" data-preset="syntheticLow">低风险合成角色</button>
-          </div>
             <div class="workflow-actions">
               <button class="button secondary" type="button" id="prev-step">上一步</button>
               <button class="button primary" type="button" id="next-step">下一步</button>
@@ -368,24 +268,16 @@
             </div>
           </form>
 
-          <aside class="intake-summary-panel" aria-live="polite" aria-label="Intake completion summary">
-            <div class="summary-card hero-summary">
-              <span class="micro-label">录入完成度</span>
-              <strong id="completion-score">0%</strong>
-              <div class="completion-track" aria-hidden="true">
-                <span id="completion-bar"></span>
-              </div>
-              <p id="completion-copy">请先完成核心场景字段，再生成报告。</p>
-            </div>
-            <div class="summary-card">
-              <h4>生成报告前需要补充</h4>
+          <div class="intake-summary-panel">
+            <details class="disclosure-card work-surface">
+              <summary>生成报告前需要补充</summary>
               <ul id="missing-list"></ul>
-            </div>
-            <div class="summary-card">
-              <h4>当前录入概况</h4>
+            </details>
+            <details class="disclosure-card work-surface">
+              <summary>当前录入概况</summary>
               <dl class="intake-profile" id="intake-profile"></dl>
-            </div>
-          </aside>
+            </details>
+          </div>
         </div>
 
         <aside class="result-panel memo-panel report-view" id="report-view" aria-live="polite" aria-label="合规审核报告" hidden>
@@ -422,83 +314,71 @@
               </div>
             </div>
             <p id="result-copy">
-              The request lacks verified authorization for a real-person commercial AI演员 workflow.
+              请求缺少真实人物商业化AI演员流程所需的已验证授权。
             </p>
           </section>
 
-          <section class="report-module" aria-label="场景分类">
-            <div class="module-heading">
-              <span>02</span>
-              <h3>场景分类</h3>
-            </div>
+          <details class="report-module" aria-label="场景分类">
+            <summary class="module-heading"><span>02</span>
+              <h3>场景分类</h3></summary>
             <dl class="profile-grid" id="scenario-profile"></dl>
-          </section>
+          </details>
 
-          <section class="report-module" aria-label="关键发现">
-            <div class="module-heading">
-              <span>03</span>
-              <h3>关键发现</h3>
-            </div>
+          <details class="report-module" aria-label="关键发现" open>
+            <summary class="module-heading"><span>03</span>
+              <h3>关键发现</h3></summary>
             <ul class="finding-list" id="risk-driver-list"></ul>
-          </section>
+          </details>
 
-          <section class="report-module" aria-label="控制建议">
-            <div class="module-heading">
-              <span>04</span>
-              <h3>控制建议</h3>
-            </div>
+          <details class="report-module" aria-label="控制建议">
+            <summary class="module-heading"><span>04</span>
+              <h3>控制建议</h3></summary>
             <div class="control-recommendation-grid">
               <div>
-                <h4>Consent controls</h4>
+                <h4>授权控制</h4>
                 <ul id="consent-control-list"></ul>
               </div>
               <div>
-                <h4>Labeling controls</h4>
+                <h4>标识控制</h4>
                 <ul id="label-control-list"></ul>
               </div>
               <div>
-                <h4>Release controls</h4>
+                <h4>发布控制</h4>
                 <ul id="release-control-list"></ul>
               </div>
               <div>
-                <h4>Incident controls</h4>
+                <h4>事件控制</h4>
                 <ul id="incident-control-list"></ul>
               </div>
             </div>
-          </section>
+          </details>
 
-          <section class="report-module" aria-label="地区矩阵">
-            <div class="module-heading">
-              <span>05</span>
-              <h3>地区矩阵</h3>
-            </div>
+          <details class="report-module" aria-label="地区矩阵">
+            <summary class="module-heading"><span>05</span>
+              <h3>地区矩阵</h3></summary>
             <div class="jurisdiction-matrix" id="jurisdiction-matrix"></div>
-          </section>
+          </details>
 
-          <section class="report-module" aria-label="证据与下一步">
-            <div class="module-heading">
-              <span>06</span>
-              <h3>证据与下一步</h3>
-            </div>
+          <details class="report-module" aria-label="证据与下一步">
+            <summary class="module-heading"><span>06</span>
+              <h3>证据与下一步</h3></summary>
             <div class="evidence-grid">
               <div>
                 <h4>证据材料</h4>
                 <ul id="evidence-list"></ul>
               </div>
               <div>
-                <h4>Reviewer next steps</h4>
+                <h4>审核下一步</h4>
                 <ul id="next-step-list"></ul>
               </div>
             </div>
-          </section>
+          </details>
 
-          <section class="report-module framework-module" aria-label="框架映射">
-            <div class="module-heading">
-              <span>07</span>
-              <h3>框架映射</h3>
-            </div>
+          <details class="report-module framework-module" aria-label="框架映射">
+            <summary class="module-heading"><span>07</span>
+              <h3>框架映射</h3></summary>
             <ul id="framework-list"></ul>
-          </section>
+          </details>
           <div class="next-actions">
             <button class="button secondary" type="button" id="edit-intake">返回修改</button>
             <a href="../docs/09_final_compliance_assessment_report.md">查看英文报告</a>
@@ -507,42 +387,43 @@
         </aside>
       </section>
 
-      <section id="controls" class="control-section" aria-labelledby="controls-title">
-        <div class="section-intro compact">
-          <h2 id="controls-title">控制架构</h2>
-          <p>
-            The case study treats real-person face and voice data as high-risk inputs and places controls
-            before generation, before publication, and after complaints.
-          </p>
-        </div>
-        <div class="control-layers">
-          <article>
-            <span>Gate</span>
-            <h3>生成前审核</h3>
-            <p>身份验证、授权记录、许可范围和禁止用途筛查。</p>
-          </article>
-          <article>
-            <span>License</span>
-            <h3>细粒度授权</h3>
-            <p>分别确认脸部、声音、动作、商业使用、期限、地域和训练用途。</p>
-          </article>
-          <article>
-            <span>Label</span>
-            <h3>内容标识 and provenance</h3>
-            <p>可见标签、元数据、水印、内容凭证、导出日志和哈希记录。</p>
-          </article>
-          <article>
-            <span>Respond</span>
-            <h3>权利人响应流程</h3>
-            <p>投诉接收、快速限制、证据保全、下架和控制改进。</p>
-          </article>
-        </div>
+      <section id="more" class="zh-more" aria-label="场景与控制">
+        <details class="work-surface disclosure-card">
+          <summary>适用场景</summary>
+          <ul class="compact-list">
+            <li><strong>AI演员</strong><span>生成前检查脸部、肖像和动作数据。</span></li>
+            <li><strong>声音克隆</strong><span>检查合成对白的授权和用途范围。</span></li>
+            <li><strong>短剧生成</strong><span>发布和商业化前进行审核。</span></li>
+            <li><strong>内容标识</strong><span>可见标签、元数据和来源证明。</span></li>
+            <li><strong>事件响应</strong><span>下架、证据保全和补救措施。</span></li>
+          </ul>
+        </details>
+        <details id="controls" class="work-surface disclosure-card">
+          <summary id="controls-title">控制架构</summary>
+          <p class="details-intro">把真人脸部和声音数据视为高风险输入，在生成前、发布前和投诉后分别设置控制。</p>
+          <ul class="compact-list">
+            <li><strong>生成前审核</strong><span>身份验证、授权记录、许可范围和禁止用途筛查。</span></li>
+            <li><strong>细粒度授权</strong><span>分别确认脸部、声音、动作、商业使用、期限、地域和训练用途。</span></li>
+            <li><strong>内容标识与来源证明</strong><span>可见标签、元数据、水印、内容凭证、导出日志和哈希记录。</span></li>
+            <li><strong>权利人响应流程</strong><span>投诉接收、快速限制、证据保全、下架和控制改进。</span></li>
+          </ul>
+        </details>
+        <details id="docs" class="work-surface disclosure-card">
+          <summary>项目文档（英文）</summary>
+          <ul class="compact-list doc-links">
+            <li><a href="../docs/03_risk_register.md">风险登记表</a></li>
+            <li><a href="../docs/04_consent_checklist.md">授权清单</a></li>
+            <li><a href="../docs/05_labeling_policy.md">标识政策</a></li>
+            <li><a href="../docs/06_incident_response.md">事件响应手册</a></li>
+            <li><a href="../docs/09_final_compliance_assessment_report.md">最终合规评估报告</a></li>
+          </ul>
+        </details>
       </section>
     </main>
 
     <footer class="site-footer">
-      <p>本虚构教育项目不构成法律意见。</p>
-      <a href="../README.md">返回项目 README</a>
+      <p>虚构的教育作品集项目，使用演示数据，不构成法律意见。</p>
+      <a href="../README.md">项目 README</a>
     </footer>
 
     <script src="./app.zh.js"></script>
