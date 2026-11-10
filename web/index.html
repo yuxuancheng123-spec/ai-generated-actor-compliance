@@ -190,7 +190,7 @@
               <h3 class="sr-only" id="evaluation-title">Decision summary</h3>
               <section class="risk-summary-card"><div class="decision-row"><span>Decision</span><strong id="live-decision">Awaiting intake</strong></div><div class="risk-meter"><span id="live-score">-</span><div><strong id="live-risk-level">Not assessed</strong><p id="live-main-blocker">Complete the core case facts.</p></div></div><dl class="summary-metrics"><div><dt>Reviewer path</dt><dd id="live-reviewer-path">Complete intake fields</dd></div><div><dt>Evidence readiness</dt><dd id="evidence-readiness">0%</dd></div></dl></section>
             </article>
-            <article class="work-surface"><div class="surface-heading"><h2>Rule trace</h2></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Rule</th><th>Title</th><th>Severity</th><th>Score</th><th>Hard stop</th><th>Status</th></tr></thead><tbody id="rule-trace-body"></tbody></table></div></article>
+            <article class="work-surface"><div class="surface-heading"><h2>Rule trace</h2></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Rule</th><th>Title</th><th>Severity</th><th>Score</th><th>Hard stop</th><th>China legal basis</th></tr></thead><tbody id="rule-trace-body"></tbody></table></div></article>
             <details class="work-surface disclosure-card"><summary>Missing evidence</summary><ul class="evidence-gap-list compact-evidence-list" id="live-missing-evidence-list"></ul></details>
             <details class="work-surface disclosure-card"><summary>Triggered rules</summary><ul class="triggered-rule-list" id="triggered-rule-list"></ul></details>
             <details class="work-surface disclosure-card"><summary>Evidence gap checklist</summary><ul class="evidence-gap-list" id="evidence-gap-list"></ul></details>
@@ -270,6 +270,8 @@
     <aside class="detail-drawer" id="evidence-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1" hidden><div class="drawer-header"><div><span class="eyebrow">Evidence detail</span><h2 id="drawer-title">Evidence item</h2></div><button class="icon-button" type="button" id="close-drawer" aria-label="Close evidence detail">x</button></div><dl class="drawer-metadata" id="drawer-metadata"></dl><div class="drawer-actions"><button class="button secondary" type="button" data-evidence-action="requested">Request evidence</button><button class="button secondary" type="button" data-evidence-action="submitted">Mark submitted</button><button class="button primary" type="button" data-evidence-action="accepted">Accept</button><button class="button danger" type="button" data-evidence-action="rejected">Reject</button></div></aside>
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
     <footer class="site-footer"><p>Fictional portfolio project with demo data. Static prototype; the FastAPI backend is not connected here. Not legal advice.</p></footer>
+    <script src="./rules-data.js"></script>
+    <script src="./rules-engine.js"></script>
     <script src="./case-records.js"></script>
     <script src="./provenance.js"></script>
     <script src="./app.js"></script>

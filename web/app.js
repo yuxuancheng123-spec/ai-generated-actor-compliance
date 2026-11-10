@@ -7,7 +7,8 @@ const realPersonSubjects = new Set([
   "politician",
   "minor",
 ]);
-const verifiedConsentEvidence = new Set(["uploadedContract", "verifiedPortal", "performerAgreement"]);
+// An uploaded contract is submitted evidence, not verified evidence (matches web/rules-engine.js).
+const verifiedConsentEvidence = new Set(["verifiedPortal", "performerAgreement"]);
 const commercialUses = new Set(["advertisement", "virtualInfluencer"]);
 const commercialMonetization = new Set(["paidAd", "resale"]);
 
@@ -393,8 +394,6 @@ function assessScenario(risk) {
     };
   }
 
-  let score = 0;
-  let decision = "approve";
   const riskDrivers = [];
   const controls = [];
   const labelsOut = [];
@@ -434,60 +433,49 @@ function assessScenario(risk) {
   }
 
   if (realPerson) {
-    score += 3;
     frameworks.push("SAG-AFTRA AI principles: digital replica use requires clear consent, compensation, and specific-purpose authorization.");
     evidence.push("Consent/license document linked to the depicted person and the requested media attributes.");
   }
 
   if (realPerson && !verifiedAuthorization && !lowerImpactParody) {
-    score += 7;
-    decision = "reject";
     riskDrivers.push("No verified authorization for a real-person likeness, voice, motion, or performance workflow.");
     gaps.push("Require verified person-level authorization before generation; self-attestation is not enough for third-party or public figure content.");
     controls.push("Block generation and preserve upload, prompt, and account evidence for rights-holder review.");
   } else if (realPerson && !verifiedAuthorization && lowerImpactParody) {
-    score += 4;
     riskDrivers.push("Public figure parody/fan content lacks verified authorization but is not commercial or sensitive.");
     gaps.push("Authorization remains unverified; reviewer must assess whether the parody/fan context is misleading, commercial, or harmful.");
     controls.push("Restrict monetization and endorsement framing unless separate authorization is provided.");
   }
 
   if (commercial) {
-    score += 2;
     riskDrivers.push("Commercial, endorsement, or resale context increases publicity, performer-rights, and consumer deception risk.");
     if (!risk.scopeCommercial) gaps.push("Commercial use is not clearly covered by the submitted authorization.");
     controls.push("Run license-scope check for commercial use, channel, territory, duration, and secondary use.");
   }
 
   if (publicFigure) {
-    score += 3;
     reviews.push("Public figure or political figure content requires enhanced human review for impersonation, endorsement, and public-interest risk.");
   }
 
   if (risk.subjectType === "minor") {
-    score += 5;
     reviews.push("Minor-related content requires child-safety escalation and stricter identity/guardian authorization review.");
     gaps.push("Confirm guardian authorization, child-safety review, and distribution limitations.");
   }
 
   if (risk.sensitiveContext && risk.sensitiveContext !== "none") {
-    score += 4;
     riskDrivers.push(`Sensitive context selected: ${risk.sensitiveContext}.`);
     reviews.push("Sensitive context requires human review before generation or publication.");
   }
 
   if (realPerson && ["sexual", "defamatory"].includes(risk.sensitiveContext)) {
-    decision = "reject";
     controls.push("Reject real-person sexual or defamatory synthetic portrayal and route to incident/safety queue if uploaded content exists.");
   }
 
   if (risk.subjectType === "minor" && risk.sensitiveContext && risk.sensitiveContext !== "none") {
-    decision = "reject";
     controls.push("Reject minor-related sensitive synthetic media and preserve evidence for safety review.");
   }
 
   if (risk.trainingUse) {
-    score += 3;
     evidence.push("Training-data use flag, data lineage record, and model-improvement opt-in record.");
     if (!risk.scopeTraining) {
       gaps.push("Training, fine-tuning, or model improvement is not separately authorized.");
@@ -517,41 +505,21 @@ function assessScenario(risk) {
   addLabelRequirements(risk, labelsOut, controls, frameworks);
 
   if (!risk.visibleLabel && (realPerson || risk.subjectType === "synthetic")) {
-    score += 2;
     labelsOut.push("Visible AI disclosure is missing from the current release plan.");
-  }
-  if (!risk.machineLabel && (risk.regionChina || risk.regionGlobal)) {
-    score += 2;
-  }
-  if (!risk.watermark && (risk.regionEu || risk.regionChina || risk.regionGlobal || commercial)) {
-    score += 1;
   }
 
   evidence.push("Visible label screenshot, metadata/provenance record, watermark state, and export hash record where required.");
   evidence.push("Complaint intake route and takedown SLA attached to the content ID.");
 
-  if (decision !== "reject") {
-    const hasEscalationTrigger =
-      publicFigure ||
-      risk.subjectType === "minor" ||
-      (risk.sensitiveContext && risk.sensitiveContext !== "none") ||
-      risk.useCase === "politicalMessage" ||
-      risk.useCase === "parody" ||
-      score >= 9;
-    const hasBlockingConditions = gaps.length > 0 || labelsOut.some((item) => item.includes("missing") || item.includes("requires"));
-
-    if (hasEscalationTrigger || score >= 9) {
-      decision = "escalate";
-    } else if (hasBlockingConditions || score >= 5) {
-      decision = "conditional";
-    }
-  }
-
+  // Score, risk level, decision, and rule trace come from the shared rulebook (rules/rules.json) via
+  // web/rules-engine.js, which tests/test_engine_parity.py keeps identical to the backend engine.
+  const engine = window.RulesEngine.assess(window.RulesEngine.fromDemoIntake(risk));
+  let decision = { reject: "reject", manual_review: "escalate", approve_with_conditions: "conditional", approve: "approve" }[engine.decision];
   if (!hasCoreScenario(risk)) {
     decision = "intake";
   }
-
-  const riskLevel = decision === "intake" ? "Not assessed" : decision === "reject" ? "prohibited" : score >= 9 ? "high" : score >= 5 ? "medium" : "low";
+  const score = engine.total_score;
+  const riskLevel = decision === "intake" ? "Not assessed" : engine.risk_level;
   const title = {
     intake: "Scenario intake incomplete",
     reject: "Reject before generation",
@@ -576,6 +544,10 @@ function assessScenario(risk) {
 
   return {
     decision,
+    rules: decision === "intake" ? [] : engine.triggered_rules,
+    missingInformation: engine.missing_information,
+    reviewerPath: engine.reviewer_path,
+    ruleVersion: engine.rule_version,
     score: decision === "intake" ? "-" : score,
     riskLevel,
     title,
@@ -957,7 +929,7 @@ function updateLiveEvaluation(risk, memo) {
 
   renderPlainStatusList(
     triggeredRuleList,
-    prioritize(memo.riskDrivers, "No triggered rules yet. Complete intake to evaluate the case.").slice(0, 6),
+    (memo.rules || []).map((rule) => `${rule.rule_id} ${rule.title}${rule.hard_stop ? " (hard stop)" : ""}`),
     "No triggered rules yet. Complete intake to evaluate the case."
   );
   renderStatusList(stepResultList, stepReviewResults(risk));
@@ -1113,6 +1085,11 @@ render();
 // the FastAPI reference backend. Field concepts match the canonical case schema.
 const demoData = window.COMPLIANCE_DEMO_DATA;
 const cases = demoData.cases;
+cases.forEach((entry) => {
+  const memo = assessScenario(entry.intake);
+  entry.riskLevel = memo.riskLevel;
+  entry.decision = memo.title;
+});
 let activeCase = cases[0];
 let activeCaseTab = "overview";
 let activeEvidence = null;
@@ -1164,7 +1141,7 @@ function titleCase(value) {
 
 function statusClass(value) {
   const normalized = String(value || "").toLowerCase();
-  if (/critical|rejected|blocked|missing/.test(normalized)) return "critical";
+  if (/critical|prohibited|rejected|blocked|missing/.test(normalized)) return "critical";
   if (/high|pending|requested|under review|escalated/.test(normalized)) return "high";
   if (/medium|conditions|waiting|submitted|in progress/.test(normalized)) return "medium";
   if (/approved|accepted|low|not applicable/.test(normalized)) return "low";
@@ -1240,7 +1217,7 @@ function caseRow(caseRecord, detailed = true) {
 function renderDashboard() {
   const open = cases.filter((entry) => entry.stage !== "Approved").length;
   const awaiting = cases.filter((entry) => entry.evidenceReadiness < 70).length;
-  const high = cases.filter((entry) => ["high", "critical"].includes(entry.riskLevel)).length;
+  const high = cases.filter((entry) => ["high", "critical", "prohibited"].includes(entry.riskLevel)).length;
   const pending = cases.filter((entry) => entry.approvals.some((approval) => ["Pending", "Blocked", "Not Started"].includes(approval[2]))).length;
   document.querySelector("#metric-open-cases").textContent = open;
   document.querySelector("#metric-awaiting-evidence").textContent = awaiting;
@@ -1276,7 +1253,7 @@ let quickFilter = "";
 function isPendingApproval(entry) { return entry.approvals.some((approval) => ["Pending", "Blocked", "Not Started"].includes(approval[2])); }
 function matchesQuickFilter(entry, filter) {
   if (filter === "open") return entry.stage !== "Approved";
-  if (filter === "high") return ["high", "critical"].includes(entry.riskLevel);
+  if (filter === "high") return ["high", "critical", "prohibited"].includes(entry.riskLevel);
   if (filter === "gap") return entry.evidenceReadiness < 70;
   if (filter === "pending") return isPendingApproval(entry);
   return true;
@@ -1345,7 +1322,9 @@ function syncCaseIntake() {
   activeCase.intake = getScenario();
   activeCase.updated = nowLabel();
   activeCase.evidenceReadiness = evidenceReadinessPercent(activeCase.intake);
-  activeCase.decision = assessScenario(activeCase.intake).title;
+  const memo = assessScenario(activeCase.intake);
+  activeCase.decision = memo.title;
+  activeCase.riskLevel = memo.riskLevel;
   updateCaseSummary();
 }
 
@@ -1366,16 +1345,32 @@ function renderCaseHeader() {
   caseUi.reportCaseId.textContent = activeCase.id;
 }
 
+function chinaBasis(rule) {
+  const cn = (rule.legal_basis || []).filter((item) => item.jurisdiction === "CN");
+  if (!cn.length) return "No China-specific basis mapped";
+  return cn.map((item) => (item.norm_id ? `${item.source} [${item.norm_id}]` : item.source)).join("; ");
+}
+
 function renderRuleTrace(memo) {
-  const ruleRows = memo.riskDrivers.slice(0, 6).map((driver, index) => {
-    const isHardStop = memo.decision === "reject" && index < 2;
-    return [`R-${String(index + 1).padStart(2, "0")}`, driver.replace(/\.$/, ""), isHardStop ? "Critical" : memo.riskLevel === "high" ? "High" : "Medium", isHardStop ? "7" : index === 0 ? "3" : "2", isHardStop ? "Yes" : "No", isHardStop ? "Open" : "Open"];
-  });
-  const rows = ruleRows.map((rule) => {
+  const rows = (memo.rules || []).map((rule) => {
     const row = document.createElement("tr");
-    row.append(makeCell(rule[0]), makeCell(rule[1]), makeCell(statusBadge(rule[2])), makeCell(rule[3]), makeCell(rule[4]), makeCell(statusBadge(rule[5])));
+    row.append(
+      makeCell(rule.rule_id),
+      makeCell(rule.title),
+      makeCell(statusBadge(titleCase(rule.severity))),
+      makeCell(String(rule.score)),
+      makeCell(rule.hard_stop ? "Yes" : "No"),
+      makeCell(chinaBasis(rule)),
+    );
     return row;
   });
+  if (!rows.length) {
+    const row = document.createElement("tr");
+    const cell = makeCell("No rule triggered for the current intake.");
+    cell.colSpan = 6;
+    row.append(cell);
+    rows.push(row);
+  }
   clearAndAppend(document.querySelector("#rule-trace-body"), rows);
 }
 

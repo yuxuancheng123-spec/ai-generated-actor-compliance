@@ -11,7 +11,7 @@ This project evaluates a fictional AI actor / synthetic media platform that allo
 - A product-facing GitHub Pages demo that runs entirely in the browser;
 - A FastAPI reference implementation that models canonical intake schema, rule evaluation, SQLite records, reports, role-aware review actions, retention, soft deletion, and audit logs.
 
-The deployed GitHub Pages demo runs client-side. The FastAPI service is a separate engineering implementation using the same case concepts and stricter schema/rule definitions. The deployed web demo does not call the Python backend.
+The deployed GitHub Pages demo runs client-side and does not call the Python backend, but **both use one rulebook**: rule metadata lives in [rules/rules.json](rules/rules.json), the backend loads it directly, and the demo loads a generated copy ([web/rules-data.js](web/rules-data.js)) through a JavaScript port of the rule conditions ([web/rules-engine.js](web/rules-engine.js)). [tests/test_engine_parity.py](tests/test_engine_parity.py) runs both engines on the canonical examples, the four demo cases, and 600 random cases and fails on any difference in triggered rules, score, risk level, decision, or reviewer path.
 
 ## Static Workflow Prototype
 
@@ -51,6 +51,28 @@ The live static workflow is available at [GitHub Pages](https://yuxuancheng123-s
 | Canonical examples | [examples/](examples/) |
 | Static web demo | [web/](web/) |
 | Static workflow demo data | [web/case-records.js](web/case-records.js) |
+
+## Rules and Legal Bases
+
+Thirteen rules, each with a severity, score, and hard-stop flag. Hard stops decide the outcome; the score only ranks the remaining cases for review. Each rule lists its legal bases in [rules/rules.json](rules/rules.json); Chinese bases link to norm IDs in the [China AIGC Legal-Clause-to-Control Framework](https://github.com/yuxuancheng123-spec/china-aigc-compliance-evidence) where one exists. The mapping is the author's research interpretation, not legal advice.
+
+| Rule | Title | Hard stop | China legal basis |
+|---|---|---|---|
+| R-01 | Real-person commercial use without verified authorization | Yes | Civil Code Art. 1019 (portrait rights) and Art. 1023(2) (voice protected by reference to portrait rights); PIPL Arts. 28-29 (biometric information is sensitive; separate consent) (`CN-PIPL-CONSENT-001`) |
+| R-02 | Real-person sexual or defamatory synthetic portrayal | Yes | Civil Code Art. 1019 (no forgery of portraits by information technology) and Art. 1024 (reputation rights) |
+| R-03 | Minor identity in sensitive synthetic-media context | Yes | PIPL Art. 28 (personal information of minors under 14 is sensitive) and Art. 31 (guardian consent) |
+| R-04 | Public-figure or political-figure endorsement risk | No | Deep Synthesis Provisions Art. 17 (prominent labels where content may confuse or mislead the public) (`CN-DEEPSYN-LABEL-001`) |
+| R-05 | Training use without separate authorization | Yes | Deep Synthesis Provisions Art. 14(1) (training data containing personal information must follow personal information rules); PIPL Art. 6 (purpose limitation) and Art. 14(2) (new consent when the purpose changes) |
+| R-06 | Required media scope is not verified | No | PIPL Art. 14(2) (consent covers the stated purpose, method, and categories of information) |
+| R-07 | Visible AI disclosure is missing or unverified | No | AIGC Labeling Measures Art. 4 (explicit labels) (`CN-AIGC-LABEL-001`) |
+| R-08 | Machine-readable label is missing for China or global distribution | No | AIGC Labeling Measures Art. 5 (implicit labels in file metadata) (`CN-AIGC-META-001`); GB 45438-2025 implicit-label elements (`CN-GB-META-001`) |
+| R-09 | Provenance controls are incomplete | No | Deep Synthesis Provisions Art. 16 (technical labels and log retention so content can be identified and traced) |
+| R-10 | Territory, duration, or revocation scope is missing | No | PIPL Art. 15 (right to withdraw consent; a convenient way to withdraw) |
+| R-11 | Commercial compensation terms missing for performer digital replica | No | — |
+| R-12 | Sensitive context requires enhanced review | No | Generative AI Interim Measures Art. 4(1) (prohibited content) (`CN-AIGC-SAFETY-001`) |
+| R-13 | Consent evidence status is unverified | No | Deep Synthesis Provisions Art. 14(2) (prompt users to inform the edited person and obtain separate consent) (`CN-DEEPSYN-CONSENT-001`); PIPL Art. 29 (separate consent for sensitive personal information) (`CN-PIPL-CONSENT-001`) |
+
+An uploaded contract counts as submitted evidence, not verified authorization, until it passes review. The demo and the backend apply this the same way.
 
 ## Why This Problem Matters
 

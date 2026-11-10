@@ -7,7 +7,7 @@ const realPersonSubjects = new Set([
   "politician",
   "minor",
 ]);
-const verifiedConsentEvidence = new Set(["uploadedContract", "verifiedPortal", "performerAgreement"]);
+const verifiedConsentEvidence = new Set(["verifiedPortal", "performerAgreement"]);
 const commercialUses = new Set(["advertisement", "virtualInfluencer"]);
 const commercialMonetization = new Set(["paidAd", "resale"]);
 
@@ -403,8 +403,6 @@ function assessScenario(risk) {
     };
   }
 
-  let score = 0;
-  let decision = "approve";
   const riskDrivers = [];
   const controls = [];
   const labelsOut = [];
@@ -444,60 +442,49 @@ function assessScenario(risk) {
   }
 
   if (realPerson) {
-    score += 3;
     frameworks.push("SAG-AFTRA AI 原则: 数字分身使用需要清晰同意、补偿和具体用途授权。");
     evidence.push("与被描绘人和所请求媒体属性相匹配的授权/许可文件。");
   }
 
   if (realPerson && !verifiedAuthorization && !lowerImpactParody) {
-    score += 7;
-    decision = "reject";
     riskDrivers.push("真人肖像、声音、动作或表演工作流缺少已验证授权。");
     gaps.push("生成前需要本人级别的已验证授权；第三人或公众人物内容不能仅依赖上传者自我声明。");
     controls.push("阻止生成，并保留上传、提示词和账号证据，供权利人审核。");
   } else if (realPerson && !verifiedAuthorization && lowerImpactParody) {
-    score += 4;
     riskDrivers.push("公众人物戏仿/粉丝内容缺少已验证授权，但当前不是商业或敏感场景。");
     gaps.push("授权仍未验证；审核员需要判断戏仿/粉丝语境是否存在误导、商业化或伤害风险。");
     controls.push("除非提供单独授权，否则限制变现和代言式表达。");
   }
 
   if (commercial) {
-    score += 2;
     riskDrivers.push("商业、代言或转售语境会提高公开权、表演者权益和消费者误导风险。");
     if (!risk.scopeCommercial) gaps.push("提交的授权未明确覆盖商业使用。");
     controls.push("检查商业使用、渠道、地域、期限和二次使用是否在许可范围内。");
   }
 
   if (publicFigure) {
-    score += 3;
     reviews.push("公众人物或政治人物内容需要强化人工审核，重点检查冒充、代言和公共利益风险。");
   }
 
   if (risk.subjectType === "minor") {
-    score += 5;
     reviews.push("涉及未成年人的内容需要升级儿童安全审核，并进行更严格的身份/监护人授权审查。");
     gaps.push("确认监护人授权、儿童安全审核和分发限制。");
   }
 
   if (risk.sensitiveContext && risk.sensitiveContext !== "none") {
-    score += 4;
     riskDrivers.push(`选择了敏感语境：${labels.sensitiveContext[risk.sensitiveContext] || risk.sensitiveContext}。`);
     reviews.push("敏感语境需要在生成或发布前进行人工审核。");
   }
 
   if (realPerson && ["sexual", "defamatory"].includes(risk.sensitiveContext)) {
-    decision = "reject";
     controls.push("拒绝真人性相关或诽谤性合成呈现；如已有上传内容，转入事件/安全队列。");
   }
 
   if (risk.subjectType === "minor" && risk.sensitiveContext && risk.sensitiveContext !== "none") {
-    decision = "reject";
     controls.push("拒绝涉及未成年人的敏感合成媒体，并保留证据供安全审核。");
   }
 
   if (risk.trainingUse) {
-    score += 3;
     evidence.push("训练数据使用标记、数据血缘记录和模型改进 opt-in 记录。");
     if (!risk.scopeTraining) {
       gaps.push("训练、微调或模型改进用途没有单独授权。");
@@ -527,41 +514,24 @@ function assessScenario(risk) {
   addLabelRequirements(risk, labelsOut, controls, frameworks);
 
   if (!risk.visibleLabel && (realPerson || risk.subjectType === "synthetic")) {
-    score += 2;
     labelsOut.push("当前发布计划缺少可见 AI 披露。");
   }
   if (!risk.machineLabel && (risk.regionChina || risk.regionGlobal)) {
-    score += 2;
   }
   if (!risk.watermark && (risk.regionEu || risk.regionChina || risk.regionGlobal || commercial)) {
-    score += 1;
   }
 
   evidence.push("可见标签截图、元数据/来源记录、水印状态，以及必要时的导出哈希记录。");
   evidence.push("与内容 ID 绑定的投诉入口和下架 SLA。");
 
-  if (decision !== "reject") {
-    const hasEscalationTrigger =
-      publicFigure ||
-      risk.subjectType === "minor" ||
-      (risk.sensitiveContext && risk.sensitiveContext !== "none") ||
-      risk.useCase === "politicalMessage" ||
-      risk.useCase === "parody" ||
-      score >= 9;
-    const hasBlockingConditions = gaps.length > 0 || labelsOut.some((item) => item.includes("missing") || item.includes("requires"));
-
-    if (hasEscalationTrigger || score >= 9) {
-      decision = "escalate";
-    } else if (hasBlockingConditions || score >= 5) {
-      decision = "conditional";
-    }
-  }
-
+  // 分数、风险等级与结论来自共用规则库（rules/rules.json），经 web/rules-engine.js 计算，与后端引擎一致。
+  const engine = window.RulesEngine.assess(window.RulesEngine.fromDemoIntake(risk));
+  let decision = { reject: "reject", manual_review: "escalate", approve_with_conditions: "conditional", approve: "approve" }[engine.decision];
   if (!hasCoreScenario(risk)) {
     decision = "intake";
   }
-
-  const riskLevel = decision === "intake" ? "未评估" : decision === "reject" ? "禁止" : score >= 9 ? "高" : score >= 5 ? "中" : "低";
+  const score = engine.total_score;
+  const riskLevel = decision === "intake" ? "未评估" : { prohibited: "禁止", high: "高", medium: "中", low: "低" }[engine.risk_level];
   const title = {
     intake: "场景信息未完成",
     reject: "生成前拒绝",
@@ -586,6 +556,7 @@ function assessScenario(risk) {
 
   return {
     decision,
+    rules: decision === "intake" ? [] : engine.triggered_rules,
     score: decision === "intake" ? "-" : score,
     riskLevel,
     title,
@@ -974,7 +945,7 @@ function buildZhChain(risk, memo) {
       state: memo.decision === "reject" ? "fail" : "info", blocker: memo.decision === "reject" ? "触发硬性规则，生成前即被阻止。" : "" },
     { key: "labeling", title: "标识与来源证明", summary: missingLabels.length ? `未计划：${missingLabels.join("、")}` : "可见标识、机器可读元数据和水印均已计划", rows: [["可见标识", yes(risk.visibleLabel)], ["机器可读元数据", yes(risk.machineLabel)], ["水印", yes(risk.watermark)]],
       state: !risk.visibleLabel ? "fail" : missingLabels.length ? "warn" : "ok", blocker: missingLabels.length ? `未计划：${missingLabels.join("、")}。` : "" },
-    { key: "review", title: "风险评估", summary: `${memo.title} · 风险${displayRiskLevel(memo.riskLevel)} · 分数 ${memo.score}`, rows: [["结论", memo.title], ["风险", `${displayRiskLevel(memo.riskLevel)} · 分数 ${memo.score}`], ["触发规则", String(memo.riskDrivers.length)]],
+    { key: "review", title: "风险评估", summary: `${memo.title} · 风险${displayRiskLevel(memo.riskLevel)} · 分数 ${memo.score}`, rows: [["结论", memo.title], ["风险", `${displayRiskLevel(memo.riskLevel)} · 分数 ${memo.score}`], ["触发规则", (memo.rules || []).map((rule) => `${rule.rule_id} ${rule.title_zh}`).join("；") || "无"]],
       state: byDecision[memo.decision], blocker: memo.decision === "approve" ? "" : memo.summary },
     { key: "approval", title: "人工审核", rows: [["审核路径", memo.reviewer]], state: byDecision[memo.decision], blocker: memo.decision === "approve" ? "" : `需要：${memo.reviewer}。` },
     { key: "publish", title: "发布", rows: [["发布地区", regions.join("、") || "未选择"], ["发布方式", labels.monetization[risk.monetization] || "未选择"]],
