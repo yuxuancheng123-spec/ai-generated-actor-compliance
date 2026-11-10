@@ -557,3 +557,5 @@ details.report-module[open] > summary::after { content: "–"; }
   .case-tab-panel[data-case-panel="report"] { display: block !important; }
   details.report-module > :not(summary) { display: block !important; }
 }
+
+.module-note { margin: 0 0 8px; color: var(--subtle); font-size: 12px; }

@@ -16,12 +16,14 @@
       "legal_basis": [
         {
           "jurisdiction": "CN",
-          "source": "Civil Code Art. 1019 (portrait rights) and Art. 1023(2) (voice protected by reference to portrait rights)"
+          "source": "Civil Code Art. 1019 (portrait rights) and Art. 1023(2) (voice protected by reference to portrait rights)",
+          "source_zh": "《民法典》第一千零一十九条（肖像权）、第一千零二十三条第二款（对自然人声音的保护参照适用肖像权保护的有关规定）"
         },
         {
           "jurisdiction": "CN",
           "source": "PIPL Arts. 28-29 (biometric information is sensitive; separate consent)",
-          "norm_id": "CN-PIPL-CONSENT-001"
+          "norm_id": "CN-PIPL-CONSENT-001",
+          "source_zh": "《个人信息保护法》第二十八条、第二十九条（生物识别信息属于敏感个人信息，应取得单独同意）"
         },
         {
           "jurisdiction": "US",
@@ -42,7 +44,8 @@
       "legal_basis": [
         {
           "jurisdiction": "CN",
-          "source": "Civil Code Art. 1019 (no forgery of portraits by information technology) and Art. 1024 (reputation rights)"
+          "source": "Civil Code Art. 1019 (no forgery of portraits by information technology) and Art. 1024 (reputation rights)",
+          "source_zh": "《民法典》第一千零一十九条（不得利用信息技术手段伪造等方式侵害他人肖像权）、第一千零二十四条（名誉权）"
         },
         {
           "jurisdiction": "GLOBAL",
@@ -63,7 +66,8 @@
       "legal_basis": [
         {
           "jurisdiction": "CN",
-          "source": "PIPL Art. 28 (personal information of minors under 14 is sensitive) and Art. 31 (guardian consent)"
+          "source": "PIPL Art. 28 (personal information of minors under 14 is sensitive) and Art. 31 (guardian consent)",
+          "source_zh": "《个人信息保护法》第二十八条（不满十四周岁未成年人的个人信息属于敏感个人信息）、第三十一条（应取得父母或者其他监护人的同意）"
         },
         {
           "jurisdiction": "GLOBAL",
@@ -85,7 +89,8 @@
         {
           "jurisdiction": "CN",
           "source": "Deep Synthesis Provisions Art. 17 (prominent labels where content may confuse or mislead the public)",
-          "norm_id": "CN-DEEPSYN-LABEL-001"
+          "norm_id": "CN-DEEPSYN-LABEL-001",
+          "source_zh": "《互联网信息服务深度合成管理规定》第十七条（可能导致公众混淆或者误认的，应在合理位置进行显著标识）"
         },
         {
           "jurisdiction": "EU",
@@ -106,11 +111,13 @@
       "legal_basis": [
         {
           "jurisdiction": "CN",
-          "source": "Deep Synthesis Provisions Art. 14(1) (training data containing personal information must follow personal information rules)"
+          "source": "Deep Synthesis Provisions Art. 14(1) (training data containing personal information must follow personal information rules)",
+          "source_zh": "《互联网信息服务深度合成管理规定》第十四条第一款（训练数据涉及个人信息的，应遵守个人信息保护的有关规定）"
         },
         {
           "jurisdiction": "CN",
-          "source": "PIPL Art. 6 (purpose limitation) and Art. 14(2) (new consent when the purpose changes)"
+          "source": "PIPL Art. 6 (purpose limitation) and Art. 14(2) (new consent when the purpose changes)",
+          "source_zh": "《个人信息保护法》第六条（目的明确、最小必要）、第十四条第二款（处理目的变更的，应重新取得个人同意）"
         },
         {
           "jurisdiction": "US",
@@ -131,7 +138,8 @@
       "legal_basis": [
         {
           "jurisdiction": "CN",
-          "source": "PIPL Art. 14(2) (consent covers the stated purpose, method, and categories of information)"
+          "source": "PIPL Art. 14(2) (consent covers the stated purpose, method, and categories of information)",
+          "source_zh": "《个人信息保护法》第十四条第二款（处理目的、处理方式和个人信息种类发生变更的，应重新取得个人同意）"
         },
         {
           "jurisdiction": "US",
@@ -153,7 +161,8 @@
         {
           "jurisdiction": "CN",
           "source": "AIGC Labeling Measures Art. 4 (explicit labels)",
-          "norm_id": "CN-AIGC-LABEL-001"
+          "norm_id": "CN-AIGC-LABEL-001",
+          "source_zh": "《人工智能生成合成内容标识办法》第四条（显式标识）"
         },
         {
           "jurisdiction": "EU",
@@ -175,12 +184,14 @@
         {
           "jurisdiction": "CN",
           "source": "AIGC Labeling Measures Art. 5 (implicit labels in file metadata)",
-          "norm_id": "CN-AIGC-META-001"
+          "norm_id": "CN-AIGC-META-001",
+          "source_zh": "《人工智能生成合成内容标识办法》第五条（在文件元数据中添加隐式标识）"
         },
         {
           "jurisdiction": "CN",
           "source": "GB 45438-2025 implicit-label elements",
-          "norm_id": "CN-GB-META-001"
+          "norm_id": "CN-GB-META-001",
+          "source_zh": "GB 45438—2025《网络安全技术 人工智能生成合成内容标识方法》隐式标识要素"
         }
       ]
     },
@@ -197,7 +208,8 @@
       "legal_basis": [
         {
           "jurisdiction": "CN",
-          "source": "Deep Synthesis Provisions Art. 16 (technical labels and log retention so content can be identified and traced)"
+          "source": "Deep Synthesis Provisions Art. 16 (technical labels and log retention so content can be identified and traced)",
+          "source_zh": "《互联网信息服务深度合成管理规定》第十六条（添加不影响使用的标识，并依法保存日志信息）"
         },
         {
           "jurisdiction": "GLOBAL",
@@ -218,7 +230,8 @@
       "legal_basis": [
         {
           "jurisdiction": "CN",
-          "source": "PIPL Art. 15 (right to withdraw consent; a convenient way to withdraw)"
+          "source": "PIPL Art. 15 (right to withdraw consent; a convenient way to withdraw)",
+          "source_zh": "《个人信息保护法》第十五条（个人有权撤回同意，处理者应提供便捷的撤回方式）"
         },
         {
           "jurisdiction": "GLOBAL",
@@ -257,7 +270,8 @@
         {
           "jurisdiction": "CN",
           "source": "Generative AI Interim Measures Art. 4(1) (prohibited content)",
-          "norm_id": "CN-AIGC-SAFETY-001"
+          "norm_id": "CN-AIGC-SAFETY-001",
+          "source_zh": "《生成式人工智能服务管理暂行办法》第四条第一项（不得生成法律、行政法规禁止的内容）"
         },
         {
           "jurisdiction": "US",
@@ -279,12 +293,14 @@
         {
           "jurisdiction": "CN",
           "source": "Deep Synthesis Provisions Art. 14(2) (prompt users to inform the edited person and obtain separate consent)",
-          "norm_id": "CN-DEEPSYN-CONSENT-001"
+          "norm_id": "CN-DEEPSYN-CONSENT-001",
+          "source_zh": "《互联网信息服务深度合成管理规定》第十四条第二款（提示使用者依法告知被编辑的个人，并取得其单独同意）"
         },
         {
           "jurisdiction": "CN",
           "source": "PIPL Art. 29 (separate consent for sensitive personal information)",
-          "norm_id": "CN-PIPL-CONSENT-001"
+          "norm_id": "CN-PIPL-CONSENT-001",
+          "source_zh": "《个人信息保护法》第二十九条（处理敏感个人信息应取得个人的单独同意）"
         }
       ]
     }
