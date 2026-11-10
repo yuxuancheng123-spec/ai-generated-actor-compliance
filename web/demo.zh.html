@@ -308,6 +308,12 @@
             <div class="action-groups" id="action-groups"></div>
           </section>
 
+          <section class="report-module" aria-label="规则追踪">
+            <div class="module-heading"><span>04</span><h3>规则追踪</h3></div>
+            <p class="module-note" id="zh-rule-version">与后端共用同一规则库（rules/rules.json）。</p>
+            <div class="table-wrap"><table class="data-table"><thead><tr><th>规则</th><th>标题</th><th>严重程度</th><th>分值</th><th>硬性阻断</th><th>中国法依据</th></tr></thead><tbody id="zh-rule-trace-body"></tbody></table></div>
+          </section>
+
           <details class="report-module appendix" aria-label="附录">
             <summary class="module-heading"><span>附</span><h3>附录：需留存证据 · 依据框架</h3></summary>
             <div class="appendix-body">
@@ -321,7 +327,7 @@
           <div class="next-actions">
             <button class="button secondary" type="button" id="edit-intake">返回修改</button>
             <a href="../docs/09_final_compliance_assessment_report.md">查看英文报告</a>
-            <a href="../scripts/risk_scoring_demo.py">查看Python规则</a>
+            <a href="../rules/rules.json">查看规则库</a>
           </div>
         </aside>
       </section>
