@@ -158,7 +158,7 @@ const presets = {
     scopeCompensation: false,
     visibleLabel: true,
     machineLabel: true,
-    watermark: false,
+    watermark: true,
     trainingUse: false,
   },
 };

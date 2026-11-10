@@ -165,7 +165,7 @@ const presets = {
     scopeCompensation: false,
     visibleLabel: true,
     machineLabel: true,
-    watermark: false,
+    watermark: true,
     trainingUse: false,
   },
 };
@@ -839,7 +839,46 @@ function render() {
   renderActions(sections.actions, risk, memo);
   renderList(sections.frameworks, memo.frameworks);
   renderList(sections.evidence, memo.evidence);
+  renderZhRuleTrace(memo);
   updateIntakeStatus(risk);
+}
+
+const ZH_SEVERITY = { critical: "严重", high: "高", medium: "中", low: "低" };
+
+function zhChinaBasis(rule) {
+  const cn = (rule.legal_basis || []).filter((item) => item.jurisdiction === "CN");
+  if (!cn.length) return "暂未映射中国法依据";
+  return cn.map((item) => `${item.source_zh || item.source}${item.norm_id ? ` [${item.norm_id}]` : ""}`).join("；");
+}
+
+function renderZhRuleTrace(memo) {
+  const body = document.querySelector("#zh-rule-trace-body");
+  if (!body) return;
+  const version = document.querySelector("#zh-rule-version");
+  if (version && window.RULES_DATA) {
+    version.textContent = `与后端共用同一规则库（rules/rules.json · ${window.RULES_DATA.version}）。法律依据为作者的研究映射，不构成法律意见。`;
+  }
+  body.replaceChildren();
+  const rules = memo.rules || [];
+  if (!rules.length) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 6;
+    cell.textContent = memo.decision === "intake" ? "完成核心场景字段后显示触发的规则。" : "当前场景未触发任何规则。";
+    row.append(cell);
+    body.append(row);
+    return;
+  }
+  rules.forEach((rule) => {
+    const row = document.createElement("tr");
+    [rule.rule_id, rule.title_zh || rule.title, ZH_SEVERITY[rule.severity] || rule.severity, String(rule.score), rule.hard_stop ? "是" : "否", zhChinaBasis(rule)].forEach((text, index) => {
+      const cell = document.createElement("td");
+      cell.textContent = text;
+      if (index === 5) cell.className = "stack-cell";
+      row.append(cell);
+    });
+    body.append(row);
+  });
 }
 
 function setCheckbox(field, value) {
