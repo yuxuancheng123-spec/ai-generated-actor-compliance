@@ -180,6 +180,7 @@ class IntendedUsePlan(BaseModel):
     commercial_use: YesNoUnknown
     sensitive_context: SensitiveContext
     distribution_regions: list[DistributionRegion]
+    includes_training_use: YesNoUnknown = YesNoUnknown.NO
     publication_channel: str | None = None
     audience: str | None = None
 
@@ -285,6 +286,7 @@ class TriggeredRule(BaseModel):
     affected_domain: str
     recommended_control: str
     source_reference: str
+    legal_basis: list[dict[str, str]] = Field(default_factory=list)
     version: str
 
 

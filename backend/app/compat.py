@@ -51,7 +51,7 @@ def _verification(value: Any) -> VerificationStatus:
         "verified": VerificationStatus.VERIFIED,
         "authorized": VerificationStatus.VERIFIED,
         "licensed": VerificationStatus.VERIFIED,
-        "uploadedcontract": VerificationStatus.VERIFIED,
+        "uploadedcontract": VerificationStatus.UNVERIFIED,  # submitted, not yet verified
         "performeragreement": VerificationStatus.VERIFIED,
         "unverified": VerificationStatus.UNVERIFIED,
         "none": VerificationStatus.NOT_PROVIDED,

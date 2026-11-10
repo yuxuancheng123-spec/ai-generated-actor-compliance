@@ -1,3 +1,4 @@
+// riskLevel and decision are not stored here: web/app.js computes them from each intake with the shared rule engine.
 window.COMPLIANCE_DEMO_DATA = {
   currentUser: "Yuxuan Cheng",
   cases: [
@@ -6,7 +7,6 @@ window.COMPLIANCE_DEMO_DATA = {
       title: "Celebrity Campaign",
       description: "Paid campaign concept using a celebrity likeness and voice for regional launch assets.",
       representedPerson: "Public figure",
-      riskLevel: "high",
       stage: "Legal Review",
       evidenceReadiness: 60,
       owner: "Yuxuan Cheng",
@@ -14,7 +14,6 @@ window.COMPLIANCE_DEMO_DATA = {
       legalReviewer: "Alex Wu",
       dueDate: "2026-07-18",
       updated: "2026-07-15 14:10",
-      decision: "Escalate to human review",
       nextAction: "Verified likeness authorization is missing. Request evidence from the project owner before legal review can proceed.",
       intake: {
         requesterType: "brand", subjectType: "publicFigure", mediaFace: true, mediaVoice: true, mediaMotion: false, mediaPerformance: true,
@@ -29,8 +28,8 @@ window.COMPLIANCE_DEMO_DATA = {
         ["EV-014-04", "Machine-readable metadata plan", "Provenance record", "Submitted", "Production", "Mei Lin", "2026-07-15", "2026-10-31", "v1"],
       ],
       findings: [
-        ["F-014-01", "Voice authorization is not available", "R-01 rights clearance", "High", true, "Legal Operations", "2026-07-18", "Open", "Obtain a signed voice and AI replica rider."],
-        ["F-014-02", "Commercial scope is not explicit", "R-03 commercial use", "Medium", true, "Project Owner", "2026-07-17", "In Progress", "Confirm campaign channels, territory, duration, and compensation."],
+        ["F-014-01", "Voice authorization is not available", "R-01 authorization", "High", true, "Legal Operations", "2026-07-18", "Open", "Obtain a signed voice and AI replica rider."],
+        ["F-014-02", "Commercial scope is not explicit", "R-01 commercial use scope", "Medium", true, "Project Owner", "2026-07-17", "In Progress", "Confirm campaign channels, territory, duration, and compensation."],
       ],
       approvals: [
         ["Business Owner", "Jia Chen", "Submitted", "-", "2026-07-14", "Campaign brief supplied"],
@@ -52,7 +51,6 @@ window.COMPLIANCE_DEMO_DATA = {
       title: "Authorized Digital Performer",
       description: "Licensed digital replica for a short-drama release with documented consent and provenance controls.",
       representedPerson: "Contracted performer",
-      riskLevel: "low",
       stage: "Approved",
       evidenceReadiness: 100,
       owner: "Production Operations",
@@ -60,7 +58,6 @@ window.COMPLIANCE_DEMO_DATA = {
       legalReviewer: "Alex Wu",
       dueDate: "2026-07-22",
       updated: "2026-07-15 11:25",
-      decision: "Approve standard workflow",
       nextAction: "Proceed with scheduled release. Retain the provenance and label evidence bundle through the license term.",
       intake: {
         requesterType: "production", subjectType: "performer", mediaFace: true, mediaVoice: true, mediaMotion: true, mediaPerformance: true,
@@ -93,7 +90,6 @@ window.COMPLIANCE_DEMO_DATA = {
       title: "Voice Model Training Request",
       description: "Model improvement request based on a performer voice corpus with an incomplete secondary-use scope.",
       representedPerson: "Contracted performer",
-      riskLevel: "medium",
       stage: "Awaiting Evidence",
       evidenceReadiness: 45,
       owner: "Model Operations",
@@ -101,7 +97,6 @@ window.COMPLIANCE_DEMO_DATA = {
       legalReviewer: "Alex Wu",
       dueDate: "2026-07-19",
       updated: "2026-07-15 10:40",
-      decision: "Approve with conditions",
       nextAction: "Obtain separate training-use permission and a vendor deletion commitment before the training job is released.",
       intake: {
         requesterType: "production", subjectType: "performer", mediaFace: false, mediaVoice: true, mediaMotion: false, mediaPerformance: true,
@@ -117,7 +112,7 @@ window.COMPLIANCE_DEMO_DATA = {
       ],
       findings: [
         ["F-016-01", "Training use is outside current consent scope", "R-05 model training", "High", true, "Legal Operations", "2026-07-18", "Open", "Collect a signed AI-training rider."],
-        ["F-016-02", "Vendor deletion evidence has not been supplied", "R-07 vendor controls", "Medium", true, "Vendor Management", "2026-07-19", "Waiting", "Request vendor retention and deletion attestation."],
+        ["F-016-02", "Vendor deletion evidence has not been supplied", "R-09 provenance and lineage", "Medium", true, "Vendor Management", "2026-07-19", "Waiting", "Request vendor retention and deletion attestation."],
       ],
       approvals: [
         ["Business Owner", "Ming Zhao", "Submitted", "-", "2026-07-12", "Training request opened"],
@@ -137,7 +132,6 @@ window.COMPLIANCE_DEMO_DATA = {
       title: "Minor in Sensitive Context",
       description: "User-uploaded face material proposing a synthetic portrayal of a minor in a sensitive context.",
       representedPerson: "Minor",
-      riskLevel: "critical",
       stage: "Escalated",
       evidenceReadiness: 20,
       owner: "Trust and Safety",
@@ -145,7 +139,6 @@ window.COMPLIANCE_DEMO_DATA = {
       legalReviewer: "Alex Wu",
       dueDate: "2026-07-16",
       updated: "2026-07-15 16:00",
-      decision: "Reject before generation",
       nextAction: "Keep generation blocked, preserve the account and upload records, and complete the safety incident review.",
       intake: {
         requesterType: "creator", subjectType: "minor", mediaFace: true, mediaVoice: false, mediaMotion: false, mediaPerformance: true,
@@ -159,8 +152,8 @@ window.COMPLIANCE_DEMO_DATA = {
         ["EV-017-03", "Incident preservation record", "Audit record", "Accepted", "Trust and Safety", "Mei Lin", "2026-07-15", "2027-07-15", "v1"],
       ],
       findings: [
-        ["F-017-01", "Sensitive minor portrayal is prohibited", "R-02 protected subjects", "Critical", true, "Trust and Safety", "2026-07-16", "Open", "Block generation and route to incident response."],
-        ["F-017-02", "Guardian authorization is missing", "R-01 rights clearance", "High", true, "Legal Operations", "2026-07-16", "Open", "Preserve evidence and do not accept substitute attestation."],
+        ["F-017-01", "Sensitive minor portrayal is prohibited", "R-03 minor in sensitive context", "Critical", true, "Trust and Safety", "2026-07-16", "Open", "Block generation and route to incident response."],
+        ["F-017-02", "Guardian authorization is missing", "R-13 consent evidence", "High", true, "Legal Operations", "2026-07-16", "Open", "Preserve evidence and do not accept substitute attestation."],
       ],
       approvals: [
         ["Business Owner", "Rui Zhang", "Submitted", "-", "2026-07-15", "Request received"],
@@ -171,7 +164,7 @@ window.COMPLIANCE_DEMO_DATA = {
       ],
       activity: [
         ["2026-07-15 08:45", "Rui Zhang", "Case created", "Case", "User-uploaded media flag"],
-        ["2026-07-15 08:48", "System", "Rule triggered", "Rule R-02", "Minor and sensitive-context hard stop"],
+        ["2026-07-15 08:48", "System", "Rule triggered", "Rule R-03", "Minor and sensitive-context hard stop"],
         ["2026-07-15 09:00", "Mei Lin", "Case escalated", "Case", "Legal and safety review requested"],
         ["2026-07-15 16:00", "Nora Li", "Evidence accepted", "EV-017-03", "Incident preservation confirmed"],
       ],

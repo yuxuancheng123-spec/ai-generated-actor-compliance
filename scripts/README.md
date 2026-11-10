@@ -6,7 +6,7 @@ The demo is deterministic and rule-based. It is not an ML model, not legal advic
 
 ## Relationship to the Web Demo
 
-The deployed GitHub Pages demo runs client-side. The FastAPI service and this CLI are separate engineering implementations. They use the same case concepts, but the deployed web page does not call Python.
+The deployed GitHub Pages demo runs client-side and does not call Python, but it uses the same rulebook (`rules/rules.json`) through `web/rules-engine.js`. `tests/test_engine_parity.py` checks that the demo and this CLI reach the same result for the same case.
 
 ## Run a Canonical JSON Case
 

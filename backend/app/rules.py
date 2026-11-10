@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Callable
 
 from .schemas import (
@@ -22,7 +24,9 @@ from .schemas import (
 )
 
 
-RULE_VERSION = "actor-compliance-rules-2026-07-14"
+RULES_PATH = Path(__file__).resolve().parents[2] / "rules" / "rules.json"
+_RULEBOOK = json.loads(RULES_PATH.read_text(encoding="utf-8"))
+RULE_VERSION = _RULEBOOK["version"]
 
 
 def is_verified(status: VerificationStatus) -> bool:
@@ -128,6 +132,7 @@ class Rule:
     source_reference: str
     version: str
     condition: Callable[[CaseIntake], bool]
+    legal_basis: tuple[dict[str, str], ...] = field(default_factory=tuple)
 
     def trigger(self) -> TriggeredRule:
         return TriggeredRule(
@@ -140,197 +145,78 @@ class Rule:
             affected_domain=self.affected_domain,
             recommended_control=self.recommended_control,
             source_reference=self.source_reference,
+            legal_basis=[dict(item) for item in self.legal_basis],
             version=self.version,
         )
 
 
-RULES: tuple[Rule, ...] = (
-    Rule(
-        "R-01",
-        "Real-person commercial use without verified authorization",
-        "A real person's likeness, voice, motion, or prior performance is used for commercial content without verified authorization.",
-        RuleSeverity.CRITICAL,
-        5,
-        True,
-        "consent",
-        "Block generation or publication until person-level authorization and commercial-use scope are verified.",
-        "SAG-AFTRA AI digital replica consent principles; right-of-publicity risk control",
-        RULE_VERSION,
-        lambda c: uses_real_person(c) and is_commercial(c) and not consent_verified(c),
+# Conditions stay in code; metadata (titles, scores, hard stops, legal bases) comes from rules/rules.json.
+# web/rules-engine.js mirrors these conditions; tests/test_engine_parity.py checks that both agree.
+CONDITIONS: dict[str, Callable[[CaseIntake], bool]] = {
+    "R-01": lambda c: uses_real_person(c) and is_commercial(c) and not consent_verified(c),
+    "R-02": lambda c: uses_real_person(c)
+    and c.intended_use.sensitive_context in {SensitiveContext.SEXUAL, SensitiveContext.DEFAMATORY},
+    "R-03": lambda c: involves_minor(c) and c.intended_use.sensitive_context != SensitiveContext.NONE,
+    "R-04": lambda c: involves_public_figure(c)
+    and (is_commercial(c) or c.intended_use.use_case == IntendedUse.POLITICAL_MESSAGE),
+    "R-05": lambda c: c.consent.training_use_authorized != YesNoUnknown.YES
+    and (
+        c.intended_use.use_case == IntendedUse.MODEL_TRAINING
+        or c.intended_use.includes_training_use == YesNoUnknown.YES
     ),
-    Rule(
-        "R-02",
-        "Real-person sexual or defamatory synthetic portrayal",
-        "A real person's identity is placed into a sexual or defamatory synthetic-media context.",
-        RuleSeverity.CRITICAL,
-        5,
-        True,
-        "safety",
-        "Reject and preserve evidence for incident response and affected-person notice review.",
-        "Platform prohibited-use policy; privacy and dignity harm controls",
-        RULE_VERSION,
-        lambda c: uses_real_person(c)
-        and c.intended_use.sensitive_context in {SensitiveContext.SEXUAL, SensitiveContext.DEFAMATORY},
-    ),
-    Rule(
-        "R-03",
-        "Minor identity in sensitive synthetic-media context",
-        "A child or minor is depicted in a sensitive synthetic-media context.",
-        RuleSeverity.CRITICAL,
-        5,
-        True,
-        "child_safety",
-        "Reject and route to child-safety review with evidence preservation.",
-        "Child safety and high-impact synthetic media controls",
-        RULE_VERSION,
-        lambda c: involves_minor(c) and c.intended_use.sensitive_context != SensitiveContext.NONE,
-    ),
-    Rule(
-        "R-04",
-        "Public-figure or political-figure endorsement risk",
-        "The request depicts a public or political figure in a context that could imply endorsement or mislead viewers.",
-        RuleSeverity.HIGH,
-        3,
-        False,
-        "identity_risk",
-        "Require enhanced human review, clear disclosure, and no misleading endorsement framing.",
-        "EU AI Act Article 50; publicity and deceptive endorsement risk control",
-        RULE_VERSION,
-        lambda c: involves_public_figure(c)
-        and (is_commercial(c) or c.intended_use.use_case == IntendedUse.POLITICAL_MESSAGE),
-    ),
-    Rule(
-        "R-05",
-        "Training use without separate authorization",
-        "Source media or generated output is used for model training, fine-tuning, or improvement without separate authorization.",
-        RuleSeverity.CRITICAL,
-        5,
-        True,
-        "training_data",
-        "Block training use until a separate data-use authorization and data lineage record are attached.",
-        "Purpose limitation and data minimization control; NIST AI RMF Map/Manage",
-        RULE_VERSION,
-        lambda c: c.consent.training_use_authorized != YesNoUnknown.YES
-        and c.intended_use.use_case == IntendedUse.MODEL_TRAINING,
-    ),
-    Rule(
-        "R-06",
-        "Required media scope is not verified",
-        "The submitted authorization does not verify the specific face, voice, motion, or performance scope used in the request.",
-        RuleSeverity.HIGH,
-        3,
-        False,
-        "consent_scope",
-        "Verify separate likeness, voice, motion, and performance scopes before approval.",
-        "SAG-AFTRA AI scope-of-use principle",
-        RULE_VERSION,
-        lambda c: uses_real_person(c) and consent_verified(c) and required_scope_missing(c),
-    ),
-    Rule(
-        "R-07",
-        "Visible AI disclosure is missing or unverified",
-        "The release plan lacks a verified viewer-facing AI-generated or AI-modified content label.",
-        RuleSeverity.MEDIUM,
-        2,
-        False,
-        "transparency",
-        "Add visible AI disclosure before publication or export.",
-        "EU AI Act Article 50; China synthetic content labeling requirements",
-        RULE_VERSION,
-        lambda c: c.disclosure_plan.visible_label != VerificationStatus.VERIFIED,
-    ),
-    Rule(
-        "R-08",
-        "Machine-readable label is missing for China or global distribution",
-        "China-facing or global distribution lacks verified implicit or machine-readable synthetic-content metadata.",
-        RuleSeverity.MEDIUM,
-        2,
-        False,
-        "transparency",
-        "Add machine-readable metadata, content credentials, or platform-side provenance signal.",
-        "China AI-generated synthetic content labeling requirements",
-        RULE_VERSION,
-        lambda c: includes_region(c, DistributionRegion.CHINA)
-        and c.disclosure_plan.machine_readable_metadata != VerificationStatus.VERIFIED,
-    ),
-    Rule(
-        "R-09",
-        "Provenance controls are incomplete",
-        "The case lacks verified output hashing, watermarking, model-version logging, or export-event records.",
-        RuleSeverity.MEDIUM,
-        2,
-        False,
-        "provenance",
-        "Record source/output hashes, watermark state, model version, and export event before release.",
-        "C2PA/content provenance concepts; NIST AI RMF Measure/Manage",
-        RULE_VERSION,
-        lambda c: c.disclosure_plan.watermark != VerificationStatus.VERIFIED
-        or c.provenance_controls.output_hash_registry != VerificationStatus.VERIFIED
-        or c.provenance_controls.export_event_logged != VerificationStatus.VERIFIED,
-    ),
-    Rule(
-        "R-10",
-        "Territory, duration, or revocation scope is missing",
-        "Verified consent exists, but territory, duration, or revocation path is incomplete.",
-        RuleSeverity.MEDIUM,
-        2,
-        False,
-        "license_scope",
-        "Require territory, duration, and revocation terms before release approval.",
-        "Consent and licensing checklist; purpose limitation control",
-        RULE_VERSION,
-        lambda c: consent_verified(c)
-        and uses_real_person(c)
-        and (not c.consent.territory or c.consent.duration_end is None or not c.consent.revocation_path),
-    ),
-    Rule(
-        "R-11",
-        "Commercial compensation terms missing for performer digital replica",
-        "A performer digital replica is used commercially without documented compensation terms.",
-        RuleSeverity.HIGH,
-        3,
-        False,
-        "compensation",
-        "Attach compensation terms and performer approval before commercial release.",
-        "SAG-AFTRA AI consent and compensation principle",
-        RULE_VERSION,
-        lambda c: c.represented_person.person_type == PersonType.PERFORMER
-        and is_commercial(c)
-        and not c.consent.compensation_terms,
-    ),
-    Rule(
-        "R-12",
-        "Sensitive context requires enhanced review",
-        "The request involves political, medical, financial, violent, or otherwise sensitive context.",
-        RuleSeverity.HIGH,
-        3,
-        False,
-        "human_review",
-        "Route to enhanced reviewer path with scenario-specific safety and deception checks.",
-        "NIST AI RMF Govern/Map; platform safety governance",
-        RULE_VERSION,
-        lambda c: c.intended_use.sensitive_context
-        in {
-            SensitiveContext.POLITICAL,
-            SensitiveContext.MEDICAL,
-            SensitiveContext.FINANCIAL,
-            SensitiveContext.VIOLENCE,
-        },
-    ),
-    Rule(
-        "R-13",
-        "Consent evidence status is unverified",
-        "Consent evidence is missing, unknown, expired, rejected, or not verified.",
-        RuleSeverity.HIGH,
-        3,
-        False,
-        "consent",
-        "Move case to manual review and require verified evidence before approval.",
-        "Consent vault and evidence ownership control",
-        RULE_VERSION,
-        lambda c: uses_real_person(c) and not consent_verified(c),
-    ),
-)
+    "R-06": lambda c: uses_real_person(c) and consent_verified(c) and required_scope_missing(c),
+    "R-07": lambda c: c.disclosure_plan.visible_label != VerificationStatus.VERIFIED,
+    "R-08": lambda c: includes_region(c, DistributionRegion.CHINA)
+    and c.disclosure_plan.machine_readable_metadata != VerificationStatus.VERIFIED,
+    "R-09": lambda c: c.disclosure_plan.watermark != VerificationStatus.VERIFIED
+    or c.provenance_controls.output_hash_registry != VerificationStatus.VERIFIED
+    or c.provenance_controls.export_event_logged != VerificationStatus.VERIFIED,
+    "R-10": lambda c: consent_verified(c)
+    and uses_real_person(c)
+    and (not c.consent.territory or c.consent.duration_end is None or not c.consent.revocation_path),
+    "R-11": lambda c: c.represented_person.person_type == PersonType.PERFORMER
+    and is_commercial(c)
+    and not c.consent.compensation_terms,
+    "R-12": lambda c: c.intended_use.sensitive_context
+    in {
+        SensitiveContext.POLITICAL,
+        SensitiveContext.MEDICAL,
+        SensitiveContext.FINANCIAL,
+        SensitiveContext.VIOLENCE,
+    },
+    "R-13": lambda c: uses_real_person(c) and not consent_verified(c),
+}
+
+
+def _source_reference(legal_basis: list[dict[str, str]]) -> str:
+    return "; ".join(item["source"] for item in legal_basis)
+
+
+def _load_rules() -> tuple[Rule, ...]:
+    entries = _RULEBOOK["rules"]
+    ids = [entry["rule_id"] for entry in entries]
+    if set(ids) != set(CONDITIONS) or len(ids) != len(set(ids)):
+        raise RuntimeError("rules/rules.json and CONDITIONS must define the same rule IDs")
+    return tuple(
+        Rule(
+            entry["rule_id"],
+            entry["title"],
+            entry["description"],
+            RuleSeverity(entry["severity"]),
+            entry["score"],
+            entry["hard_stop"],
+            entry["affected_domain"],
+            entry["recommended_control"],
+            _source_reference(entry["legal_basis"]),
+            RULE_VERSION,
+            CONDITIONS[entry["rule_id"]],
+            tuple(entry["legal_basis"]),
+        )
+        for entry in entries
+    )
+
+
+RULES: tuple[Rule, ...] = _load_rules()
 
 
 def collect_missing_information(case: CaseIntake) -> list[str]:
