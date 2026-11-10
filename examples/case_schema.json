@@ -313,6 +313,10 @@
           "title": "Distribution Regions",
           "type": "array"
         },
+        "includes_training_use": {
+          "$ref": "#/$defs/YesNoUnknown",
+          "default": "no"
+        },
         "publication_channel": {
           "anyOf": [
             {
